@@ -44,6 +44,7 @@ Cstl_BasicType Cstl_BasicType_from_str(Cstl_str const value) {
     if (Cstl_str_eq(value, str("f64")))     return Cstl_BasicType_f64;
     if (Cstl_str_eq(value, str("usize")))   return Cstl_BasicType_usize;
     if (Cstl_str_eq(value, str("isize")))   return Cstl_BasicType_isize;
+    if (Cstl_str_eq(value, str("Addr")))    return Cstl_BasicType_Addr;
     if (Cstl_str_eq(value, str("char")))    return Cstl_BasicType_char;
     if (Cstl_str_eq(value, str("Vec")))     return Cstl_BasicType_Vec;
     if (Cstl_str_eq(value, str("Slice")))   return Cstl_BasicType_Slice;
@@ -56,6 +57,17 @@ Cstl_BasicType Cstl_BasicType_from_str(Cstl_str const value) {
 }
 
 
+
+void Cstl_Addr_fmt(
+    Cstl_String mut* const buf,
+    __attribute__((unused)) Cstl_str const fmt,
+    Addr const value_ptr
+) {
+    Bool const is_uppercase = 0 < fmt.len && 'u' == *(char const*) fmt.ptr;
+
+    Cstl_String_append(buf, str("0x"));
+    Cstl_usize_fmt(buf, is_uppercase ? str("u0h") : str("0h"), value_ptr);
+}
 
 void Cstl_char_fmt(
     Cstl_String mut* const buf, Cstl_str mut fmt, Addr const value_ptr
@@ -266,6 +278,7 @@ void Cstl_Slice_fmt(
     switch_case_numeric(u64);
     switch_case_numeric(isize);
     switch_case_numeric(usize);
+    switch_case_numeric(Addr);
     switch_case_numeric(f32);
     switch_case_numeric(f64);
     switch_case_numeric(char);
@@ -323,6 +336,7 @@ Cstl_FormatFn Cstl_FormatFn_from_basic_type(Cstl_BasicType const type) {
     case Cstl_BasicType_f64:    return Cstl_f64_fmt;
     case Cstl_BasicType_usize:  return Cstl_usize_fmt;
     case Cstl_BasicType_isize:  return Cstl_isize_fmt;
+    case Cstl_BasicType_Addr:   return Cstl_Addr_fmt;
     case Cstl_BasicType_char:   return Cstl_char_fmt;
     case Cstl_BasicType_Vec:    return Cstl_Vec_fmt;
     case Cstl_BasicType_Slice:  return Cstl_Slice_fmt;
@@ -433,6 +447,11 @@ void Cstl__internal_format_scope_impl(
     
     case Cstl_BasicType_isize: {
         isize const value = VariadicArgs_get(*args, isize);
+        format_fn(buf, fmt_args, &value);
+    } break;
+    
+    case Cstl_BasicType_Addr: {
+        Addr const value = VariadicArgs_get(*args, Addr);
         format_fn(buf, fmt_args, &value);
     } break;
 
