@@ -145,4 +145,110 @@ void Cstl_format_scope(
 
 
 
+#ifdef USING_NAMESPACE_CSTL
+
+    typedef Cstl_IntFmtFlags IntFmtFlags;
+
+    #define i64_fmt_impl(buf, value, radix, flags) \
+        Cstl_i64_fmt_impl(buf, value, radix, flags)
+
+    #define i8_fmt(buf, fmt, value_ptr) \
+        Cstl_i8_fmt(buf, fmt, value_ptr)
+
+    #define u8_fmt(buf, fmt, value_ptr) \
+        Cstl_u8_fmt(buf, fmt, value_ptr)
+    
+    #define i16_fmt(buf, fmt, value_ptr) \
+        Cstl_i16_fmt(buf, fmt, value_ptr)
+    
+    #define u16_fmt(buf, fmt, value_ptr) \
+        Cstl_u16_fmt(buf, fmt, value_ptr)
+    
+    #define i32_fmt(buf, fmt, value_ptr) \
+        Cstl_i32_fmt(buf, fmt, value_ptr)
+    
+    #define u32_fmt(buf, fmt, value_ptr) \
+        Cstl_u32_fmt(buf, fmt, value_ptr)
+    
+    #define i64_fmt(buf, fmt, value_ptr) \
+        Cstl_i64_fmt(buf, fmt, value_ptr)
+    
+    #define u64_fmt(buf, fmt, value_ptr) \
+        Cstl_u64_fmt(buf, fmt, value_ptr)
+    
+    #define isize_fmt(buf, fmt, value_ptr) \
+        Cstl_isize_fmt(buf, fmt, value_ptr)
+    
+    #define usize_fmt(buf, fmt, value_ptr) \
+        Cstl_usize_fmt(buf, fmt, value_ptr)
+    
+    #define f32_fmt(buf, fmt, value_ptr) \
+        Cstl_f32_fmt(buf, fmt, value_ptr)
+    
+    #define f64_fmt(buf, fmt, value_ptr) \
+        Cstl_f64_fmt(buf, fmt, value_ptr)
+    
+    #define Vec_fmt(buf, fmt, value_ptr) \
+        Cstl_Vec_fmt(buf, fmt, value_ptr)
+    
+    #define Slice_fmt(buf, fmt, value_ptr) \
+        Cstl_Slice_fmt(buf, fmt, value_ptr)
+    
+    #define String_fmt(buf, fmt, value_ptr) \
+        Cstl_String_fmt(buf, fmt, value_ptr)
+    
+    #define str_fmt(buf, fmt, value_ptr) \
+        Cstl_str_fmt(buf, fmt, value_ptr)
+
+
+
+    typedef Cstl_BasicType BasicType;
+
+    #define Cstl_BasicType_u8 BasicType_u8
+    #define Cstl_BasicType_i8 BasicType_i8
+    #define Cstl_BasicType_u16 BasicType_u16
+    #define Cstl_BasicType_i16 BasicType_i16
+    #define Cstl_BasicType_u32 BasicType_u32
+    #define Cstl_BasicType_i32 BasicType_i32
+    #define Cstl_BasicType_u64 BasicType_u64
+    #define Cstl_BasicType_i64 BasicType_i64
+    #define Cstl_BasicType_usize BasicType_usize
+    #define Cstl_BasicType_isize BasicType_isize
+    #define Cstl_BasicType_Vec BasicType_Vec
+    #define Cstl_BasicType_Slice BasicType_Slice
+    #define Cstl_BasicType_String BasicType_String
+    #define Cstl_BasicType_str BasicType_str
+    #define Cstl_BasicType_Invalid BasicType_Invalid
+
+    #define BasicType_from_str(value) \
+        Cstl_BasicType_from_str(value)
+
+
+
+    typedef Cstl_FormatFn FormatFn;
+
+    #define FormatFn_from_type_name(value) \
+        Cstl_FormatFn_from_type_name(value)
+
+    #define FormatFn_from_basic_type(value) \
+        Cstl_FormatFn_from_basic_type(value)
+
+
+
+    #define format_args(buf, fmt, args...) \
+        Cstl_format_args(buf, fmt, args)
+
+    #define format_args_impl(buf, fmt, args) \
+        Cstl_format_args_impl(buf, fmt, args)
+
+    #define format(fmt, args...) \
+        Cstl_format(fmt, args)
+
+    #define format_scope(buf, fmt, value_ptr, format_fn) \
+        Cstl_format_scope(buf, fmt, value_ptr, format_fn)
+
+#endif // USING_NAMESPACE_CSTL
+
+
+
 #endif // !_CSTL_FORMAT_H_

@@ -38,4 +38,35 @@
     Cstl_deny("unreachable branch had reached")
 
 
+
+#ifdef USING_NAMESPACE_CSTL
+
+    #define deny_fmt(fmt, args...) \
+        Cstl_deny_fmt(fmt, args)
+
+    #define deny(reason) \
+        Cstl_deny(reason)
+
+    #define assert_fmt(expr, fmt, args...) \
+        Cstl_assert_fmt(expr, fmt, args)
+
+    #define assert_msg(expr, msg) \
+        Cstl_assert_msg(expr, msg)
+
+    #define assert(expr) \
+        Cstl_assert(expr)
+
+    #define todo(plan) \
+        Cstl_todo(plan)
+
+    #define unreachable_msg(reason) \
+        Cstl_unreachable_msg(reason)
+
+    #define unreachable() \
+        Cstl_unreachable()
+
+#endif // USING_NAMESPACE_CSTL
+
+
+
 #endif // !_CSTL_ERROR_H

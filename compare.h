@@ -11,20 +11,20 @@ typedef enum {
     Cstl_Ordering_Greater = 1
 } Cstl_Ordering;
 
-typedef Cstl_Ordering (*Cstl_Comparator)(void const*, void const*);
+typedef Cstl_Ordering (*Cstl_Comparator)(Addr, Addr);
 
 Cstl_Ordering Cstl_Ordering_reverse(Cstl_Ordering self);
 
-Cstl_Ordering Cstl_u8_cmp(void const* lhs, void const* rhs);
-Cstl_Ordering Cstl_i8_cmp(void const* lhs, void const* rhs);
-Cstl_Ordering Cstl_u16_cmp(void const* lhs, void const* rhs);
-Cstl_Ordering Cstl_i16_cmp(void const* lhs, void const* rhs);
-Cstl_Ordering Cstl_u32_cmp(void const* lhs, void const* rhs);
-Cstl_Ordering Cstl_i32_cmp(void const* lhs, void const* rhs);
-Cstl_Ordering Cstl_u64_cmp(void const* lhs, void const* rhs);
-Cstl_Ordering Cstl_i64_cmp(void const* lhs, void const* rhs);
-Cstl_Ordering Cstl_usize_cmp(void const* lhs, void const* rhs);
-Cstl_Ordering Cstl_isize_cmp(void const* lhs, void const* rhs);
+Cstl_Ordering Cstl_u8_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_i8_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_u16_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_i16_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_u32_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_i32_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_u64_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_i64_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_usize_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_isize_cmp(Addr lhs, Addr rhs);
 
 u8 u8_max(u8 lhs, u8 rhs);
 i8 i8_max(i8 lhs, i8 rhs);
@@ -54,22 +54,44 @@ isize isize_min(isize lhs, isize rhs);
 
     typedef Cstl_Ordering Ordering;
 
-    #define Ordering_Less Cstl_Ordering_Less
-    #define Ordering_Equal Cstl_Ordering_Equal
-    #define Ordering_Greater Cstl_Ordering_Greater
+    #define Ordering_reverse(self) \
+        Cstl_Ordering_reverse(self)
 
-    Ordering Ordering_reverse(Ordering self);
 
-    Ordering u8_cmp(void const* lhs, void const* rhs);
-    Ordering i8_cmp(void const* lhs, void const* rhs);
-    Ordering u16_cmp(void const* lhs, void const* rhs);
-    Ordering i16_cmp(void const* lhs, void const* rhs);
-    Ordering u32_cmp(void const* lhs, void const* rhs);
-    Ordering i32_cmp(void const* lhs, void const* rhs);
-    Ordering u64_cmp(void const* lhs, void const* rhs);
-    Ordering i64_cmp(void const* lhs, void const* rhs);
-    Ordering usize_cmp(void const* lhs, void const* rhs);
-    Ordering isize_cmp(void const* lhs, void const* rhs);
+
+    typedef Cstl_Comparator Comparator;
+
+
+
+    #define u8_cmp(lhs, rhs) \
+        Cstl_u8_cmp(lhs, rhs)
+
+    #define i8_cmp(lhs, rhs) \
+        Cstl_i8_cmp(lhs, rhs)
+
+    #define u16_cmp(lhs, rhs) \
+        Cstl_u16_cmp(lhs, rhs)
+
+    #define i16_cmp(lhs, rhs) \
+        Cstl_i16_cmp(lhs, rhs)
+
+    #define u32_cmp(lhs, rhs) \
+        Cstl_u32_cmp(lhs, rhs)
+
+    #define i32_cmp(lhs, rhs) \
+        Cstl_i32_cmp(lhs, rhs)
+
+    #define u64_cmp(lhs, rhs) \
+        Cstl_u64_cmp(lhs, rhs)
+
+    #define i64_cmp(lhs, rhs) \
+        Cstl_i64_cmp(lhs, rhs)
+
+    #define usize_cmp(lhs, rhs) \
+        Cstl_usize_cmp(lhs, rhs)
+
+    #define isize_cmp(lhs, rhs) \
+        Cstl_isize_cmp(lhs, rhs)
 
 #endif
 
