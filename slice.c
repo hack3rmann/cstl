@@ -7,7 +7,7 @@
 #include "error.h"
 #include "util.h"
 
-#define elem_size_of(meta) Cstl_CollectionMetaData_elem_size(meta)
+#define elem_size_of(meta) Cstl_CollectionMeta_elem_size(meta)
 
 #define new_meta(elem_size) Cstl_SliceMetaFlags_new(elem_size)
 
@@ -37,7 +37,7 @@ Cstl_Slice Cstl_Slice_from_raw(
     return (Cstl_Slice) {
         .ptr = ptr,
         .len = len,
-        .meta = { new_meta(elem_size) }
+        .meta = new_meta(elem_size)
     };
 }
 

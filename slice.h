@@ -30,7 +30,7 @@ Cstl_SliceMetaFlags Cstl_SliceMetaFlags_new(usize elem_size);
 typedef struct {
     AddrMut ptr;
     usize len;
-    Cstl_CollectionMetaData meta;
+    Cstl_CollectionMeta meta;
 } Cstl_Slice;
 
 AddrMut Cstl_Slice_get_unchecked(Cstl_Slice const* self, usize index);

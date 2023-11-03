@@ -225,7 +225,9 @@ void Cstl_f32_fmt(
 }
 
 void Cstl_f64_fmt(
-    Cstl_String mut* const buf, Cstl_str const fmt, void const* value_ptr
+    __attribute__((unused)) Cstl_String mut* const buf,
+    __attribute__((unused)) Cstl_str const fmt,
+    __attribute__((unused)) void const* value_ptr
 ) {
     Cstl_todo("");
 }

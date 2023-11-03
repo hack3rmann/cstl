@@ -2,19 +2,14 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <stdio.h>
 
 #include "vec.h"
 #include "error.h"
 
-#define new_meta(elem_size) Cstl_VecMetaFlags_new(elem_size)
-
-#define elem_size_of(meta) Cstl_CollectionMetaData_elem_size(meta)
 
 
-
-Cstl_VecMetaFlags Cstl_VecMetaFlags_new(usize const elem_size) {
+Cstl_CollectionMeta Cstl_Vec_new_meta(usize const elem_size) {
     return elem_size;
 }
 
@@ -23,7 +18,7 @@ Cstl_Vec Cstl_Vec_new(usize const elem_size) {
         .cap = 0,
         .len = 0,
         .ptr = NULL,
-        .meta = { new_meta(elem_size) }
+        .meta = Vec_new_meta(elem_size)
     };
 }
 
@@ -32,7 +27,7 @@ Cstl_Vec Cstl_Vec_with_capacity(usize const cap, usize const elem_size) {
         .cap = cap,
         .len = 0,
         .ptr = malloc(elem_size * cap),
-        .meta = { new_meta(elem_size) }
+        .meta = Vec_new_meta(elem_size)
     };
 }
 
@@ -108,15 +103,15 @@ usize Cstl__internal_Vec_next_capacity(
     return 3 * cur_cap / 2;
 }
 
-void Cstl_Vec_push(Cstl_Vec* const self, void const* const elem_ptr) {
+void Cstl_Vec_push(Cstl_Vec* const self, Addr const elem_ptr) {
     void mut* const in_place_elem_ptr = Cstl_Vec_push_in_place(self);
     memcpy(in_place_elem_ptr, elem_ptr, elem_size_of(self->meta));
 }
 
-void* Cstl_Vec_pop(Cstl_Vec* const self) {
+AddrMut Cstl_Vec_pop(Cstl_Vec* const self) {
     Cstl_assert(0 < self->len);
 
-    return (u8*) self->ptr + elem_size_of(self->meta) * (--self->len);
+    return (u8 mut*)  self->ptr + elem_size_of(self->meta) * (--self->len);
 }
 
 void Cstl_Vec_reserve_exact(
@@ -153,41 +148,42 @@ void Cstl_Vec_shrink_to_fit(Cstl_Vec* const self) {
     Cstl_Vec_shrink_to(self, self->len);
 }
 
-void* Cstl_Vec_get(Cstl_Vec const* const self, usize const index) {
+AddrMut Cstl_Vec_get(Cstl_Vec const* const self, usize const index) {
     Cstl_assert(index < self->len);
 
-    return (u8*)self->ptr + elem_size_of(self->meta) * index;
+    return (u8 mut*) self->ptr + elem_size_of(self->meta) * index;
 }
 
 void Cstl_Vec_set(
-    Cstl_Vec const* const self, usize const index, const void* const value_ptr
+    Cstl_Vec const* const self, usize const index, Addr const value_ptr
 ) {
     Cstl_assert(index < self->len);
 
     memcpy(
-        (u8*)self->ptr + elem_size_of(self->meta) * index,
+        (u8 mut*) self->ptr + elem_size_of(self->meta) * index,
         value_ptr,
         elem_size_of(self->meta)
     );
 }
 
-void Cstl_Vec_fill(Cstl_Vec const* const self, const void* const value_ptr) {
-    bool const is_out_of_bounds
+void Cstl_Vec_fill(Cstl_Vec const* const self, Addr const value_ptr) {
+    Bool const is_out_of_bounds
         = value_ptr < self->ptr
-        && (u8*)self->ptr + elem_size_of(self->meta) * self->len
-            <= (u8*)value_ptr;
+        && (u8 mut*) self->ptr + elem_size_of(self->meta) * self->len
+            <= (u8 mut*) value_ptr;
 
     if (is_out_of_bounds) {
         for (usize mut i = 0; i < self->len; ++i) {
             memcpy(
-                (u8*)self->ptr + elem_size_of(self->meta) * i,
+                (u8 mut*) self->ptr + elem_size_of(self->meta) * i,
                 value_ptr,
                 elem_size_of(self->meta)
             );
         }
     } else {
         for (usize mut i = 0; i < self->len; ++i) {
-            void* const cur_ptr = (u8*)self->ptr + elem_size_of(self->meta) * i;
+            AddrMut const cur_ptr
+                = (u8 mut*) self->ptr + elem_size_of(self->meta) * i;
 
             if (cur_ptr != value_ptr) {
                 memcpy(cur_ptr, value_ptr, elem_size_of(self->meta));
@@ -204,7 +200,7 @@ Cstl_Slice Cstl_Vec_as_slice(Cstl_Vec const* const self) {
     };
 }
 
-void* Cstl_Vec_push_in_place(Cstl_Vec mut* const self) {
+AddrMut Cstl_Vec_push_in_place(Cstl_Vec mut* const self) {
     if (self->len == self->cap) {
         usize const new_cap = Cstl__internal_Vec_next_capacity(
             self->cap,
@@ -214,10 +210,10 @@ void* Cstl_Vec_push_in_place(Cstl_Vec mut* const self) {
         Cstl__internal_Vec_alloc(self, new_cap);
     }
 
-    return (u8*)self->ptr + elem_size_of(self->meta) * (self->len++);
+    return (u8 mut*) self->ptr + elem_size_of(self->meta) * (self->len++);
 }
 
-void* Cstl_Vec_extract(
+AddrMut Cstl_Vec_extract(
     Cstl_Vec mut* const self,
     Cstl_Ordering const extremum_type,
     Cstl_Comparator const cmp
@@ -244,7 +240,7 @@ void* Cstl_Vec_extract(
         Cstl_deny_fmt("invalid extremum_type value %u", (u32) extremum_type);
     }
 
-    Cstl_assert(false);
+    Cstl_assert(False);
 
     return Cstl_Vec_pop(self);
 }
@@ -264,80 +260,4 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
         .len = (start <= end) * (end - start),
         .meta = self->meta
     };
-}
-
-
-
-Vec Vec_new(usize const elem_size) {
-    return Cstl_Vec_new(elem_size);
-}
-
-Vec Vec_with_capacity(usize const cap, usize const elem_size) {
-    return Cstl_Vec_with_capacity(cap, elem_size);
-}
-
-Vec Vec_from_slice(Slice const src) {
-    return Cstl_Vec_from_slice(src);
-}
-
-Vec Vec_clone(const Vec *const self) {
-    return Cstl_Vec_clone(self);
-}
-
-void Vec_clone_from(Vec* const self, Vec const* const src) {
-    Cstl_Vec_clone_from(self, src);
-}
-
-void Vec_free(Vec const* const self) {
-    Cstl_Vec_free(self);
-}
-
-void Vec_push(Cstl_Vec* const self, void const* const value_ptr) {
-    Cstl_Vec_push(self, value_ptr);
-}
-
-void* Vec_pop(Vec* const self) {
-    return Cstl_Vec_pop(self);
-}
-
-void Vec_reserve_exact(Vec* const self, usize const additional_cap) {
-    Cstl_Vec_reserve_exact(self, additional_cap);
-}
-
-void Vec_reserve(Vec* const self, usize const additional_cap) {
-    Cstl_Vec_reserve(self, additional_cap);
-}
-
-void Vec_clear(Vec* const self) {
-    Cstl_Vec_clear(self);
-}
-
-void Vec_shrink_to(Vec* const self, usize const min_cap) {
-    Cstl_Vec_shrink_to(self, min_cap);
-}
-
-void Vec_shrink_to_fit(Vec* const self) {
-    Cstl_Vec_shrink_to_fit(self);
-}
-
-void* Vec_get(Vec const* const self, usize const index) {
-    return Cstl_Vec_get(self, index);
-}
-
-void Vec_set(
-    Vec const* const self, usize const index, const void* const value_ptr
-) {
-    Cstl_Vec_set(self, index, value_ptr);
-}
-
-void Vec_fill(Vec const* const self, const void* const value_ptr) {
-    Cstl_Vec_fill(self, value_ptr);
-}
-
-Slice Vec_as_slice(Vec const* const self) {
-    return Cstl_Vec_as_slice(self);
-}
-
-void* Vec_push_in_place(Vec* const self) {
-    return Cstl_Vec_push_in_place(self);
 }

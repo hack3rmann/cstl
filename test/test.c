@@ -15,7 +15,13 @@ i32 main(void) {
     str const string = str("String example");
     Slice const slice = Slice_from_elems(i32, 1, 2, 3, 4, 5, 6);
 
-    println("{str}! {Slice:(*, *):i32:0b}", string, slice);
+    println("{str}! {Slice::i32}", string, slice);
+
+    String const heap_string = String("Hello, World!");
+
+    println("{String}", &heap_string);
+
+    Cstl_String_free(&heap_string);
 
     return EXIT_SUCCESS;
 }

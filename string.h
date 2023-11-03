@@ -5,6 +5,8 @@
 #include "slice.h"
 #include "util.h"
 
+
+
 #define Cstl_String_from_literal(lit) \
     Cstl_String_from_utf8_unchecked((u8*) lit, sizeof(lit) - 1)
 
@@ -15,24 +17,24 @@
 
 enum {
     /// `0b10xxxxxx`
-    Cstl_String_utf8_tail_byte_entry = (u8) 128,
-    Cstl_String_utf8_tail_byte_mask = (u8) 63,
+    Cstl_String_UTF8_TAIL_BYTE_ENTRY = (u8) 128,
+    Cstl_String_UTF8_TAIL_BYTE_MASK = (u8) 63,
 
     /// `0b0xxxxxxx`
-    Cstl_String_utf8_1_byte_entry = (u8) 0,
-    Cstl_String_utf8_1_byte_mask = (u8) 127,
+    Cstl_String_UTF8_1_BYTE_ENTRY = (u8) 0,
+    Cstl_String_UTF8_1_BYTE_MASK = (u8) 127,
 
     /// `110xxxxx`
-    Cstl_String_utf8_2_byte_entry = (u8) (128 + 64 + 0),
-    Cstl_String_utf8_2_byte_mask = (u8) 31,
+    Cstl_String_UTF8_2_BYTE_ENTRY = (u8) (128 + 64 + 0),
+    Cstl_String_UTF8_2_BYTE_MASK = (u8) 31,
 
     /// `1110xxxx`
-    Cstl_String_utf8_3_byte_entry = (u8) (128 + 64 + 32 + 0),
-    Cstl_String_utf8_3_byte_mask = (u8) 15,
+    Cstl_String_UTF8_3_BYTE_ENTRY = (u8) (128 + 64 + 32 + 0),
+    Cstl_String_UTF8_3_BYTE_MASK = (u8) 15,
 
     /// `11110xxx`
-    Cstl_String_utf8_4_byte_entry = (u8) (128 + 64 + 32 + 16 + 0),
-    Cstl_String_utf8_4_byte_mask = (u8) 7
+    Cstl_String_UTF8_4_BYTE_ENTRY = (u8) (128 + 64 + 32 + 16 + 0),
+    Cstl_String_UTF8_4_BYTE_MASK = (u8) 7
 };
 
 
@@ -77,7 +79,7 @@ void Cstl_set_utf8_output_encoding(void);
 
 
 typedef struct {
-    u8* ptr;
+    u8 mut* ptr;
     usize len;
 } Cstl_str;
 
@@ -154,7 +156,7 @@ Bool Cstl_Chars_is_expired(Cstl_Char const* ret);
 
 
 typedef struct {
-    u8* ptr;
+    u8 mut* ptr;
     usize len;
     usize cap;
 } Cstl_String;
@@ -177,7 +179,7 @@ Cstl_String Cstl_String_from_utf8_unchecked(u8 mut* bytes, usize n_bytes);
 
 Cstl_String Cstl_String_from_utf8(u8 mut* bytes, usize n_bytes);
 
-void Cstl_String_free(Cstl_String mut* self);
+void Cstl_String_free(Cstl_String const* self);
 
 void Cstl__internal_String_alloc(Cstl_String mut* self, usize cap);
 
@@ -229,11 +231,186 @@ Cstl_String Cstl_String_concat(usize n_strings, ...);
     #define String(lit) \
         String_from_literal(lit)
 
-    typedef Cstl_String String;
+
+
+    typedef Cstl_Char Char;
+
+    #define Char_encode_utf8(self) \
+        Cstl_Char_encode_utf8(self)
+    
+    #define Char_from_code(code) \
+        Cstl_Char_from_code(code)
+
+
+
     typedef Cstl_str str;
 
+    #define str_DEFAULT \
+        Cstl_str_DEFAULT
+
+    #define str_from_utf8_unchecked(ptr, len) \
+        Cstl_str_from_utf8_unchecked(ptr, len)
+
+    #define str_eq(self, value) \
+        Cstl_str_eq(self, value)
+
+    #define str_split_one(self, delim) \
+        Cstl_str_split_one(self, delim)
+
+    #define str_print(self) \
+        Cstl_str_print(self)
+
+    #define str_debug(self) \
+        Cstl_str_debug(self)
+
+
+
+    typedef Cstl_Split Split;
+
+    #define str_split(self, delim) \
+        Cstl_str_split(self, delim)
+
+    #define Split_next(self) \
+        Cstl_Split_next(self)
+
+    #define Split_is_expired(ret) \
+        Cstl_Split_is_expired(ret)
+
+
+
+    typedef Cstl_SplitAny SplitAny;
+
+    #define str_split_any(self, delims) \
+        Cstl_str_split_any(self, delims)
+
+    #define Split_next(self) \
+        Cstl_Split_next(self)
+
+    #define Split_is_expired(ret) \
+        Cstl_Split_is_expired(ret)
+
+
+
+    typedef Cstl_SplitWhitespace SplitWhitespace;
+
+    #define str_split_whitespace(self) \
+        Cstl_str_split_whitespace(self)
+
+    #define SplitWhitespace_next(self) \
+        Cstl_SplitWhitespace_next(self)
+
+    #define SplitWhitespace_is_expired(ret) \
+        Cstl_Cstl_SplitWhitespace_is_expired(ret)
+
+
+
+    #define char_is_ascii_letter(self) \
+        Cstl_char_is_ascii_letter(self)
+
+    #define char_is_numeric_letter(self) \
+        Cstl_char_is_numeric_letter(self)
+
+    #define char_is_whitespace(self) \
+        Cstl_char_is_whitespace(self)
+
+
+
+    typedef Cstl_Chars Chars;
+
+    #define str_chars(self) \
+        Cstl_str_chars(self)
+
+    #define Chars_next(self) \
+        Cstl_Chars_next(self)
+
+    #define Chars_is_expired(ret) \
+        Cstl_Chars_is_expired(ret)
+
+
+
+    typedef Cstl_String String;
+
+    #define String_DEFAULT \
+        Cstl_String_DEFAULT
+
+    #define String_with_capacity(cap) \
+        Cstl_String_with_capacity(cap)
+
+    #define String_new() \
+        Cstl_String_new()
+
+    #define String_from_str(value) \
+        Cstl_String_from_str(value)
+
+    #define String_clone(self) \
+        Cstl_String_clone(self)
+
+    #define String_clone_from(self, src) \
+        Cstl_String_clone_from(self, src)
+
+    #define String_from_raw_c_string(str, len) \
+        Cstl_String_from_raw_c_string(str, len)
+
+    #define String_from_utf8_unchecked(bytes, n_bytes) \
+        Cstl_String_from_utf8_unchecked(bytes, n_bytes)
+
+    #define String_from_utf8(bytes, n_bytes) \
+        Cstl_String_from_utf8(bytes, n_bytes)
+    
+    #define String_free(self) \
+        Cstl_String_free(self)
+
+    #define _internal_String_alloc(self, cap) \
+        Cstl__internal_String_alloc(self, cap)
+
+    #define _internal_String_next_capacity(cur_cap) \
+        Cstl__internal_String_next_capacity(cur_cap)
+
+    #define String_push(self, symbol) \
+        Cstl_String_push(self, symbol)
+
+    #define String_push_ascii(self, symbol) \
+        Cstl_String_push_ascii(self, symbol)
+
+    #define String_push_byte(self, byte) \
+        Cstl_String_push_bytes(self, byte)
+
+    #define String_pop(self) \
+        Cstl_String_pop(self)
+    
+    #define String_shrink_to(self, cap) \
+        Cstl_String_shrink_to(self, cap)
+
+    #define String_shrink_to_fit(self) \
+        Cstl_String_shrink_to_fit(self)
+
+    #define String_append(self, src) \
+        Cstl_String_append(self, src)
+
+    #define String_append_bytes(self, bytes) \
+        Cstl_String_append_bytes(self, bytes)
+
+    #define String_reserve_exact(self, additional_cap) \
+        Cstl_String_reserve_exact(self, additional_cap)
+
+    #define String_reserve(self, additional_cap) \
+        Cstl_String_reserve(self, additional_cap)
+
+    #define String_as_str(self) \
+        Cstl_String_as_str(self)
+
+    #define String_chars(self) \
+        Cstl_String_chars(self)
+
+    #define String_eq(self, value) \
+        Cstl_String_eq(self, value)
+
+    #define String_ne(self, value) \
+        Cstl_String_ne(self, value)
+
+    #define String_concat(n_strings, args...) \
+        Cstl_String_concat(n_string, args)
+
 #endif // USING_NAMESPACE_CSTL
-
-
 
 #endif // !_CSTL_STRING_H_
