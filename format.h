@@ -98,6 +98,7 @@ Cstl_declare_fmt_Type_fn(String);
 Cstl_declare_fmt_Type_fn(str);
 
 
+
 typedef enum {
     Cstl_BasicType_u8,
     Cstl_BasicType_i8,
@@ -117,6 +118,7 @@ typedef enum {
     Cstl_BasicType_Slice,
     Cstl_BasicType_String,
     Cstl_BasicType_str,
+    Cstl_BasicType_Generic,
     Cstl_BasicType_Invalid
 } Cstl_BasicType;
 
@@ -166,6 +168,8 @@ void Cstl_format_scope(
     #define u64_fmt Cstl_u64_fmt
     #define isize_fmt Cstl_isize_fmt
     #define usize_fmt Cstl_usize_fmt
+    #define Addr_fmt Cstl_Addr_fmt
+    #define char_fmt Cstl_char_fmt
     #define f32_fmt Cstl_f32_fmt
     #define f64_fmt Cstl_f64_fmt
     #define Vec_fmt Cstl_Vec_fmt
@@ -193,6 +197,7 @@ void Cstl_format_scope(
     #define BasicType_Slice     Cstl_BasicType_Slice
     #define BasicType_String    Cstl_BasicType_String
     #define BasicType_str       Cstl_BasicType_str
+    #define BasicType_Generic   Cstl_BasicType_Generic
     #define BasicType_Invalid   Cstl_BasicType_Invalid
 
     #define BasicType_from_str(value) \

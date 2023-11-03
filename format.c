@@ -32,26 +32,25 @@ Cstl_impl_fmt_integer_Type_fn(isize);
 
 
 Cstl_BasicType Cstl_BasicType_from_str(Cstl_str const value) {
-    if (Cstl_str_eq(value, str("u8")))      return Cstl_BasicType_u8;
-    if (Cstl_str_eq(value, str("i8")))      return Cstl_BasicType_i8;
-    if (Cstl_str_eq(value, str("u16")))     return Cstl_BasicType_u16;
-    if (Cstl_str_eq(value, str("i16")))     return Cstl_BasicType_i16;
-    if (Cstl_str_eq(value, str("u32")))     return Cstl_BasicType_u32;
-    if (Cstl_str_eq(value, str("i32")))     return Cstl_BasicType_i32;
-    if (Cstl_str_eq(value, str("u64")))     return Cstl_BasicType_u64;
-    if (Cstl_str_eq(value, str("i64")))     return Cstl_BasicType_i64;
-    if (Cstl_str_eq(value, str("f32")))     return Cstl_BasicType_f32;
-    if (Cstl_str_eq(value, str("f64")))     return Cstl_BasicType_f64;
-    if (Cstl_str_eq(value, str("usize")))   return Cstl_BasicType_usize;
-    if (Cstl_str_eq(value, str("isize")))   return Cstl_BasicType_isize;
-    if (Cstl_str_eq(value, str("Addr")))    return Cstl_BasicType_Addr;
-    if (Cstl_str_eq(value, str("char")))    return Cstl_BasicType_char;
-    if (Cstl_str_eq(value, str("Vec")))     return Cstl_BasicType_Vec;
-    if (Cstl_str_eq(value, str("Slice")))   return Cstl_BasicType_Slice;
-    if (Cstl_str_eq(value, str("String")))  return Cstl_BasicType_String;
-    if (Cstl_str_eq(value, str("str")))     return Cstl_BasicType_str;
-
-    // Cstl_todo("typed Vec and Slice format functions");
+    if (str_eq(value, str("str")))      return Cstl_BasicType_str;
+    if (str_eq(value, str("String")))   return Cstl_BasicType_String;
+    if (str_eq(value, str("i32")))      return Cstl_BasicType_i32;
+    if (str_eq(value, str("u32")))      return Cstl_BasicType_u32;
+    if (str_eq(value, str("usize")))    return Cstl_BasicType_usize;
+    if (str_eq(value, str("u8")))       return Cstl_BasicType_u8;
+    if (str_eq(value, str("Vec")))      return Cstl_BasicType_Vec;
+    if (str_eq(value, str("Slice")))    return Cstl_BasicType_Slice;
+    if (str_eq(value, str("i8")))       return Cstl_BasicType_i8;
+    if (str_eq(value, str("u16")))      return Cstl_BasicType_u16;
+    if (str_eq(value, str("i16")))      return Cstl_BasicType_i16;
+    if (str_eq(value, str("u64")))      return Cstl_BasicType_u64;
+    if (str_eq(value, str("i64")))      return Cstl_BasicType_i64;
+    if (str_eq(value, str("f32")))      return Cstl_BasicType_f32;
+    if (str_eq(value, str("f64")))      return Cstl_BasicType_f64;
+    if (str_eq(value, str("isize")))    return Cstl_BasicType_isize;
+    if (str_eq(value, str("Addr")))     return Cstl_BasicType_Addr;
+    if (str_eq(value, str("char")))     return Cstl_BasicType_char;
+    if (str_eq(value, str("*")))        return Cstl_BasicType_Generic;
 
     Cstl_deny_fmt("invalid `type_name` = '{str}'", value);
 }
@@ -60,7 +59,7 @@ Cstl_BasicType Cstl_BasicType_from_str(Cstl_str const value) {
 
 void Cstl_Addr_fmt(
     Cstl_String mut* const buf,
-    __attribute__((unused)) Cstl_str const fmt,
+    Cstl_str const fmt,
     Addr const value_ptr
 ) {
     Bool const is_uppercase = 0 < fmt.len && 'u' == *(char const*) fmt.ptr;
@@ -207,7 +206,7 @@ void Cstl_f64_fmt(
     __attribute__((unused)) void const* value_ptr
 ) {
     // fmt = '(s)(u|l)(0b|0o|0h|0xP)((+|-)(.|,)(N))'
-
+    Cstl_todo("");
 }
 
 void Cstl_Vec_fmt(
@@ -343,6 +342,7 @@ Cstl_FormatFn Cstl_FormatFn_from_basic_type(Cstl_BasicType const type) {
     case Cstl_BasicType_String: return Cstl_String_fmt;
     case Cstl_BasicType_str:    return Cstl_str_fmt;
 
+    case Cstl_BasicType_Generic:
     case Cstl_BasicType_Invalid:
         // fallthrough
     default:
@@ -385,7 +385,7 @@ void Cstl__internal_format_scope_impl(
     Cstl_BasicType const type = Cstl_BasicType_from_str(type_name);
 
     Cstl_FormatFn const format_fn
-        = Cstl_str_eq(type_name, str("*"))
+        = Cstl_BasicType_Generic == type
         ? VariadicArgs_get(*args, Cstl_FormatFn)
         : Cstl_FormatFn_from_basic_type(type);
 
@@ -482,6 +482,11 @@ void Cstl__internal_format_scope_impl(
         format_fn(buf, fmt_args, &value);
     } break;
 
+    case Cstl_BasicType_Generic: {
+        Addr const value_ptr = VariadicArgs_get(*args, Addr);
+        format_fn(buf, fmt_args, value_ptr);
+    } break;
+
     case Cstl_BasicType_Invalid:
         // fallthrough
     default:
@@ -499,7 +504,7 @@ void Cstl_format_args_impl(
 
             if ('{' == fmt[1]) {
                 Cstl_String_push_ascii(buf, '{');
-                fmt += 1;
+                fmt += 2;
             } else {
                 char const* scope_end_ptr = fmt;
 
@@ -523,28 +528,28 @@ void Cstl_format_args_impl(
             );
 
             Cstl_String_push_ascii(buf, '}');
-            fmt += 1;
+            fmt += 2;
         } break;
 
         default: {
-            u8 const leader_byte = *(u8*) fmt;
+            u8 const leader_byte = *(u8 const*) fmt;
 
-            Cstl_Utf8ByteClassification const class
-                = Cstl_Utf8ByteClassification_of(leader_byte);
+            Cstl_Utf8ByteType const class
+                = Cstl_Utf8ByteType_of(leader_byte);
 
             usize const n_bytes = class + 1;
 
             switch (class) {
-            case Cstl_Utf8ByteClassification_SingleByte:
-            case Cstl_Utf8ByteClassification_PairByteEntry:
-            case Cstl_Utf8ByteClassification_TripleByteEntry:
+            case Cstl_Utf8ByteType_SingleByte:
+            case Cstl_Utf8ByteType_PairByteEntry:
+            case Cstl_Utf8ByteType_TripleByteEntry:
                 // fallthrough
-            case Cstl_Utf8ByteClassification_QuadByteEntry: {
+            case Cstl_Utf8ByteType_QuadByteEntry: {
                 // empty
             } break;
 
-            case Cstl_Utf8ByteClassification_TailByte:
-            case Cstl_Utf8ByteClassification_InvalidByte:
+            case Cstl_Utf8ByteType_TailByte:
+            case Cstl_Utf8ByteType_InvalidByte:
                 // fallthrough
             default: {
                 Cstl_unreachable_msg("invalid string");
@@ -553,7 +558,7 @@ void Cstl_format_args_impl(
 
             Cstl_String_append_bytes(
                 buf,
-                (Cstl_Slice_u8) { .ptr = (u8*) fmt, .len = n_bytes }
+                (Cstl_Slice_u8) { .ptr = (u8 mut*) fmt, .len = n_bytes }
             );
 
             fmt += n_bytes;

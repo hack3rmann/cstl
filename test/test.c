@@ -5,13 +5,12 @@
 
 #include "../prelude.h"
 #include "../iterator.h"
+#include "../format.h"
 
 
 
 i32 main(void) {
     Cstl_init();
-
-    println("{Addr} = {Addr}", "Hello, World!", "Hello, World!");
 
     return EXIT_SUCCESS;
 }

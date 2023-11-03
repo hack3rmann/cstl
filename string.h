@@ -40,29 +40,29 @@ enum {
 
 
 typedef enum {
-    Cstl_Utf8ByteClassification_SingleByte,
-    Cstl_Utf8ByteClassification_PairByteEntry,
-    Cstl_Utf8ByteClassification_TripleByteEntry,
-    Cstl_Utf8ByteClassification_QuadByteEntry,
-    Cstl_Utf8ByteClassification_TailByte,
-    Cstl_Utf8ByteClassification_InvalidByte
-} Cstl_Utf8ByteClassification;
+    Cstl_Utf8ByteType_SingleByte,
+    Cstl_Utf8ByteType_PairByteEntry,
+    Cstl_Utf8ByteType_TripleByteEntry,
+    Cstl_Utf8ByteType_QuadByteEntry,
+    Cstl_Utf8ByteType_TailByte,
+    Cstl_Utf8ByteType_InvalidByte
+} Cstl_Utf8ByteType;
 
-Cstl_Utf8ByteClassification Cstl_Utf8ByteClassification_of(u8 byte);
+Cstl_Utf8ByteType Cstl_Utf8ByteType_of(u8 byte);
 
-Bool Cstl_Utf8ByteClassification_is_single_byte(u8 byte);
+Bool Cstl_Utf8ByteType_is_single_byte(u8 byte);
 
-Bool Cstl_Utf8ByteClassification_is_pair_byte_entry(u8 byte);
+Bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 byte);
 
-Bool Cstl_Utf8ByteClassification_is_triple_byte_entry(u8 byte);
+Bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 byte);
 
-Bool Cstl_Utf8ByteClassification_is_quad_byte_entry(u8 byte);
+Bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 byte);
 
-Bool Cstl_Utf8ByteClassification_is_tail_byte(u8 byte);
+Bool Cstl_Utf8ByteType_is_tail_byte(u8 byte);
 
-Bool Cstl_Utf8ByteClassification_is_invalid_byte(u8 byte);
+Bool Cstl_Utf8ByteType_is_invalid_byte(u8 byte);
 
-usize Cstl_Utf8ByteClassification_size(Cstl_Utf8ByteClassification self);
+usize Cstl_Utf8ByteType_size(Cstl_Utf8ByteType self);
 
 
 

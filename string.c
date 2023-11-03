@@ -21,80 +21,80 @@ Cstl_String const Cstl_String_DEFAULT = (Cstl_String) {
     .cap = 0
 };
 
-Bool Cstl_Utf8ByteClassification_is_single_byte(u8 const byte) {
+Bool Cstl_Utf8ByteType_is_single_byte(u8 const byte) {
     return Cstl_String_UTF8_1_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_1_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_pair_byte_entry(u8 const byte) {
+Bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 const byte) {
     return Cstl_String_UTF8_2_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_2_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_triple_byte_entry(u8 const byte) {
+Bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 const byte) {
     return Cstl_String_UTF8_3_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_3_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_quad_byte_entry(u8 const byte) {
+Bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 const byte) {
     return Cstl_String_UTF8_4_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_4_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_tail_byte(u8 const byte) {
+Bool Cstl_Utf8ByteType_is_tail_byte(u8 const byte) {
     return Cstl_String_UTF8_TAIL_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_TAIL_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_invalid_byte(u8 const byte) {
-    return !Cstl_Utf8ByteClassification_is_single_byte(byte)
-        && !Cstl_Utf8ByteClassification_is_pair_byte_entry(byte)
-        && !Cstl_Utf8ByteClassification_is_triple_byte_entry(byte)
-        && !Cstl_Utf8ByteClassification_is_quad_byte_entry(byte)
-        && !Cstl_Utf8ByteClassification_is_tail_byte(byte);
+Bool Cstl_Utf8ByteType_is_invalid_byte(u8 const byte) {
+    return !Cstl_Utf8ByteType_is_single_byte(byte)
+        && !Cstl_Utf8ByteType_is_pair_byte_entry(byte)
+        && !Cstl_Utf8ByteType_is_triple_byte_entry(byte)
+        && !Cstl_Utf8ByteType_is_quad_byte_entry(byte)
+        && !Cstl_Utf8ByteType_is_tail_byte(byte);
 }
 
-Cstl_Utf8ByteClassification Cstl_Utf8ByteClassification_of(u8 const byte) {
-    if (Cstl_Utf8ByteClassification_is_single_byte(byte)) {
-        return Cstl_Utf8ByteClassification_SingleByte;
+Cstl_Utf8ByteType Cstl_Utf8ByteType_of(u8 const byte) {
+    if (Cstl_Utf8ByteType_is_single_byte(byte)) {
+        return Cstl_Utf8ByteType_SingleByte;
     }
 
-    if (Cstl_Utf8ByteClassification_is_pair_byte_entry(byte)) {
-        return Cstl_Utf8ByteClassification_PairByteEntry;
+    if (Cstl_Utf8ByteType_is_pair_byte_entry(byte)) {
+        return Cstl_Utf8ByteType_PairByteEntry;
     }
 
-    if (Cstl_Utf8ByteClassification_is_tail_byte(byte)) {
-        return Cstl_Utf8ByteClassification_TailByte;
+    if (Cstl_Utf8ByteType_is_tail_byte(byte)) {
+        return Cstl_Utf8ByteType_TailByte;
     }
 
-    if (Cstl_Utf8ByteClassification_is_triple_byte_entry(byte)) {
-        return Cstl_Utf8ByteClassification_TripleByteEntry;
+    if (Cstl_Utf8ByteType_is_triple_byte_entry(byte)) {
+        return Cstl_Utf8ByteType_TripleByteEntry;
     }
     
-    if (Cstl_Utf8ByteClassification_is_quad_byte_entry(byte)) {
-        return Cstl_Utf8ByteClassification_QuadByteEntry;
+    if (Cstl_Utf8ByteType_is_quad_byte_entry(byte)) {
+        return Cstl_Utf8ByteType_QuadByteEntry;
     }
 
-    return Cstl_Utf8ByteClassification_InvalidByte;
+    return Cstl_Utf8ByteType_InvalidByte;
 }
 
-usize Cstl_Utf8ByteClassification_size(Cstl_Utf8ByteClassification const self) {
+usize Cstl_Utf8ByteType_size(Cstl_Utf8ByteType const self) {
     switch (self) {
-    case Cstl_Utf8ByteClassification_SingleByte:
+    case Cstl_Utf8ByteType_SingleByte:
         return 1;
-    case Cstl_Utf8ByteClassification_PairByteEntry:
+    case Cstl_Utf8ByteType_PairByteEntry:
         return 2;
-    case Cstl_Utf8ByteClassification_TripleByteEntry:
+    case Cstl_Utf8ByteType_TripleByteEntry:
         return 3;
-    case Cstl_Utf8ByteClassification_QuadByteEntry:
+    case Cstl_Utf8ByteType_QuadByteEntry:
         return 4;
 
-    case Cstl_Utf8ByteClassification_TailByte:
-    case Cstl_Utf8ByteClassification_InvalidByte:
+    case Cstl_Utf8ByteType_TailByte:
+    case Cstl_Utf8ByteType_InvalidByte:
         // fallthrough
     default:
         Cstl_deny_fmt(
-            "invalid enum Cstl_Utf8ByteClassification value {u32}", (u32) self
+            "invalid enum Cstl_Utf8ByteType value {u32}", (u32) self
         );
     }
 }
@@ -156,24 +156,24 @@ u32 Cstl_Char_encode_utf8(Cstl_Char const self) {
 }
 
 Cstl_Char Cstl_Char_from_code(u32 const code) {
-    switch (Cstl_Utf8ByteClassification_of((u8) (code >> 24))) {
-    case Cstl_Utf8ByteClassification_SingleByte:
+    switch (Cstl_Utf8ByteType_of((u8) (code >> 24))) {
+    case Cstl_Utf8ByteType_SingleByte:
         return code >> 24;
 
-    case Cstl_Utf8ByteClassification_PairByteEntry:
+    case Cstl_Utf8ByteType_PairByteEntry:
         return (0x7C0 & (code >> 18)) | (0x3F & (code >> 16));
 
-    case Cstl_Utf8ByteClassification_TripleByteEntry:
+    case Cstl_Utf8ByteType_TripleByteEntry:
         return (0xF000 & (code >> 12))
                 | (0xFC0 & (code >> 10)) | (0x3F & (code >> 8));
 
-    case Cstl_Utf8ByteClassification_QuadByteEntry:
+    case Cstl_Utf8ByteType_QuadByteEntry:
         return (0x1C0000 & (code >> 6)) | (0x3F000 & (code >> 4))
                 | (0xFC0 & (code >> 2)) | (0x3F & (code >> 0));
 
-    case Cstl_Utf8ByteClassification_TailByte:
+    case Cstl_Utf8ByteType_TailByte:
         // fallthrough
-    case Cstl_Utf8ByteClassification_InvalidByte:
+    case Cstl_Utf8ByteType_InvalidByte:
         Cstl_deny_fmt("invalid utf-8 code format {u32}", code);
     }
 
@@ -301,13 +301,13 @@ void Cstl_String_push_byte(Cstl_String mut* const self, u8 const value) {
 Cstl_Char Cstl_String_pop(Cstl_String mut* const self) {
     Cstl_assert(0 != self->len);
 
-    if (Cstl_Utf8ByteClassification_is_single_byte(self->ptr[self->len - 1])) {
+    if (Cstl_Utf8ByteType_is_single_byte(self->ptr[self->len - 1])) {
         return Cstl_Char_from_code(self->ptr[--self->len]);
     }
     
     usize mut n_tail_bytes = 1;
 
-    while (Cstl_Utf8ByteClassification_is_tail_byte(
+    while (Cstl_Utf8ByteType_is_tail_byte(
         self->ptr[self->len - n_tail_bytes - 1]
     )) {
         n_tail_bytes += 1;
@@ -402,16 +402,16 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
     for (usize mut i = 0; i < n_bytes; ) {
         u8 const leader_byte = bytes[i];
 
-        Cstl_Utf8ByteClassification const class
-            = Cstl_Utf8ByteClassification_of(leader_byte);
+        Cstl_Utf8ByteType const class
+            = Cstl_Utf8ByteType_of(leader_byte);
 
         switch (class) {
-            case Cstl_Utf8ByteClassification_SingleByte: {
+            case Cstl_Utf8ByteType_SingleByte: {
                 result.ptr[i] = leader_byte;
                 i += 1;
             } break;
 
-            case Cstl_Utf8ByteClassification_PairByteEntry: {
+            case Cstl_Utf8ByteType_PairByteEntry: {
                 Cstl_assert_fmt(
                     i + 1 < n_bytes,
                     "not enough bytes, `n_bytes = {usize}`",
@@ -419,7 +419,7 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                 );
 
                 Cstl_assert_fmt(
-                    Cstl_Utf8ByteClassification_is_tail_byte(bytes[i + 1]),
+                    Cstl_Utf8ByteType_is_tail_byte(bytes[i + 1]),
                     "invalid UTF-8 pair tail byte {u8}",
                     bytes[i + 1]
                 );
@@ -430,7 +430,7 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                 i += 2;
             } break;
 
-            case Cstl_Utf8ByteClassification_TripleByteEntry: {
+            case Cstl_Utf8ByteType_TripleByteEntry: {
                 Cstl_assert_fmt(
                     i + 2 < n_bytes,
                     "not enough bytes, `n_bytes = {usize}`",
@@ -443,7 +443,7 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                     u8 const byte = bytes[i + j];
 
                     Cstl_assert_fmt(
-                        Cstl_Utf8ByteClassification_is_tail_byte(byte),
+                        Cstl_Utf8ByteType_is_tail_byte(byte),
                         "invalid UTF-8 triple tail byte {u8}",
                         byte
                     );
@@ -454,7 +454,7 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                 i += 3;
             } break;
 
-            case Cstl_Utf8ByteClassification_QuadByteEntry: {
+            case Cstl_Utf8ByteType_QuadByteEntry: {
                 Cstl_assert_fmt(
                     i + 3 < n_bytes,
                     "not enough bytes, `n_bytes = {usize}`",
@@ -467,7 +467,7 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                     u8 const byte = bytes[i + j];
 
                     Cstl_assert_fmt(
-                        Cstl_Utf8ByteClassification_is_tail_byte(byte),
+                        Cstl_Utf8ByteType_is_tail_byte(byte),
                         "invalid UTF-8 quad tail byte {u8}",
                         byte
                     );
@@ -478,9 +478,9 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                 i += 4;
             } break;
 
-            case Cstl_Utf8ByteClassification_TailByte:
+            case Cstl_Utf8ByteType_TailByte:
                 // fallthrough
-            case Cstl_Utf8ByteClassification_InvalidByte: {
+            case Cstl_Utf8ByteType_InvalidByte: {
                 Cstl_deny_fmt(
                     "invalid UTF-8 leader byte {u8}", leader_byte
                 );
@@ -746,10 +746,10 @@ Cstl_Char Cstl_Chars_next(Cstl_Chars mut* const self) {
         return ~(Cstl_Char) 0;
     }
 
-    Cstl_Utf8ByteClassification const class
-        = Cstl_Utf8ByteClassification_of(*self->string.ptr);
+    Cstl_Utf8ByteType const class
+        = Cstl_Utf8ByteType_of(*self->string.ptr);
 
-    usize const size = Cstl_Utf8ByteClassification_size(class);
+    usize const size = Cstl_Utf8ByteType_size(class);
 
     self->string.len -= size;
     self->string.ptr += size;
