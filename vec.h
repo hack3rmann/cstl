@@ -73,14 +73,14 @@ Cstl_Vec Cstl_Vec_clone(Cstl_Vec const* self);
 /// @brief Clones the vector to existing one.
 /// 
 /// @param src the vector to be clonned.
-void Cstl_Vec_clone_from(Cstl_Vec* self, Cstl_Vec const* src);
+void Cstl_Vec_clone_from(Cstl_Vec mut* self, Cstl_Vec const* src);
 
 
 /// @brief Frees a memory of the vector.
 void Cstl_Vec_free(Cstl_Vec const* self);
 
 
-void Cstl__internal_Vec_alloc(Cstl_Vec* self, usize new_cap);
+void Cstl__internal_Vec_alloc(Cstl_Vec mut* self, usize new_cap);
 
 
 usize Cstl__internal_Vec_next_capacity(usize cur_cap, usize elem_size);
@@ -89,40 +89,40 @@ usize Cstl__internal_Vec_next_capacity(usize cur_cap, usize elem_size);
 /// @brief Pushes the value to the end of the vector.
 /// 
 /// @param value_ptr a pointer to the value.
-void Cstl_Vec_push(Cstl_Vec* self, Addr value_ptr);
+void Cstl_Vec_push(Cstl_Vec mut* self, Addr value_ptr);
 
 
 /// @brief Decreases a length by one and returns a pointer to the poped value.
 /// 
 /// @return the poped value.
-AddrMut Cstl_Vec_pop(Cstl_Vec* self);
+AddrMut Cstl_Vec_pop(Cstl_Vec mut* self);
 
 
 /// @brief Reserves exactly `additional_cap` as capacity.
 /// 
 /// @param additional_cap a capacity to reserve.
-void Cstl_Vec_reserve_exact(Cstl_Vec* self, usize additional_cap);
+void Cstl_Vec_reserve_exact(Cstl_Vec mut* self, usize additional_cap);
 
 
 /// @brief Reserves at least `additional_cap` as capacity.
 /// 
 /// @param additional_cap a minimal capacity to reserve.
-void Cstl_Vec_reserve(Cstl_Vec* self, usize additional_cap);
+void Cstl_Vec_reserve(Cstl_Vec mut* self, usize additional_cap);
 
 
 /// @brief Clears the vector leaving capacity untouched.
-void Cstl_Vec_clear(Cstl_Vec* self);
+void Cstl_Vec_clear(Cstl_Vec mut* self);
 
 
 /// @brief Shrinks a capacity of the vector to `min_cap`.
 ///        Does nothing if `self->cap <= min_cap`.
 /// 
 /// @param min_cap the capatity to shrink to.
-void Cstl_Vec_shrink_to(Cstl_Vec* self, usize min_cap);
+void Cstl_Vec_shrink_to(Cstl_Vec mut* self, usize min_cap);
 
 
 /// @brief Shrinks a capacity of the vector to its length.
-void Cstl_Vec_shrink_to_fit(Cstl_Vec* self);
+void Cstl_Vec_shrink_to_fit(Cstl_Vec mut* self);
 
 
 /// @brief Computes address of a value at index `index`.

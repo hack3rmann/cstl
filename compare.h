@@ -63,35 +63,16 @@ isize isize_min(isize lhs, isize rhs);
 
 
 
-    #define u8_cmp(lhs, rhs) \
-        Cstl_u8_cmp(lhs, rhs)
-
-    #define i8_cmp(lhs, rhs) \
-        Cstl_i8_cmp(lhs, rhs)
-
-    #define u16_cmp(lhs, rhs) \
-        Cstl_u16_cmp(lhs, rhs)
-
-    #define i16_cmp(lhs, rhs) \
-        Cstl_i16_cmp(lhs, rhs)
-
-    #define u32_cmp(lhs, rhs) \
-        Cstl_u32_cmp(lhs, rhs)
-
-    #define i32_cmp(lhs, rhs) \
-        Cstl_i32_cmp(lhs, rhs)
-
-    #define u64_cmp(lhs, rhs) \
-        Cstl_u64_cmp(lhs, rhs)
-
-    #define i64_cmp(lhs, rhs) \
-        Cstl_i64_cmp(lhs, rhs)
-
-    #define usize_cmp(lhs, rhs) \
-        Cstl_usize_cmp(lhs, rhs)
-
-    #define isize_cmp(lhs, rhs) \
-        Cstl_isize_cmp(lhs, rhs)
+    #define u8_cmp Cstl_u8_cmp
+    #define i8_cmp Cstl_i8_cmp
+    #define u16_cmp Cstl_u16_cmp
+    #define i16_cmp Cstl_i16_cmp
+    #define u32_cmp Cstl_u32_cmp
+    #define i32_cmp Cstl_i32_cmp
+    #define u64_cmp Cstl_u64_cmp
+    #define i64_cmp Cstl_i64_cmp
+    #define usize_cmp Cstl_usize_cmp
+    #define isize_cmp Cstl_isize_cmp
 
 #endif
 

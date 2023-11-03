@@ -152,53 +152,22 @@ void Cstl_format_scope(
     #define i64_fmt_impl(buf, value, radix, flags) \
         Cstl_i64_fmt_impl(buf, value, radix, flags)
 
-    #define i8_fmt(buf, fmt, value_ptr) \
-        Cstl_i8_fmt(buf, fmt, value_ptr)
-
-    #define u8_fmt(buf, fmt, value_ptr) \
-        Cstl_u8_fmt(buf, fmt, value_ptr)
-    
-    #define i16_fmt(buf, fmt, value_ptr) \
-        Cstl_i16_fmt(buf, fmt, value_ptr)
-    
-    #define u16_fmt(buf, fmt, value_ptr) \
-        Cstl_u16_fmt(buf, fmt, value_ptr)
-    
-    #define i32_fmt(buf, fmt, value_ptr) \
-        Cstl_i32_fmt(buf, fmt, value_ptr)
-    
-    #define u32_fmt(buf, fmt, value_ptr) \
-        Cstl_u32_fmt(buf, fmt, value_ptr)
-    
-    #define i64_fmt(buf, fmt, value_ptr) \
-        Cstl_i64_fmt(buf, fmt, value_ptr)
-    
-    #define u64_fmt(buf, fmt, value_ptr) \
-        Cstl_u64_fmt(buf, fmt, value_ptr)
-    
-    #define isize_fmt(buf, fmt, value_ptr) \
-        Cstl_isize_fmt(buf, fmt, value_ptr)
-    
-    #define usize_fmt(buf, fmt, value_ptr) \
-        Cstl_usize_fmt(buf, fmt, value_ptr)
-    
-    #define f32_fmt(buf, fmt, value_ptr) \
-        Cstl_f32_fmt(buf, fmt, value_ptr)
-    
-    #define f64_fmt(buf, fmt, value_ptr) \
-        Cstl_f64_fmt(buf, fmt, value_ptr)
-    
-    #define Vec_fmt(buf, fmt, value_ptr) \
-        Cstl_Vec_fmt(buf, fmt, value_ptr)
-    
-    #define Slice_fmt(buf, fmt, value_ptr) \
-        Cstl_Slice_fmt(buf, fmt, value_ptr)
-    
-    #define String_fmt(buf, fmt, value_ptr) \
-        Cstl_String_fmt(buf, fmt, value_ptr)
-    
-    #define str_fmt(buf, fmt, value_ptr) \
-        Cstl_str_fmt(buf, fmt, value_ptr)
+    #define i8_fmt Cstl_i8_fmt
+    #define u8_fmt Cstl_u8_fmt
+    #define i16_fmt Cstl_i16_fmt
+    #define u16_fmt Cstl_u16_fmt
+    #define i32_fmt Cstl_i32_fmt
+    #define u32_fmt Cstl_u32_fmt
+    #define i64_fmt Cstl_i64_fmt
+    #define u64_fmt Cstl_u64_fmt
+    #define isize_fmt Cstl_isize_fmt
+    #define usize_fmt Cstl_usize_fmt
+    #define f32_fmt Cstl_f32_fmt
+    #define f64_fmt Cstl_f64_fmt
+    #define Vec_fmt Cstl_Vec_fmt
+    #define Slice_fmt Cstl_Slice_fmt
+    #define String_fmt Cstl_String_fmt
+    #define str_fmt Cstl_str_fmt
 
 
 

@@ -229,7 +229,8 @@ void Cstl_f64_fmt(
     __attribute__((unused)) Cstl_str const fmt,
     __attribute__((unused)) void const* value_ptr
 ) {
-    Cstl_todo("");
+    // fmt = '(s)(u|l)(0b|0o|0h|0xP)((+|-)(.|,)(N))'
+
 }
 
 void Cstl_Vec_fmt(

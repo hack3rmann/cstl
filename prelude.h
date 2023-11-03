@@ -1,6 +1,9 @@
 #ifndef _CSTL_PRELUDE_H_
 #define _CSTL_PRELUDE_H_
 
+#define EXIT_FAILURE 1
+#define EXIT_SUCCESS 0
+
 
 
 #include "types.h"
