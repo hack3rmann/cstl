@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -95,7 +94,7 @@ usize Cstl_Utf8ByteClassification_size(Cstl_Utf8ByteClassification const self) {
         // fallthrough
     default:
         Cstl_deny_fmt(
-            "invalid enum Cstl_Utf8ByteClassification value %u", self
+            "invalid enum Cstl_Utf8ByteClassification value {u32}", (u32) self
         );
     }
 }
@@ -153,7 +152,7 @@ u32 Cstl_Char_encode_utf8(Cstl_Char const self) {
         return result;
     }
 
-    Cstl_deny_fmt("too large character %u", (u32) self);
+    Cstl_deny_fmt("too large character {u32}", (u32) self);
 }
 
 Cstl_Char Cstl_Char_from_code(u32 const code) {
@@ -175,7 +174,7 @@ Cstl_Char Cstl_Char_from_code(u32 const code) {
     case Cstl_Utf8ByteClassification_TailByte:
         // fallthrough
     case Cstl_Utf8ByteClassification_InvalidByte:
-        Cstl_deny_fmt("invalid utf-8 code format %u", code);
+        Cstl_deny_fmt("invalid utf-8 code format {u32}", code);
     }
 
     return U'\0';
@@ -187,7 +186,7 @@ void Cstl_set_utf8_output_encoding(void) {
 #   if defined(_WIN32) && defined(_WIN64)
         Cstl_assert_fmt(
             SetConsoleOutputCP(65001),
-            "SetConsoleOutputCP(65001) failed, error code: %u",
+            "SetConsoleOutputCP(65001) failed, error code: {u32}",
             (u32) GetLastError()
         );
 #   endif
@@ -415,14 +414,14 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
             case Cstl_Utf8ByteClassification_PairByteEntry: {
                 Cstl_assert_fmt(
                     i + 1 < n_bytes,
-                    "not enough bytes, `n_bytes = %zu`",
+                    "not enough bytes, `n_bytes = {usize}`",
                     n_bytes
                 );
 
                 Cstl_assert_fmt(
                     Cstl_Utf8ByteClassification_is_tail_byte(bytes[i + 1]),
-                    "invalid UTF-8 pair tail byte %u",
-                    (u32) bytes[i + 1]
+                    "invalid UTF-8 pair tail byte {u8}",
+                    bytes[i + 1]
                 );
 
                 result.ptr[i] = leader_byte;
@@ -434,7 +433,7 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
             case Cstl_Utf8ByteClassification_TripleByteEntry: {
                 Cstl_assert_fmt(
                     i + 2 < n_bytes,
-                    "not enough bytes, `n_bytes = %zu`",
+                    "not enough bytes, `n_bytes = {usize}`",
                     n_bytes
                 );
 
@@ -445,8 +444,8 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
 
                     Cstl_assert_fmt(
                         Cstl_Utf8ByteClassification_is_tail_byte(byte),
-                        "invalid UTF-8 triple tail byte %u",
-                        (u32) byte
+                        "invalid UTF-8 triple tail byte {u8}",
+                        byte
                     );
 
                     result.ptr[i + j] = byte;
@@ -458,7 +457,7 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
             case Cstl_Utf8ByteClassification_QuadByteEntry: {
                 Cstl_assert_fmt(
                     i + 3 < n_bytes,
-                    "not enough bytes, `n_bytes = %zu`",
+                    "not enough bytes, `n_bytes = {usize}`",
                     n_bytes
                 );
 
@@ -469,8 +468,8 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
 
                     Cstl_assert_fmt(
                         Cstl_Utf8ByteClassification_is_tail_byte(byte),
-                        "invalid UTF-8 quad tail byte %u",
-                        (u32) byte
+                        "invalid UTF-8 quad tail byte {u8}",
+                        byte
                     );
 
                     result.ptr[i + j] = byte;
@@ -483,7 +482,7 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                 // fallthrough
             case Cstl_Utf8ByteClassification_InvalidByte: {
                 Cstl_deny_fmt(
-                    "invalid UTF-8 leader byte %u", (u32) leader_byte
+                    "invalid UTF-8 leader byte {u8}", leader_byte
                 );
             } break;
 

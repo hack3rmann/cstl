@@ -237,10 +237,10 @@ AddrMut Cstl_Vec_extract(
     case Cstl_Ordering_Equal:
         // fallthrough
     default:
-        Cstl_deny_fmt("invalid extremum_type value %u", (u32) extremum_type);
+        Cstl_deny_fmt("invalid extremum_type value {u32}", (u32) extremum_type);
     }
 
-    Cstl_assert(False);
+    Cstl_todo("");
 
     return Cstl_Vec_pop(self);
 }

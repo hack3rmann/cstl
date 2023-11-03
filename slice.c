@@ -129,7 +129,9 @@ usize Cstl_Slice_binary_search(
         } break;
 
         default:
-            Cstl_deny_fmt("invalid enum Cstl_Ordering value %u", (u32) order);
+            Cstl_deny_fmt(
+                "invalid enum Cstl_Ordering value {u32}", (u32) order
+            );
         }
     }
 

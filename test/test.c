@@ -11,7 +11,6 @@
 i32 main(void) {
     Cstl_init();
 
-    
 
     return EXIT_SUCCESS;
 }

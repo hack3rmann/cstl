@@ -90,6 +90,7 @@ Cstl_declare_fmt_Type_fn(f32);
 Cstl_declare_fmt_Type_fn(f64);
 Cstl_declare_fmt_Type_fn(usize);
 Cstl_declare_fmt_Type_fn(isize);
+Cstl_declare_fmt_Type_fn(char);
 Cstl_declare_fmt_Type_fn(Vec);
 Cstl_declare_fmt_Type_fn(Slice);
 Cstl_declare_fmt_Type_fn(String);
@@ -109,6 +110,7 @@ typedef enum {
     Cstl_BasicType_f64,
     Cstl_BasicType_usize,
     Cstl_BasicType_isize,
+    Cstl_BasicType_char,
     Cstl_BasicType_Vec,
     Cstl_BasicType_Slice,
     Cstl_BasicType_String,
@@ -173,21 +175,22 @@ void Cstl_format_scope(
 
     typedef Cstl_BasicType BasicType;
 
-    #define Cstl_BasicType_u8 BasicType_u8
-    #define Cstl_BasicType_i8 BasicType_i8
-    #define Cstl_BasicType_u16 BasicType_u16
-    #define Cstl_BasicType_i16 BasicType_i16
-    #define Cstl_BasicType_u32 BasicType_u32
-    #define Cstl_BasicType_i32 BasicType_i32
-    #define Cstl_BasicType_u64 BasicType_u64
-    #define Cstl_BasicType_i64 BasicType_i64
-    #define Cstl_BasicType_usize BasicType_usize
-    #define Cstl_BasicType_isize BasicType_isize
-    #define Cstl_BasicType_Vec BasicType_Vec
-    #define Cstl_BasicType_Slice BasicType_Slice
-    #define Cstl_BasicType_String BasicType_String
-    #define Cstl_BasicType_str BasicType_str
-    #define Cstl_BasicType_Invalid BasicType_Invalid
+    #define BasicType_u8        Cstl_BasicType_u8
+    #define BasicType_i8        Cstl_BasicType_i8
+    #define BasicType_u16       Cstl_BasicType_u16
+    #define BasicType_i16       Cstl_BasicType_i16
+    #define BasicType_u32       Cstl_BasicType_u32
+    #define BasicType_i32       Cstl_BasicType_i32
+    #define BasicType_u64       Cstl_BasicType_u64
+    #define BasicType_i64       Cstl_BasicType_i64
+    #define BasicType_usize     Cstl_BasicType_usize
+    #define BasicType_isize     Cstl_BasicType_isize
+    #define BasicType_char      Cstl_BasicType_char
+    #define BasicType_Vec       Cstl_BasicType_Vec
+    #define BasicType_Slice     Cstl_BasicType_Slice
+    #define BasicType_String    Cstl_BasicType_String
+    #define BasicType_str       Cstl_BasicType_str
+    #define BasicType_Invalid   Cstl_BasicType_Invalid
 
     #define BasicType_from_str(value) \
         Cstl_BasicType_from_str(value)
