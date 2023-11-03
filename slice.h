@@ -15,7 +15,7 @@
     )
 
 #define Cstl_Slice_get_value(self, Type, index) \
-    (*(Type*) Cstl_Slice_get((self), (index)))
+    (*(Type mut*) Cstl_Slice_get((self), (index)))
 
 
 
@@ -150,21 +150,76 @@ Cstl_declare_basic_type_slice(f64);
 
     #define Slice_get_value(self, Type, index) \
         Cstl_Slice_get_value(self, Type, index)
+
+    typedef Cstl_SliceMetaFlags SliceMetaFlags;
+
+    #define SliceMetaFlags_Default \
+        Cstl_SliceMetaFlags_Default
     
     typedef Cstl_Slice Slice;
 
-    AddrMut Slice_get(Slice const* self, usize index);
+    #define Slice_get_unchecked(self, index) \
+        Cstl_Slice_get_unchecked(self, index)
 
-    /// @brief Computes lexicographical ordering of two slices.
-    /// 
-    /// @param cmp a comparator of slice elements.
-    /// 
-    /// @return Lexicographical ordering.
-    Ordering Slice_cmp(
-        Slice const* lhs,
-        Slice const* rhs,
-        Cstl_Comparator cmp
-    );
+    #define Slice_get(self, index) \
+        Cstl_Slice_get(self, index) 
+
+    #define Slice_from_raw(ptr, len, elem_size) \
+        Cstl_Slice_from_raw(ptr, len, elems_size)
+
+    #define Slice_sort_unstable(self, cmp) \
+        Cstl_Slice_sort_unstable(self, cmp)
+    
+    #define Slice_binary_insert_sort(self, cmp) \
+        Cstl_Slice_binary_insert_sort(self, cmp)
+
+    #define Slice_binary_search(self, value_ptr, cmp) \
+        Cstl_Slice_binary_search(self, value_ptr, cmp)
+    
+    #define Slice_partition_at(self, pivot_idx, cmp) \
+        Cstl_Slice_partition_at(self, picot_idx, cmp)
+
+    #define Slice_swap(self, lhs, rhs) \
+        Cstl_Slice_swap(self, lhs, rhs)
+    
+    #define Slice_swap_unchecked(self, lhs, rhs) \
+        Cstl_Slice_swap_unchecked(self, lhs, rhs) 
+
+    #define Slice_slice_unchecked(self, start, end) \
+        Cstl_Slice_slice_unchecked(self, start, end)
+
+    #define Slice_slice(self, start, end) \
+        Cstl_Slice_slice(self, start, end)
+
+    #define Slice_cmp(lhs, rhs, cmp) \
+        Cstl_Slice_cmp(lhs, rhs, cmp)
+
+    #define Slice_cmp_elems_unchecked(self, lhs, rhs, cmp) \
+        Cstl_Slice_cmp_elems_unchecked(self, lhs, rhs, cmp)
+
+    #define Slice_heapify(self, index, target_order, cmp) \
+        Cstl_Slice_heapify(self, index, target_order, cmp)
+
+    #define Slice_build_heap(self, target_order, cmp) \
+        Cstl_Slice_build_heap(self, target_order, cmp)
+
+    #define Slice_max_heapify(self, index, cmp) \
+        Cstl_Slice_max_heapify(self, index, cmp)
+
+    #define Slice_min_heapify(self, index, cmp) \
+        Cstl_Slice_min_heapify(self, index, cmp)
+
+    #define Slice_build_minheap(self, cmp) \
+        Cstl_Slice_build_minheap(self, cmp)
+
+    #define Slice_build_maxheap(self, cmp) \
+        Cstl_Slice_build_maxheap(self, cmp)
+
+    #define Slice_heap_sort(self, cmp) \
+        Cstl_Slice_heap_sort(self, cmp)
+
+    #define Slice_reverse(self) \
+        Cstl_Slice_reverse(self)
 
 #endif // USING_NAMESPACE_CSTL
 

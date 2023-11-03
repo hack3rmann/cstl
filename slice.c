@@ -207,10 +207,6 @@ Cstl_Slice Cstl_Slice_slice(
     return Cstl_Slice_slice_unchecked(self, start, end);
 }
 
-AddrMut Slice_get(Slice const* const self, usize const index) {
-    return Cstl_Slice_get(self, index);
-}
-
 Cstl_Ordering Cstl_Slice_cmp(
     Cstl_Slice const* const lhs,
     Cstl_Slice const* const rhs,
@@ -399,14 +395,3 @@ Cstl_impl_basic_type_slice(f64);
 
 
 
-Ordering Ordering_reverse(Ordering const self) {
-    return Cstl_Ordering_reverse(self);
-}
-
-Ordering Slice_cmp(
-    Slice const* const lhs,
-    Slice const* const rhs,
-    Cstl_Comparator const cmp
-) {
-    return Cstl_Slice_cmp(lhs, rhs, cmp);
-}
