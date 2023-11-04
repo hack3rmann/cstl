@@ -13,7 +13,7 @@
 
 #define Cstl_impl_fmt_integer_Type_fn(Type) \
     void Cstl_ ## Type ## _fmt( \
-        Cstl_String mut* buf, Cstl_str fmt, void const* value_ptr \
+        Cstl_String mut* buf, Cstl_str fmt, Addr value_ptr \
     ) { \
         i64 const value = (i64) *(Type*) value_ptr; \
         Cstl_i64_fmt(buf, fmt, &value); \
@@ -125,7 +125,13 @@ void Cstl_i64_fmt(
             u16 const first_digit = fmt.ptr[1] - '0';
             u16 const second_digit = fmt.ptr[2] - '0';
 
-            Cstl_assert(1 < first_digit && first_digit <= 9);
+            Cstl_assert_fmt(
+                1 <= first_digit && first_digit <= 9,
+                "`first_digit` = {u16}",
+                first_digit
+            );
+
+            Cstl_assert(Bool_implies(9 < second_digit, 1 < first_digit));
 
             radix = second_digit <= 9
                 ? 10 * first_digit + second_digit
@@ -194,7 +200,7 @@ void Cstl_i64_fmt_impl(
 }
 
 void Cstl_f32_fmt(
-    Cstl_String mut* const buf, Cstl_str const fmt, void const* value_ptr
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr value_ptr
 ) {
     f64 const value = (f64) *(f32*) value_ptr;
     Cstl_f64_fmt(buf, fmt, &value);
@@ -203,20 +209,20 @@ void Cstl_f32_fmt(
 void Cstl_f64_fmt(
     __attribute__((unused)) Cstl_String mut* const buf,
     __attribute__((unused)) Cstl_str const fmt,
-    __attribute__((unused)) void const* value_ptr
+    __attribute__((unused)) Addr value_ptr
 ) {
     // fmt = '(s)(u|l)(0b|0o|0h|0xP)((+|-)(.|,)(N))'
     Cstl_todo("");
 }
 
 void Cstl_Vec_fmt(
-    Cstl_String mut* const buf, Cstl_str const fmt, void const* value_ptr
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr value_ptr
 ) {
     Cstl_Slice_fmt(buf, fmt, value_ptr);
 }
 
 void Cstl_Slice_fmt(
-    Cstl_String mut* const buf, Cstl_str mut fmt, void const* value_ptr
+    Cstl_String mut* const buf, Cstl_str mut fmt, Addr value_ptr
 ) {
     // fmt = '(*,*):Type:type_args'
 
@@ -299,13 +305,13 @@ void Cstl_Slice_fmt(
 }
 
 void Cstl_String_fmt(
-    Cstl_String mut* const buf, Cstl_str const fmt, void const* value_ptr
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr value_ptr
 ) {
     Cstl_str_fmt(buf, fmt, value_ptr);
 }
 
 void Cstl_str_fmt(
-    Cstl_String mut* const buf, Cstl_str const fmt, void const* value_ptr
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr value_ptr
 ) {
     Cstl_assert_fmt(
         0 == fmt.len,

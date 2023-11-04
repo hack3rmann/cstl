@@ -75,7 +75,7 @@ void Cstl_i64_fmt_impl(Cstl_String mut* buf, i64 value, u16 radix, u32 flags);
 
 #define Cstl_declare_fmt_Type_fn(Type) \
     void Cstl_ ## Type ## _fmt( \
-        Cstl_String mut* buf, Cstl_str fmt, void const* value_ptr \
+        Cstl_String mut* buf, Cstl_str fmt, Addr value_ptr \
     );
 
 Cstl_declare_fmt_Type_fn(u8);
@@ -126,7 +126,7 @@ Cstl_BasicType Cstl_BasicType_from_str(Cstl_str value);
 
 
 
-typedef void (*Cstl_FormatFn)(Cstl_String mut*, Cstl_str, void const*);
+typedef void (*Cstl_FormatFn)(Cstl_String mut*, Cstl_str, Addr);
 
 Cstl_FormatFn Cstl_FormatFn_from_type_name(Cstl_str type_name);
 
@@ -145,7 +145,7 @@ Cstl_String Cstl_format(StrLit fmt, ...);
 void Cstl_format_scope(
     Cstl_String mut* buf,
     Cstl_str fmt,
-    void const* value_ptr,
+    Addr value_ptr,
     Cstl_FormatFn mut* format_fn
 );
 

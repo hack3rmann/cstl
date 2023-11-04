@@ -199,6 +199,9 @@ Cstl_Slice Cstl_Vec_slice_unchecked(Cstl_Vec mut* self, usize start, usize end);
     #define Vec_from_elems(Type, elems...) \
         Cstl_Vec_from_elems(Type, elems)
 
+    #define Vec(Type, elems...) \
+        Vec_from_elems(Type, elems)
+
     #define Vec_push_value(self, Type, value) \
         Cstl_Vec_push_value(self, Type, value)
 

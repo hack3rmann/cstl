@@ -104,7 +104,7 @@ usize Cstl__internal_Vec_next_capacity(
 }
 
 void Cstl_Vec_push(Cstl_Vec* const self, Addr const elem_ptr) {
-    void mut* const in_place_elem_ptr = Cstl_Vec_push_in_place(self);
+    AddrMut const in_place_elem_ptr = Cstl_Vec_push_in_place(self);
     memcpy(in_place_elem_ptr, elem_ptr, elem_size_of(self->meta));
 }
 

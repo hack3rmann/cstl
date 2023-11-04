@@ -8,11 +8,11 @@
 
 
 #define Cstl_Slice_from_elems(Type, elems...) \
-    Cstl_Slice_from_raw( \
-        (Type[]) { elems }, \
-        Cstl_array_len(((Type[]) { elems })), \
-        sizeof(*((Type[]) { elems })) \
-    )
+    (Cstl_Slice) { \
+        .ptr = (Type[]) { elems }, \
+        .len = Cstl_array_len(((Type[]) { elems })), \
+        .meta = sizeof(*((Type[]) { elems })) \
+    }
 
 #define Cstl_Slice_get_value(self, Type, index) \
     (*(Type mut*) Cstl_Slice_get((self), (index)))
@@ -147,6 +147,9 @@ Cstl_declare_basic_type_slice(f64);
 
     #define Slice_from_elems(Type, elems...) \
         Cstl_Slice_from_elems(Type, elems)
+
+    #define Slice(Type, elems...) \
+        Slice_from_elems(Type, elems)
 
     #define Slice_get_value(self, Type, index) \
         Cstl_Slice_get_value(self, Type, index)

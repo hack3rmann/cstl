@@ -10,8 +10,6 @@
 #define Cstl_swap_values(lhs_ptr, rhs_ptr) \
     Cstl_swap((lhs_ptr), (rhs_ptr), sizeof(*lhs_ptr)) 
 
-#define mut
-
 #define Cstl_lit_ptr(Type, value) \
     ((Type[]) { (Type) (value) })
 
