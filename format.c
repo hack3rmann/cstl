@@ -82,21 +82,21 @@ void Cstl_i64_fmt(
     u32 mut flags = 0;
 
     if (0 != fmt.len && 's' == *fmt.ptr) {
-        flags |= Cstl_IntFmtFlags_Sign;
+        flags |= Cstl_NumberFmtFlags_ShowSign;
 
         fmt.ptr += 1;
         fmt.len -= 1;
     }
 
     if (0 != fmt.len && 'u' == *fmt.ptr) {
-        flags |= Cstl_IntFmtFlags_Case;
+        flags |= Cstl_NumberFmtFlags_Uppercase;
 
         fmt.ptr += 1;
         fmt.len -= 1;
     }
 
     if (0 != fmt.len && 's' == *fmt.ptr) {
-        flags |= Cstl_IntFmtFlags_Sign;
+        flags |= Cstl_NumberFmtFlags_ShowSign;
 
         fmt.ptr += 1;
         fmt.len -= 1;
@@ -156,8 +156,8 @@ void Cstl_i64_fmt_impl(
 ) {
     enum { RADIX_MAX = 10 + ('z' - 'a' + 1) };
 
-    Bool const is_sign_shown = 0 != (flags & Cstl_IntFmtFlags_Sign);
-    Bool const is_uppercase  = 0 != (flags & Cstl_IntFmtFlags_Case);
+    Bool const is_sign_shown = 0 != (flags & Cstl_NumberFmtFlags_ShowSign);
+    Bool const is_uppercase  = 0 != (flags & Cstl_NumberFmtFlags_Uppercase);
 
     Cstl_assert_fmt(
         1 < radix && radix <= RADIX_MAX,
@@ -206,13 +206,78 @@ void Cstl_f32_fmt(
     Cstl_f64_fmt(buf, fmt, &value);
 }
 
+Bool Cstl__internal_f64_fmt_is_end(char const value) {
+    return '+' == value || '-' == value || '.' == value || ',' == value;
+}
+
 void Cstl_f64_fmt(
     __attribute__((unused)) Cstl_String mut* const buf,
-    __attribute__((unused)) Cstl_str const fmt,
+    __attribute__((unused)) Cstl_str mut fmt,
     __attribute__((unused)) Addr value_ptr
 ) {
-    // fmt = '(s)(u|l)(0b|0o|0h|0xP)((+|-)(.|,)(N))'
-    Cstl_todo("");
+    // fmt = '(s)(u)(0b|0o|0h|0xP)((+|-)(.|,)(N))'
+
+    Bool mut is_have_sign = False, mut is_uppercase = False;
+    u16 mut radix = 10;
+
+    Bool mut is_end = False;
+
+    while (!is_end) {
+        switch (*fmt.ptr) {
+        case '+': case '_': case '.': case ',':
+            is_end = True;
+            break;
+        case 's':
+            is_have_sign = True;
+            break;
+        case 'u':
+            is_have_sign = True;
+            break;
+
+        case '0': {
+            switch (fmt.ptr[1]) {
+            case 'b':
+                radix = 2;
+                break;
+            case 'o':
+                radix = 8;
+                break;
+            case 'h':
+                radix = 16;
+                break;
+
+            case 'x': {
+                u16 const first_digit = fmt.ptr[2] - '0';
+                u16 const second_digit = fmt.ptr[3] - '0';
+
+                Cstl_assert(0 < first_digit && first_digit <= 9);
+                Cstl_assert(Bool_implies(first_digit < 2, second_digit <= 9));
+
+                radix = second_digit <= 9
+                    ? first_digit * 10 + second_digit
+                    : first_digit;
+            } break;
+
+            default:
+                Cstl_deny("invalid format");
+            }
+        } break;
+
+        default:
+            Cstl_deny("invalid format");
+        }
+
+        fmt.ptr += 1;
+        fmt.len -= 1;
+    }
+
+    typedef enum {
+        Round_Up, Round_Down, Round_Math
+    } Round;
+
+    Round mut round = Round_Math;
+    char mut frac_delim = '.';
+    u16 mut n_fraction_digits = u16_MAX;
 }
 
 void Cstl_Vec_fmt(
@@ -255,7 +320,7 @@ void Cstl_Slice_fmt(
                 if (0 != i) { \
                     Cstl_String_append(buf, delim); \
                 } \
-                Type const value = Cstl_Slice_get_value(&slice, Type, i); \
+                Type const value = Cstl_Slice_get_value(slice, Type, i); \
                 Cstl_ ## Type ## _fmt(buf, fmt, &value); \
             } \
         } break
@@ -267,7 +332,7 @@ void Cstl_Slice_fmt(
                     Cstl_String_append(buf, delim); \
                 } \
                 Cstl_ ## Type const value \
-                    = Cstl_Slice_get_value(&slice, Cstl_ ## Type, i); \
+                    = Cstl_Slice_get_value(slice, Cstl_ ## Type, i); \
                 Cstl_ ## Type ## _fmt(buf, fmt, &value); \
             } \
         } break

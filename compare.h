@@ -54,6 +54,10 @@ isize isize_min(isize lhs, isize rhs);
 
     typedef Cstl_Ordering Ordering;
 
+    #define Ordering_Greater Cstl_Ordering_Greater
+    #define Ordering_Equal   Cstl_Ordering_Equal
+    #define Ordering_Less    Cstl_Ordering_Less
+
     #define Ordering_reverse(self) \
         Cstl_Ordering_reverse(self)
 

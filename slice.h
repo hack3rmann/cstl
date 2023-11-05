@@ -15,7 +15,13 @@
     }
 
 #define Cstl_Slice_get_value(self, Type, index) \
-    (*(Type mut*) Cstl_Slice_get((self), (index)))
+    (*(Type mut*) Cstl_Slice_get(self, index))
+
+#define Cstl_Slice_set_value_unchecked(self, Type, index, value) \
+    Cstl_Slice_set_unchecked(self, index, lit_ptr(Type, value))
+
+#define Cstl_Slice_set_value(self, Type, index, value) \
+    Cstl_Slice_set(self, index, lit_ptr(Type, value))
 
 
 
@@ -33,35 +39,39 @@ typedef struct {
     Cstl_CollectionMeta meta;
 } Cstl_Slice;
 
-AddrMut Cstl_Slice_get_unchecked(Cstl_Slice const* self, usize index);
+AddrMut Cstl_Slice_get_unchecked(Cstl_Slice self, usize index);
 
-AddrMut Cstl_Slice_get(Cstl_Slice const* self, usize index);
+AddrMut Cstl_Slice_get(Cstl_Slice self, usize index);
+
+void Cstl_Slice_set_unchecked(Cstl_Slice self, usize index, Addr value_ptr);
+
+void Cstl_Slice_set(Cstl_Slice self, usize index, Addr value_ptr);
 
 Cstl_Slice Cstl_Slice_from_raw(AddrMut ptr, usize len, usize elem_size);
 
 void Cstl_Slice_sort_unstable(
-    Cstl_Slice mut* self, Cstl_Comparator cmp
+    Cstl_Slice self, Cstl_Comparator cmp
 );
 
 void Cstl_Slice_binary_insert_sort(
-    Cstl_Slice mut* self, Cstl_Comparator cmp
+    Cstl_Slice self, Cstl_Comparator cmp
 );
 
 usize Cstl_Slice_binary_search(
-    Cstl_Slice mut* self, Addr value_ptr, Cstl_Comparator cmp
+    Cstl_Slice self, Addr value_ptr, Cstl_Comparator cmp
 );
 
 usize Cstl_Slice_partition_at(
-    Cstl_Slice mut* self, usize pivot, Cstl_Comparator cmp
+    Cstl_Slice self, usize pivot, Cstl_Comparator cmp
 );
 
-void Cstl_Slice_swap(Cstl_Slice mut* self, usize lhs, usize rhs);
+void Cstl_Slice_swap(Cstl_Slice self, usize lhs, usize rhs);
 
-void Cstl_Slice_swap_unchecked(Cstl_Slice mut* self, usize lhs, usize rhs);
+void Cstl_Slice_swap_unchecked(Cstl_Slice self, usize lhs, usize rhs);
 
-Cstl_Slice Cstl_Slice_slice_unchecked(Cstl_Slice mut* self, usize start, usize end);
+Cstl_Slice Cstl_Slice_slice_unchecked(Cstl_Slice self, usize start, usize end);
 
-Cstl_Slice Cstl_Slice_slice(Cstl_Slice mut* self, usize start, usize end);
+Cstl_Slice Cstl_Slice_slice(Cstl_Slice self, usize start, usize end);
 
 
 /// @brief Computes lexicographical ordering of two slices.
@@ -70,47 +80,47 @@ Cstl_Slice Cstl_Slice_slice(Cstl_Slice mut* self, usize start, usize end);
 /// 
 /// @return Lexicographical ordering.
 Cstl_Ordering Cstl_Slice_cmp(
-    Cstl_Slice const* lhs, Cstl_Slice const* rhs, Cstl_Comparator cmp
+    Cstl_Slice lhs, Cstl_Slice rhs, Cstl_Comparator cmp
 );
 
 
 Cstl_Ordering Cstl_Slice_cmp_elems_unchecked(
-    Cstl_Slice const* self, usize lhs, usize rhs, Cstl_Comparator cmp
+    Cstl_Slice self, usize lhs, usize rhs, Cstl_Comparator cmp
 );
 
 Cstl_Ordering Cstl_Slice_cmp_elems(
-    Cstl_Slice const* self, usize lhs, usize rhs, Cstl_Comparator cmp
+    Cstl_Slice self, usize lhs, usize rhs, Cstl_Comparator cmp
 );
 
 void Cstl_Slice_heapify(
-    Cstl_Slice mut* self,
+    Cstl_Slice self,
     usize index,
     Cstl_Ordering terget_order,
     Cstl_Comparator cmp
 );
 
 void Cstl_Slice_build_heap(
-    Cstl_Slice mut* self, Cstl_Ordering target_order, Cstl_Comparator cmp
+    Cstl_Slice self, Cstl_Ordering target_order, Cstl_Comparator cmp
 );
 
 void Cstl_Slice_max_heapify(
-    Cstl_Slice mut* self, usize index, Cstl_Comparator cmp
+    Cstl_Slice self, usize index, Cstl_Comparator cmp
 );
 
 void Cstl_Slice_build_maxheap(
-    Cstl_Slice mut* self, Cstl_Comparator cmp
+    Cstl_Slice self, Cstl_Comparator cmp
 );
 
 void Cstl_Slice_min_heapify(
-    Cstl_Slice mut* self, usize index, Cstl_Comparator cmp
+    Cstl_Slice self, usize index, Cstl_Comparator cmp
 );
 
 void Cstl_Slice_build_minheap(
-    Cstl_Slice mut* self, Cstl_Comparator cmp
+    Cstl_Slice self, Cstl_Comparator cmp
 );
 
 void Cstl_Slice_heap_sort(
-    Cstl_Slice mut* self, Cstl_Comparator cmp
+    Cstl_Slice self, Cstl_Comparator cmp
 );
 
 void Cstl_Slice_reverse(Cstl_Slice self);
@@ -154,11 +164,20 @@ Cstl_declare_basic_type_slice(f64);
     #define Slice_get_value(self, Type, index) \
         Cstl_Slice_get_value(self, Type, index)
 
+    #define Slice_set_value_unchecked(self, Type, index, value) \
+        Cstl_Slice_set_value_unchecked(self, Type, index, value)
+
+    #define Slice_set_value(self, Type, index, value) \
+        Cstl_Slice_set_value(self, Type, index, value)
+
+
     typedef Cstl_SliceMetaFlags SliceMetaFlags;
 
     #define SliceMetaFlags_Default \
         Cstl_SliceMetaFlags_Default
-    
+
+
+
     typedef Cstl_Slice Slice;
 
     #define Slice_get_unchecked(self, index) \
@@ -166,6 +185,12 @@ Cstl_declare_basic_type_slice(f64);
 
     #define Slice_get(self, index) \
         Cstl_Slice_get(self, index) 
+
+    #define Slice_set_unchecked(self, index, value_ptr) \
+        Cstl_Slice_set_unchecked(self, index, value_ptr)
+
+    #define Slice_set(self, index, value_ptr) \
+        Cstl_Slice_set(self, index, value_ptr)
 
     #define Slice_from_raw(ptr, len, elem_size) \
         Cstl_Slice_from_raw(ptr, len, elems_size)

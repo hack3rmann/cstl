@@ -62,14 +62,27 @@
 
 
 typedef enum {
-    Cstl_IntFmtFlags_Sign = 0x1,
-    Cstl_IntFmtFlags_Case = 0x2,
-    Cstl_IntFmtFlags_Default = 0x0
-} Cstl_IntFmtFlags;
+    Cstl_Round_Up,
+    Cstl_Round_Down,
+    Cstl_Round_Math
+} Cstl_Round;
+
+
+
+typedef enum {
+    Cstl_NumberFmtFlags_ShowSign = 0x1,
+    Cstl_NumberFmtFlags_Uppercase = 0x2,
+    Cstl_NumberFmtFlags_Default = 0x0
+} Cstl_NumberFmtFlags;
 
 
 
 void Cstl_i64_fmt_impl(Cstl_String mut* buf, i64 value, u16 radix, u32 flags);
+
+void Cstl_f64_fmt_impl(
+    Cstl_String mut* bif, f64 value, u16 radix, u32 flags,
+    char fraction_delim, Cstl_Round round, u16 n_fraction_digits
+);
 
 
 
@@ -153,7 +166,7 @@ void Cstl_format_scope(
 
 #ifdef USING_NAMESPACE_CSTL
 
-    typedef Cstl_IntFmtFlags IntFmtFlags;
+    typedef Cstl_NumberFmtFlags NumberFmtFlags;
 
     #define i64_fmt_impl(buf, value, radix, flags) \
         Cstl_i64_fmt_impl(buf, value, radix, flags)

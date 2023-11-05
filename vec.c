@@ -220,19 +220,19 @@ AddrMut Cstl_Vec_extract(
 ) {
     Cstl_assert(0 < self->len);
 
-    Cstl_Slice_swap((Cstl_Slice mut*) self, 0, self->len - 1);
+    Cstl_Slice_swap(*(Cstl_Slice const*) self, 0, self->len - 1);
 
     Cstl_Slice mut smaller_slice =
-        Cstl_Slice_slice((Cstl_Slice mut*) self, 0, self->len - 1);
+        Cstl_Slice_slice(*(Cstl_Slice const*) self, 0, self->len - 1);
 
     switch (extremum_type) {
-    case Cstl_Ordering_Less: {
-        Cstl_Slice_min_heapify(&mut smaller_slice, 0, cmp);
-    } break;
-
-    case Cstl_Ordering_Greater: {
-        Cstl_Slice_max_heapify(&mut smaller_slice, 0, cmp);
-    } break;
+    case Cstl_Ordering_Less:
+        Cstl_Slice_min_heapify(smaller_slice, 0, cmp);
+        break;
+        
+    case Cstl_Ordering_Greater:
+        Cstl_Slice_max_heapify(smaller_slice, 0, cmp);
+        break;
 
     case Cstl_Ordering_Equal:
         // fallthrough

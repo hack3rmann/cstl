@@ -672,7 +672,7 @@ Cstl_str Cstl_SplitAny_next(Cstl_SplitAny mut* const self) {
     while (0 < self->string.len) {
         for (usize mut i = 0; i < self->delims.len; ++i) {
             Cstl_str const delim
-                = Cstl_Slice_get_value(&self->delims, Cstl_str, i);
+                = Cstl_Slice_get_value(self->delims, Cstl_str, i);
 
             if (delim.len <= self->string.len) {
                 Cstl_str const check_str = {
