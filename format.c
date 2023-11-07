@@ -22,12 +22,156 @@
 Cstl_impl_fmt_integer_Type_fn(u8);
 Cstl_impl_fmt_integer_Type_fn(u16);
 Cstl_impl_fmt_integer_Type_fn(u32);
-Cstl_impl_fmt_integer_Type_fn(u64);
 Cstl_impl_fmt_integer_Type_fn(usize);
 Cstl_impl_fmt_integer_Type_fn(i8);
 Cstl_impl_fmt_integer_Type_fn(i16);
 Cstl_impl_fmt_integer_Type_fn(i32);
 Cstl_impl_fmt_integer_Type_fn(isize);
+
+
+
+Cstl_FloatImpl Cstl_FloatImpl_from_f32(f32 const value) {
+    u32 const bits = *(u32 const*) &value;
+
+    return (Cstl_FloatImpl) {
+        .sign = 1 - 2 * (i32) (bits >> 31),
+        .exp = ((bits >> 23) & 255) - 127,
+        .frac = (u64) (bits & 8388607) << 41
+    };
+}
+
+Cstl_FloatImpl Cstl_FloatImpl_from_f64(UNUSED f64 const value) {
+    Cstl_todo("");
+}
+
+f32 Cstl_FloatImpl_to_f32(UNUSED Cstl_FloatImpl const self) {
+    Cstl_todo("");
+}
+
+f64 Cstl_FloatImpl_to_f64(UNUSED Cstl_FloatImpl const self) {
+    Cstl_todo("");
+}
+
+void Cstl_FloatImpl_dbg(
+    Cstl_String mut* const buf,
+    UNUSED Cstl_str const fmt,
+    Addr const value_ptr
+) {
+    Cstl_assert(0 == fmt.len);
+
+    Cstl_FloatImpl const* const self = (Cstl_FloatImpl const*) value_ptr;
+
+    Cstl_format_args(
+        buf,
+        "FloatImpl {{ sign: {i32}, exp: {i32:0b}, frac: {u64:0b} }}",
+        self->sign, self->exp, self->frac
+    );
+}
+
+Cstl_FloatFormatDescriptor Cstl_FloatFormatDescriptor_parse(
+    Cstl_str mut fmt
+) {
+    // fmt = '(s)(u)(0b|0o|0h|0xP)((+|-)(.|,)(N))'
+
+    Cstl_FloatFormatDescriptor mut desc = Cstl_FloatFormatDescriptor_DEFAULT;
+
+    Bool mut is_end = False;
+
+    while (!is_end) {
+        usize mut step_size = 1;
+        
+        switch (*fmt.ptr) {
+        case '+': case '_': case '.': case ',':
+            is_end = True;
+            break;
+        case 's':
+            desc.flags |= Cstl_IntegerFmtFlags_ShowSign;
+            break;
+        case 'u':
+            desc.flags |= Cstl_IntegerFmtFlags_Uppercase;
+            break;
+        case 'e':
+            desc.notation = Cstl_FloatNotation_Scientific;
+            break;
+
+        case '0': {
+            step_size += 1;
+
+            switch (fmt.ptr[1]) {
+            case 'b':
+                desc.radix = 2;
+                break;
+            case 'o':
+                desc.radix = 8;
+                break;
+            case 'h':
+                desc.radix = 16;
+                break;
+
+            case 'x': {
+                u16 const first_digit = fmt.ptr[2] - '0';
+                u16 const second_digit = fmt.ptr[3] - '0';
+
+                Cstl_assert(0 < first_digit && first_digit <= 9);
+                Cstl_assert(Bool_implies(first_digit < 2, second_digit <= 9));
+
+                desc.radix = second_digit <= 9
+                    ? first_digit * 10 + second_digit
+                    : first_digit;
+
+                step_size += second_digit <= 9 ? 2 : 1;
+            } break;
+
+            default:
+                Cstl_deny("invalid format");
+            }
+        } break;
+
+        default:
+            Cstl_deny("invalid format");
+        }
+
+        fmt.ptr += step_size;
+        fmt.len -= step_size;
+    }
+
+    switch (fmt.ptr[0]) {
+    case '-': {
+        desc.round = Cstl_FloatRound_Down;
+        fmt.ptr += 1;
+    } break;
+
+    case '+': {
+        desc.round = Cstl_FloatRound_Up;
+        fmt.ptr += 1;
+    } break;
+
+    default:
+        break;
+    }
+
+    switch (fmt.ptr[0]) {
+    case '.':
+        // fallthrough
+    case ',': {
+        desc.fraction_delim = fmt.ptr[0];
+
+        u16 const first_digit = fmt.ptr[1] - '0';
+        u16 const second_digit = fmt.ptr[2] - '0';
+
+        Cstl_assert(first_digit <= 9);
+        
+        desc.n_fraction_digits = second_digit <= 9
+            ? first_digit * 10 + second_digit
+            : first_digit;
+    } break;
+
+    default:
+        break;
+    }
+
+    return desc;
+}
 
 
 
@@ -76,54 +220,71 @@ void Cstl_char_fmt(
     Cstl_String_push_ascii(buf, *(char const*) value_ptr);
 }
 
+void Cstl_u64_fmt(
+    Cstl_String mut* const buf, Cstl_str mut fmt, Addr const value_ptr
+) {
+    Cstl_IntegerFormatDescriptor mut desc
+        = Cstl_IntegerFormatDescriptor_parse(fmt);
+
+    desc.value = *(u64 const*) value_ptr;
+
+    Cstl_x64_fmt_impl(buf, desc);
+}
+
 void Cstl_i64_fmt(
     Cstl_String mut* const buf, Cstl_str mut fmt, Addr const value_ptr
 ) {
+    Cstl_IntegerFormatDescriptor mut desc
+        = Cstl_IntegerFormatDescriptor_parse(fmt);
+
+    i64 const value = *(i64 const*) value_ptr;
+
+    desc.value = (u64) i64_abs(value);
+    desc.sign = 1 - 2 * (value < 0);
+
+    Cstl_x64_fmt_impl(buf, desc);
+}
+
+Cstl_IntegerFormatDescriptor Cstl_IntegerFormatDescriptor_parse(
+    Cstl_str mut value
+) {
     u32 mut flags = 0;
 
-    if (0 != fmt.len && 's' == *fmt.ptr) {
-        flags |= Cstl_NumberFmtFlags_ShowSign;
+    if (0 != value.len && 's' == *value.ptr) {
+        flags |= Cstl_IntegerFmtFlags_ShowSign;
 
-        fmt.ptr += 1;
-        fmt.len -= 1;
+        value.ptr += 1;
+        value.len -= 1;
     }
 
-    if (0 != fmt.len && 'u' == *fmt.ptr) {
-        flags |= Cstl_NumberFmtFlags_Uppercase;
+    if (0 != value.len && 'u' == *value.ptr) {
+        flags |= Cstl_IntegerFmtFlags_Uppercase;
 
-        fmt.ptr += 1;
-        fmt.len -= 1;
+        value.ptr += 1;
+        value.len -= 1;
     }
 
-    if (0 != fmt.len && 's' == *fmt.ptr) {
-        flags |= Cstl_NumberFmtFlags_ShowSign;
+    if (0 != value.len && 's' == *value.ptr) {
+        flags |= Cstl_IntegerFmtFlags_ShowSign;
 
-        fmt.ptr += 1;
-        fmt.len -= 1;
+        value.ptr += 1;
+        value.len -= 1;
     }
 
     u16 mut radix = 10;
 
-    if (1 < fmt.len && '0' == *fmt.ptr) {
-        fmt.ptr += 1;
-        fmt.len -= 1;
+    if (1 < value.len && '0' == *value.ptr) {
+        value.ptr += 1;
+        value.len -= 1;
 
-        switch (*fmt.ptr) {
-        case 'b': {
-            radix = 2;
-        } break;
-
-        case 'o': {
-            radix = 8;
-        } break;
-
-        case 'h': {
-            radix = 16;
-        } break;
+        switch (*value.ptr) {
+        case 'b': { radix = 2;  break; }
+        case 'o': { radix = 8;  break; }
+        case 'h': { radix = 16; break; }
 
         case 'x': {
-            u16 const first_digit = fmt.ptr[1] - '0';
-            u16 const second_digit = fmt.ptr[2] - '0';
+            u16 const first_digit = value.ptr[1] - '0';
+            u16 const second_digit = value.ptr[2] - '0';
 
             Cstl_assert_fmt(
                 1 <= first_digit && first_digit <= 9,
@@ -140,49 +301,51 @@ void Cstl_i64_fmt(
 
         default:
             Cstl_deny_fmt(
-                "invalid radix letter {char}", *(char const*) fmt.ptr
+                "invalid radix letter {char}", *(char const*) value.ptr
             );
         }
     }
 
-    Cstl_i64_fmt_impl(buf, *(i64 const*) value_ptr, radix, flags);
+    return (Cstl_IntegerFormatDescriptor) {
+        .value = 0,
+        .flags = flags,
+        .radix = radix,
+        .sign = 1
+    };
 }
 
-void Cstl_i64_fmt_impl(
-    Cstl_String mut* const buf,
-    i64 const value,
-    u16 const radix,
-    u32 const flags
+void Cstl_x64_fmt_impl(
+    Cstl_String mut* const buf, Cstl_IntegerFormatDescriptor const desc
 ) {
     enum { RADIX_MAX = 10 + ('z' - 'a' + 1) };
 
-    Bool const is_sign_shown = 0 != (flags & Cstl_NumberFmtFlags_ShowSign);
-    Bool const is_uppercase  = 0 != (flags & Cstl_NumberFmtFlags_Uppercase);
+    Bool const is_sign_shown = 0 != (desc.flags & Cstl_IntegerFmtFlags_ShowSign);
+    Bool const is_uppercase  = 0 != (desc.flags & Cstl_IntegerFmtFlags_Uppercase);
 
     Cstl_assert_fmt(
-        1 < radix && radix <= RADIX_MAX,
-        "integer format radix should be able to represent "
-        "in alphanumerical symbols (radix = {u16})",
-        radix
+        1 < desc.radix && desc.radix <= RADIX_MAX,
+        "integer format radix should be able to represent \
+        in alphanumerical symbols (radix = {u16})",
+        desc.radix
     );
 
     char const first_alphabetic_symbol = is_uppercase ? 'A' : 'a';
-    char const sign_symbol = 0 < value ? '+' : '-';
+    char const sign_symbol = 0 < desc.sign ? '+' : '-';
 
-    if (value < 0 || (0 != value && is_sign_shown)) {
+    if (desc.sign < 0 || (0 != desc.sign && is_sign_shown)) {
         Cstl_String_push_ascii(buf, sign_symbol);
     }
 
-    if (0 == value) {
+    if (0 == desc.value) {
         Cstl_String_push_ascii(buf, '0');
         return;
     }
 
-    u64 mut cur_value = i64_abs(value);
+    u64 mut cur_value = i64_abs(desc.value);
     usize mut number_len = 0;
 
-    for (; 0 != cur_value; cur_value /= radix, ++number_len) {
-        u16 const digit = cur_value % radix; 
+    for (; 0 != cur_value; cur_value /= desc.radix, ++number_len) {
+        u16 const digit = cur_value % desc.radix;
         char const cur_symbol = digit < 10
             ? digit + '0'
             : digit - 10 + first_alphabetic_symbol;
@@ -211,73 +374,48 @@ Bool Cstl__internal_f64_fmt_is_end(char const value) {
 }
 
 void Cstl_f64_fmt(
-    __attribute__((unused)) Cstl_String mut* const buf,
-    __attribute__((unused)) Cstl_str mut fmt,
-    __attribute__((unused)) Addr value_ptr
+    Cstl_String mut* const buf, Cstl_str mut fmt, Addr const value_ptr
 ) {
-    // fmt = '(s)(u)(0b|0o|0h|0xP)((+|-)(.|,)(N))'
+    Cstl_FloatFormatDescriptor mut desc
+        = Cstl_FloatFormatDescriptor_DEFAULT;
 
-    Bool mut is_have_sign = False, mut is_uppercase = False;
-    u16 mut radix = 10;
+    desc.value = *(f64 const*) value_ptr;
 
-    Bool mut is_end = False;
+    Cstl_f64_fmt_impl(buf, desc);
+}
 
-    while (!is_end) {
-        switch (*fmt.ptr) {
-        case '+': case '_': case '.': case ',':
-            is_end = True;
-            break;
-        case 's':
-            is_have_sign = True;
-            break;
-        case 'u':
-            is_have_sign = True;
-            break;
+void Cstl_f64_fmt_impl(
+    Cstl_String mut* const buf, Cstl_FloatFormatDescriptor const desc
+) {
+    Bool const is_fraction_fixed = u16_MAX != desc.n_fraction_digits;
 
-        case '0': {
-            switch (fmt.ptr[1]) {
-            case 'b':
-                radix = 2;
-                break;
-            case 'o':
-                radix = 8;
-                break;
-            case 'h':
-                radix = 16;
-                break;
+    Cstl_FloatImpl const impl = Cstl_FloatImpl_from_f64(desc.value);
 
-            case 'x': {
-                u16 const first_digit = fmt.ptr[2] - '0';
-                u16 const second_digit = fmt.ptr[3] - '0';
-
-                Cstl_assert(0 < first_digit && first_digit <= 9);
-                Cstl_assert(Bool_implies(first_digit < 2, second_digit <= 9));
-
-                radix = second_digit <= 9
-                    ? first_digit * 10 + second_digit
-                    : first_digit;
-            } break;
-
-            default:
-                Cstl_deny("invalid format");
-            }
-        } break;
-
-        default:
-            Cstl_deny("invalid format");
-        }
-
-        fmt.ptr += 1;
-        fmt.len -= 1;
+    if (0 != (desc.flags & Cstl_IntegerFmtFlags_ShowSign)) {
+        Cstl_String_push_ascii(buf, 0 < impl.sign ? '+' : '-');
+    } else if (impl.sign < 0) {
+        Cstl_String_push_ascii(buf, '-');
     }
 
-    typedef enum {
-        Round_Up, Round_Down, Round_Math
-    } Round;
+    switch (desc.notation) {
+    case Cstl_FloatNotation_Scientific: {
+        Cstl_String_append(buf, str("1."));
 
-    Round mut round = Round_Math;
-    char mut frac_delim = '.';
-    u16 mut n_fraction_digits = u16_MAX;
+        for (u64 mut cur_frac = impl.frac; 0 != cur_frac; cur_frac *= 10) {
+            
+        }
+    } break;
+
+    case Cstl_FloatNotation_Point:
+        Cstl_todo("point notation");
+
+    default:
+        Cstl_deny_fmt(
+            "invalid enum FloatNotation value `{u32}`", (u32) desc.notation
+        );
+    }
+
+    Cstl_todo("");
 }
 
 void Cstl_Vec_fmt(

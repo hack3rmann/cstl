@@ -13,6 +13,8 @@
 #define Cstl_lit_ptr(Type, value) \
     ((Type[]) { (Type) (value) })
 
+#define UNUSED __attribute__((unused))
+
 
 
 typedef usize Cstl_CollectionMeta;
