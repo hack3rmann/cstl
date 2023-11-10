@@ -88,7 +88,8 @@ typedef double f64;
 
 
 typedef char const* StrLit;
-typedef char mut* CStr;
+typedef char const* CStr;
+typedef char mut* CStrMut;
 
 typedef void const* Addr;
 typedef void mut* AddrMut;
