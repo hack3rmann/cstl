@@ -1,8 +1,5 @@
 #define USING_NAMESPACE_CSTL
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "format.h"
 #include "variadic.h"
 #include "error.h"

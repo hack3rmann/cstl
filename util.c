@@ -1,9 +1,7 @@
 #define USING_NAMESPACE_CSTL
 
-#include <string.h>
-#include <stdlib.h>
-
 #include "util.h"
+#include "memory.h"
 
 
 
@@ -41,14 +39,16 @@ void Cstl_swap(AddrMut const lhs, AddrMut const rhs, usize const n_bytes) {
 
         Bool const is_allocated = BUFFER_LEN < n_bytes;
 
-        u8 mut* buffer = is_allocated ? malloc(n_bytes) : static_buffer;
+        u8 mut* const buffer = is_allocated
+            ? Cstl_mem_alloc(n_bytes)
+            : static_buffer;
 
-        memcpy(buffer, rhs, n_bytes);
-        memcpy(rhs, lhs, n_bytes);
-        memcpy(lhs, buffer, n_bytes);
+        Cstl_mem_copy(buffer, rhs, n_bytes);
+        Cstl_mem_copy(rhs, lhs, n_bytes);
+        Cstl_mem_copy(lhs, buffer, n_bytes);
 
         if (is_allocated) {
-            free(buffer);
+            Cstl_mem_free(buffer);
         }
     } break;
     }

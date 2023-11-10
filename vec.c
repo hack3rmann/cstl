@@ -1,11 +1,8 @@
 #define USING_NAMESPACE_CSTL
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-
 #include "vec.h"
 #include "error.h"
+#include "memory.h"
 
 
 
@@ -17,7 +14,7 @@ Cstl_Vec Cstl_Vec_new(usize const elem_size) {
     return (Cstl_Vec) {
         .cap = 0,
         .len = 0,
-        .ptr = NULL,
+        .ptr = null_mut,
         .meta = Vec_new_meta(elem_size)
     };
 }
@@ -26,7 +23,7 @@ Cstl_Vec Cstl_Vec_with_capacity(usize const cap, usize const elem_size) {
     return (Cstl_Vec) {
         .cap = cap,
         .len = 0,
-        .ptr = malloc(elem_size * cap),
+        .ptr = Cstl_mem_alloc(elem_size * cap),
         .meta = Vec_new_meta(elem_size)
     };
 }
@@ -37,7 +34,7 @@ Cstl_Vec Cstl_Vec_from_slice(Cstl_Slice const src) {
 
     result.len = src.len;
 
-    memcpy(result.ptr, src.ptr, elem_size_of(src.meta) * src.len);
+    Cstl_mem_copy(result.ptr, src.ptr, elem_size_of(src.meta) * src.len);
 
     return result;
 }
@@ -46,7 +43,7 @@ Cstl_Vec Cstl_Vec_clone(Cstl_Vec const* const self) {
     Cstl_Vec const result
         = Cstl_Vec_with_capacity(self->len, elem_size_of(self->meta));
 
-    memcpy(result.ptr, self->ptr, elem_size_of(result.meta) * self->len);
+    Cstl_mem_copy(result.ptr, self->ptr, elem_size_of(result.meta) * self->len);
 
     return result;
 }
@@ -61,19 +58,16 @@ void Cstl_Vec_clone_from(Cstl_Vec* const self, Cstl_Vec const* const src) {
     
     self->len = src->len;
 
-    memcpy(self->ptr, src->ptr, elem_size_of(self->meta) * src->len);
+    Cstl_mem_copy(self->ptr, src->ptr, elem_size_of(self->meta) * src->len);
 }
 
 void Cstl_Vec_free(Cstl_Vec const* const self) {
-    if (NULL != self->ptr) {
-        free(self->ptr);
-    }
-
+    Cstl_mem_free(self->ptr);
     *(Cstl_Vec mut*) self = Cstl_Vec_new(elem_size_of(self->meta));
 }
 
 void Cstl__internal_Vec_alloc(Cstl_Vec* const self, usize const new_cap) {
-    if (NULL == self->ptr) {
+    if (null_mut == self->ptr) {
         *self = Cstl_Vec_with_capacity(new_cap, elem_size_of(self->meta));
         return;
     }
@@ -82,7 +76,7 @@ void Cstl__internal_Vec_alloc(Cstl_Vec* const self, usize const new_cap) {
         return;
     }
 
-    self->ptr = realloc(self->ptr, elem_size_of(self->meta) * new_cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, elem_size_of(self->meta) * new_cap);
     self->cap = new_cap;
 }
 
@@ -105,7 +99,7 @@ usize Cstl__internal_Vec_next_capacity(
 
 void Cstl_Vec_push(Cstl_Vec* const self, Addr const elem_ptr) {
     AddrMut const in_place_elem_ptr = Cstl_Vec_push_in_place(self);
-    memcpy(in_place_elem_ptr, elem_ptr, elem_size_of(self->meta));
+    Cstl_mem_copy(in_place_elem_ptr, elem_ptr, elem_size_of(self->meta));
 }
 
 AddrMut Cstl_Vec_pop(Cstl_Vec* const self) {
@@ -140,7 +134,7 @@ void Cstl_Vec_shrink_to(Cstl_Vec* const self, usize const min_cap) {
         return;
     }
 
-    self->ptr = realloc(self->ptr, min_cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, min_cap);
     self->cap = min_cap;
 }
 
@@ -159,7 +153,7 @@ void Cstl_Vec_set(
 ) {
     Cstl_assert(index < self->len);
 
-    memcpy(
+    Cstl_mem_copy(
         (u8 mut*) self->ptr + elem_size_of(self->meta) * index,
         value_ptr,
         elem_size_of(self->meta)
@@ -174,7 +168,7 @@ void Cstl_Vec_fill(Cstl_Vec const* const self, Addr const value_ptr) {
 
     if (is_out_of_bounds) {
         for (usize mut i = 0; i < self->len; ++i) {
-            memcpy(
+            Cstl_mem_copy(
                 (u8 mut*) self->ptr + elem_size_of(self->meta) * i,
                 value_ptr,
                 elem_size_of(self->meta)
@@ -186,7 +180,7 @@ void Cstl_Vec_fill(Cstl_Vec const* const self, Addr const value_ptr) {
                 = (u8 mut*) self->ptr + elem_size_of(self->meta) * i;
 
             if (cur_ptr != value_ptr) {
-                memcpy(cur_ptr, value_ptr, elem_size_of(self->meta));
+                Cstl_mem_copy(cur_ptr, value_ptr, elem_size_of(self->meta));
             }
         }
     }
@@ -268,14 +262,14 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
     } \
     Cstl_Vec_##Type Cstl_Vec_##Type##_with_capacity(usize const cap) { \
         return (Cstl_Vec_##Type) { \
-            .ptr = malloc(sizeof(Type) * cap), \
+            .ptr = Cstl_mem_alloc(sizeof(Type) * cap), \
             .cap = cap, \
             .len = 0 \
         }; \
     } \
     Cstl_Vec_##Type Cstl_Vec_##Type##_from_typed_slice(Cstl_Slice_##Type const src) { \
         Cstl_Vec_##Type mut result = Cstl_Vec_##Type##_with_capacity(src.len); \
-        memcpy(result.ptr, src.ptr, sizeof(Type) * src.len); \
+        Cstl_mem_copy((u8 mut*) result.ptr, (u8 const*) src.ptr, sizeof(Type) * src.len); \
         result.len = src.len; \
         return result; \
     } \
@@ -288,21 +282,21 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
             *self = Cstl_Vec_##Type##_clone(src); \
         } \
         self->len = src->len; \
-        memcpy(self->ptr, src->ptr, sizeof(Type) * src->len); \
+        Cstl_mem_copy((u8 mut*) self->ptr, (u8 const*) src->ptr, sizeof(Type) * src->len); \
     } \
     void Cstl_Vec_##Type##_free(Cstl_Vec_##Type const* self) { \
-        free(self->ptr); \
+        Cstl_mem_free(self->ptr); \
         *(Cstl_Vec_##Type mut*) self = Cstl_Vec_##Type##_DEFAULT; \
     } \
     void Cstl__internal_Vec_##Type##_alloc(Cstl_Vec_##Type mut* const self, usize const new_cap) { \
-        if (NULL == self->ptr) { \
+        if (null_mut == self->ptr) { \
             *self = Cstl_Vec_##Type##_with_capacity(new_cap); \
             return; \
         } \
         if (new_cap <= self->cap) { \
             return; \
         } \
-        self->ptr = realloc(self->ptr, sizeof(Type) * new_cap); \
+        self->ptr = Cstl_mem_realloc(self->ptr, sizeof(Type) * new_cap); \
         self->cap = new_cap; \
     } \
     usize Cstl__internal_Vec_##Type##_next_capacity(usize const cur_cap) { \
@@ -338,7 +332,7 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
     } \
     void Cstl_Vec_##Type##_shrink_to(Cstl_Vec_##Type mut* const self, usize const min_cap) { \
         if (self->cap <= min_cap) { return; } \
-        self->ptr = realloc(self->ptr, min_cap); \
+        self->ptr = Cstl_mem_realloc(self->ptr, min_cap); \
         self->cap = min_cap; \
     } \
     void Cstl_Vec_##Type##_shrink_to_fit(Cstl_Vec_##Type mut* const self) { \

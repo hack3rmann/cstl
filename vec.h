@@ -186,10 +186,9 @@ Cstl_Slice Cstl_Vec_slice_unchecked(Cstl_Vec mut* self, usize start, usize end);
 
 
 
-// TODO: add using (start)
 #define Cstl_declare_typed_Vec(Type) \
     typedef struct Cstl_Vec_##Type { \
-        Type* ptr; \
+        Type mut* ptr; \
         usize len; \
         usize cap; \
     } Cstl_Vec_##Type; \
@@ -239,21 +238,20 @@ Cstl_declare_typed_Vec(Bool);
 Cstl_declare_typed_Vec(f32);
 Cstl_declare_typed_Vec(f64);
 
-#define Cstl_Vec_u8_DEFAULT (Cstl_Vec_u8) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_i8_DEFAULT (Cstl_Vec_i8) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_u16_DEFAULT (Cstl_Vec_u16) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_i16_DEFAULT (Cstl_Vec_i16) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_u32_DEFAULT (Cstl_Vec_u32) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_i32_DEFAULT (Cstl_Vec_i32) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_u64_DEFAULT (Cstl_Vec_u64) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_i64_DEFAULT (Cstl_Vec_i64) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_usize_DEFAULT (Cstl_Vec_usize) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_isize_DEFAULT (Cstl_Vec_isize) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_char_DEFAULT (Cstl_Vec_char) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_Bool_DEFAULT (Cstl_Vec_Bool) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_f32_DEFAULT (Cstl_Vec_f32) { .ptr = NULL, .len = 0, .cap = 0 }
-#define Cstl_Vec_f64_DEFAULT (Cstl_Vec_f64) { .ptr = NULL, .len = 0, .cap = 0 }
-// TODO: add using (end)
+#define Cstl_Vec_u8_DEFAULT (Cstl_Vec_u8) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_i8_DEFAULT (Cstl_Vec_i8) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_u16_DEFAULT (Cstl_Vec_u16) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_i16_DEFAULT (Cstl_Vec_i16) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_u32_DEFAULT (Cstl_Vec_u32) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_i32_DEFAULT (Cstl_Vec_i32) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_u64_DEFAULT (Cstl_Vec_u64) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_i64_DEFAULT (Cstl_Vec_i64) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_usize_DEFAULT (Cstl_Vec_usize) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_isize_DEFAULT (Cstl_Vec_isize) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_char_DEFAULT (Cstl_Vec_char) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_Bool_DEFAULT (Cstl_Vec_Bool) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_f32_DEFAULT (Cstl_Vec_f32) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_f64_DEFAULT (Cstl_Vec_f64) { .ptr = null_mut, .len = 0, .cap = 0 }
 
 
 

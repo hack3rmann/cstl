@@ -1,7 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #if defined(_WIN32) && defined(_WIN64)
 #   include <windows.h>
 #endif
@@ -11,12 +7,17 @@
 #include "util.h"
 #include "compare.h"
 #include "variadic.h"
+#include "memory.h"
 #include "io.h"
 
 
 
+extern int putchar(int symbol);
+
+
+
 Cstl_String const Cstl_String_DEFAULT = (Cstl_String) {
-    .ptr = NULL,
+    .ptr = null_mut,
     .len = 0,
     .cap = 0
 };
@@ -198,7 +199,7 @@ Cstl_String Cstl_String_with_capacity(usize const cap) {
     return (Cstl_String) {
         .cap = cap,
         .len = 0,
-        .ptr = malloc(sizeof(u8) * cap)
+        .ptr = Cstl_mem_alloc(sizeof(u8) * cap)
     };
 }
 
@@ -208,12 +209,12 @@ Cstl_String Cstl_String_new(void) {
 
 Cstl_String Cstl_String_from_str(Cstl_str const string) {
     Cstl_String const result = {
-        .ptr = malloc(string.len),
+        .ptr = Cstl_mem_alloc(string.len),
         .len = string.len,
         .cap = string.len
     };
 
-    memcpy(result.ptr, string.ptr, string.len);
+    Cstl_mem_copy(result.ptr, string.ptr, string.len);
 
     return result;
 }
@@ -222,7 +223,7 @@ Cstl_String Cstl_String_clone(Cstl_String const* const self) {
     Cstl_String mut result = Cstl_String_with_capacity(self->len);
     result.len = self->len;
 
-    memcpy(result.ptr, self->ptr, result.len);
+    Cstl_mem_copy(result.ptr, self->ptr, result.len);
 
     return result;
 }
@@ -235,17 +236,17 @@ void Cstl_String_clone_from(
         *self = Cstl_String_with_capacity(src->len);
     }
 
-    memcpy(self->ptr, src->ptr, src->len);
+    Cstl_mem_copy(self->ptr, src->ptr, src->len);
     self->len = src->len;
 }
 
 void Cstl_String_free(Cstl_String const* const self) {
-    free(self->ptr);
+    Cstl_mem_free(self->ptr);
     *(Cstl_String mut*) self = Cstl_String_DEFAULT;
 }
 
 void Cstl__internal_String_alloc(Cstl_String mut* const self, usize const cap) {
-    if (NULL == self->ptr) {
+    if (null_mut == self->ptr) {
         *self = Cstl_String_with_capacity(cap);
         return;
     }
@@ -254,7 +255,7 @@ void Cstl__internal_String_alloc(Cstl_String mut* const self, usize const cap) {
         return;
     }
 
-    self->ptr = realloc(self->ptr, sizeof(*self->ptr) * cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, sizeof(*self->ptr) * cap);
     self->cap = cap;
 }
 
@@ -329,7 +330,7 @@ void Cstl_String_shrink_to(Cstl_String mut* const self, usize const cap) {
         return;
     }
 
-    self->ptr = realloc(self->ptr, cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, cap);
     self->cap = cap;
 }
 
@@ -350,7 +351,7 @@ void Cstl_String_append_bytes(
         Cstl_String_reserve(self, slice.len + self->len - self->cap);
     }
 
-    memcpy(self->ptr + self->len, slice.ptr, slice.len);
+    Cstl_mem_copy(self->ptr + self->len, slice.ptr, slice.len);
 
     self->len += slice.len;
 }
@@ -390,7 +391,7 @@ Cstl_String Cstl_String_from_utf8_unchecked(
     Cstl_String mut result = Cstl_String_with_capacity(n_bytes);
     result.len = n_bytes;
 
-    memcpy(result.ptr, bytes, n_bytes);
+    Cstl_mem_copy(result.ptr, bytes, n_bytes);
 
     return result;
 }
@@ -574,7 +575,7 @@ Cstl_String Cstl_String_concat(usize const n_strings, ...) {
         Cstl_str const* const str_ptr
             = VariadicArgs_get(args, Cstl_str const*);
 
-        memcpy(result.ptr + result.len, str_ptr->ptr, str_ptr->len);
+        Cstl_mem_copy(result.ptr + result.len, str_ptr->ptr, str_ptr->len);
         result.len += str_ptr->len;
     }
 
@@ -587,7 +588,7 @@ Cstl_String Cstl_String_concat(usize const n_strings, ...) {
 
 
 Cstl_str const Cstl_str_DEFAULT = (Cstl_str) {
-    .ptr = NULL,
+    .ptr = null_mut,
     .len = 0
 };
 
@@ -650,7 +651,7 @@ Cstl_str Cstl_Split_next(Cstl_Split mut* const self) {
 }
 
 Bool Cstl_Split_is_expired(Cstl_str const* const ret) {
-    return NULL == ret->ptr;
+    return null_mut == ret->ptr;
 }
 
 
@@ -699,7 +700,7 @@ Cstl_str Cstl_SplitAny_next(Cstl_SplitAny mut* const self) {
 }
 
 Bool Cstl_SplitAny_is_expired(Cstl_str const* const ret) {
-    return NULL == ret->ptr;
+    return null_mut == ret->ptr;
 }
 
 
@@ -730,7 +731,7 @@ Cstl_str Cstl_SplitWhitespace_next(Cstl_SplitWhitespace mut* const self) {
 }
 
 Bool Cstl_SplitWhitespace_is_expired(Cstl_str const* const ret) {
-    return NULL == ret->ptr;
+    return null_mut == ret->ptr;
 }
 
 

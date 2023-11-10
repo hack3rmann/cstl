@@ -5,6 +5,10 @@
 #include "string.h"
 
 
+extern void abort(void);
+extern void exit(int exit_code);
+
+
 
 #define Cstl_deny_fmt(fmt, args...) \
     do { \

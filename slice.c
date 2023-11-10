@@ -1,13 +1,11 @@
 #define USING_NAMESPACE_CSTL
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "slice.h"
 #include "error.h"
 #include "util.h"
+#include "memory.h"
 
+// FIXME: remove macros
 #define elem_size_of(meta) Cstl_CollectionMeta_elem_size(meta)
 
 #define new_meta(elem_size) Cstl_SliceMetaFlags_new(elem_size)
@@ -33,7 +31,7 @@ AddrMut Cstl_Slice_get(Cstl_Slice const self, usize const index) {
 void Cstl_Slice_set_unchecked(
     Cstl_Slice const self, usize const index, Addr const value_ptr
 ) {
-    memcpy(
+    Cstl_mem_copy(
         self.ptr + elem_size_of(self.meta) * index,
         value_ptr,
         elem_size_of(self.meta)
