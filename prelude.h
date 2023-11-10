@@ -7,14 +7,14 @@
 
 
 #include "types.h"
+#include "util.h"
+
 #include "slice.h"
 #include "vec.h"
 #include "error.h"
-#include "util.h"
 #include "string.h"
 #include "compare.h"
 #include "numeric.h"
-#include "io.h"
 
 
 

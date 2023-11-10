@@ -22,8 +22,7 @@
 
 #ifdef USING_NAMESPACE_CSTL
 
-    #define iterate(IterType, iter, next, tt) \
-        Cstl_iterate(IterType, iter, next, tt)
+    #define iterate Cstl_iterate
 
 #endif
 

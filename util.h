@@ -38,34 +38,18 @@ void Cstl_swap_64(AddrMut lhs, AddrMut rhs);
 
     typedef Cstl_CollectionMeta CollectionMeta;
 
-    #define CollectionMeta_elem_size(self) \
-        Cstl_CollectionMeta_elem_size(self)
+    #define CollectionMeta_elem_size Cstl_CollectionMeta_elem_size
 
 
 
-    #define array_len(array) \
-        Cstl_array_len(array)
-
-    #define lit_ptr(Type, value) \
-        Cstl_lit_ptr(Type, value)
-
-    #define swap_values(lhs_ptr, rhs_ptr) \
-        Cstl_swap_values(lhs_ptr, rhs_ptr)
-
-    #define swap(lhs, rhs, n_bytes) \
-        Cstl_swap(lhs, rhs, n_bytes)
-
-    #define swap_8(lhs, rhs) \
-        Cstl_swap_8(lhs, rhs)
-    
-    #define swap_16(lhs, rhs) \
-        Cstl_swap_16(lhs, rhs)
-
-    #define swap_32(lhs, rhs) \
-        Cstl_swap_32(lhs, rhs)
-
-    #define swap_64(lhs, rhs) \
-        Cstl_swap_64(lhs, rhs)
+    #define array_len Cstl_array_len
+    #define lit_ptr Cstl_lit_ptr
+    #define swap_values Cstl_swap_values
+    #define swap Cstl_swap
+    #define swap_8 Cstl_swap_8
+    #define swap_16 Cstl_swap_16
+    #define swap_32 Cstl_swap_32
+    #define swap_64 Cstl_swap_64
 
 #endif // USING_NAMESPACE_CSTL
 

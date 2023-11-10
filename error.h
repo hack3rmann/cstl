@@ -58,29 +58,14 @@ extern void exit(int exit_code);
 
 #ifdef USING_NAMESPACE_CSTL
 
-    #define deny_fmt(fmt, args...) \
-        Cstl_deny_fmt(fmt, args)
-
-    #define deny(reason) \
-        Cstl_deny(reason)
-
-    #define assert_fmt(expr, fmt, args...) \
-        Cstl_assert_fmt(expr, fmt, args)
-
-    #define assert_msg(expr, msg) \
-        Cstl_assert_msg(expr, msg)
-
-    #define assert(expr) \
-        Cstl_assert(expr)
-
-    #define todo(plan) \
-        Cstl_todo(plan)
-
-    #define unreachable_msg(reason) \
-        Cstl_unreachable_msg(reason)
-
-    #define unreachable() \
-        Cstl_unreachable()
+    #define deny_fmt Cstl_deny_fmt
+    #define deny Cstl_deny
+    #define assert_fmt Cstl_assert_fmt
+    #define assert_msg Cstl_assert_msg
+    #define assert Cstl_assert
+    #define todo Cstl_todo
+    #define unreachable_msg Cstl_unreachable_msg
+    #define unreachable Cstl_unreachable
 
 #endif // USING_NAMESPACE_CSTL
 

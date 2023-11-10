@@ -1,8 +1,6 @@
 #ifndef _CSTL_ITER_H_
 #define _CSTL_ITER_H_
 
-
-
 #include "types.h"
 
 
@@ -23,14 +21,9 @@ Bool Cstl_Range_is_expired(usize const* ret);
 
     typedef Cstl_Range Range;
 
-    #define Range_new(start, end) \
-        Cstl_Range_new(start, end)
-
-    #define Range_next(self) \
-        Cstl_Range_next(self) 
-
-    #define Range_is_expired(ret) \
-        Cstl_Range_is_expired(ret)
+    #define Range_new Cstl_Range_new
+    #define Range_next Cstl_Range_next
+    #define Range_is_expired Cstl_Range_is_expired
 
 #endif // USING_NAMESPACE_CSTL
 

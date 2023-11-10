@@ -496,24 +496,8 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
     return result;
 }
 
-Cstl_str Cstl_String_as_str(Cstl_String mut* const self) {
+Cstl_str Cstl_String_as_str(Cstl_String const* const self) {
     return *(Cstl_str mut*) self;
-}
-
-Bool Cstl_String_eq(
-    Cstl_String const* const self, Cstl_String const* const value
-) {
-    if (self->len != value->len) {
-        return False;
-    }
-
-    for (usize mut i = 0; i < self->len; ++i) {
-        if (self->ptr[i] != value->ptr[i]) {
-            return False;
-        }
-    }
-
-    return True;
 }
 
 Cstl_str Cstl_str_split_one(Cstl_str mut* const self, Cstl_str const delim) {
@@ -550,10 +534,25 @@ void Cstl_str_print(Cstl_str const self) {
 
 
 
-Bool Cstl_String_ne(
-    Cstl_String const* const self, Cstl_String const* const value
-) {
-    return !Cstl_String_eq(self, value);
+Bool Cstl_String_eq(Addr const lhs, Addr const rhs) {
+    Cstl_String const* const self = lhs;
+    Cstl_String const* const value = rhs;
+
+    if (self->len != value->len) {
+        return False;
+    }
+
+    for (usize mut i = 0; i < self->len; ++i) {
+        if (self->ptr[i] != value->ptr[i]) {
+            return False;
+        }
+    }
+
+    return True;
+}
+
+Bool Cstl_String_ne(Addr const lhs, Addr const rhs) {
+    return !Cstl_String_eq(lhs, rhs);
 }
 
 Cstl_String Cstl_String_concat(usize const n_strings, ...) {
@@ -566,17 +565,16 @@ Cstl_String Cstl_String_concat(usize const n_strings, ...) {
     usize mut len_sum = 0;
 
     for (usize mut i = 0; i < n_strings; ++i) {
-        len_sum += VariadicArgs_get(args_clone, Cstl_str const*)->len;
+        len_sum += VariadicArgs_get(args_clone, Cstl_str).len;
     }
 
     Cstl_String mut result = Cstl_String_with_capacity(len_sum);
 
     for (usize mut i = 0; i < n_strings; ++i) {
-        Cstl_str const* const str_ptr
-            = VariadicArgs_get(args, Cstl_str const*);
+        Cstl_str const value = VariadicArgs_get(args, Cstl_str);
 
-        Cstl_mem_copy(result.ptr + result.len, str_ptr->ptr, str_ptr->len);
-        result.len += str_ptr->len;
+        Cstl_mem_copy(result.ptr + result.len, value.ptr, value.len);
+        result.len += value.len;
     }
 
     VariadicArgs_end(args_clone);
