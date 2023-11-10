@@ -39,7 +39,7 @@ enum {
 
 
 
-typedef enum {
+typedef enum Cstl_Utf8ByteType {
     Cstl_Utf8ByteType_SingleByte,
     Cstl_Utf8ByteType_PairByteEntry,
     Cstl_Utf8ByteType_TripleByteEntry,
@@ -78,7 +78,7 @@ void Cstl_set_utf8_output_encoding(void);
 
 
 
-typedef struct {
+typedef struct Cstl_str {
     u8 mut* ptr;
     usize len;
 } Cstl_str;
@@ -97,7 +97,7 @@ void Cstl_str_debug(Cstl_str self);
 
 
 
-typedef struct {
+typedef struct Cstl_Split {
     Cstl_str string;
     Cstl_str delim;
 } Cstl_Split;
@@ -110,7 +110,7 @@ Bool Cstl_Split_is_expired(Cstl_str const* ret);
 
 
 
-typedef struct {
+typedef struct Cstl_SplitAny {
     Cstl_str string;
     Cstl_Slice delims;
 } Cstl_SplitAny;
@@ -123,7 +123,7 @@ Bool Cstl_Split_is_expired(Cstl_str const* ret);
 
 
 
-typedef struct {
+typedef struct Cstl_SplitWhitespace {
     Cstl_str string;
 } Cstl_SplitWhitespace;
 
@@ -143,7 +143,7 @@ Bool Cstl_char_is_whitespace(char self);
 
 
 
-typedef struct {
+typedef struct Cstl_Chars {
     Cstl_str string;
 } Cstl_Chars;
 
@@ -155,7 +155,7 @@ Bool Cstl_Chars_is_expired(Cstl_Char const* ret);
 
 
 
-typedef struct {
+typedef struct Cstl_String {
     u8 mut* ptr;
     usize len;
     usize cap;

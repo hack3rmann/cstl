@@ -7,7 +7,7 @@
 
 
 
-typedef struct {
+typedef struct Cstl_Range {
     usize start, end;
 } Cstl_Range;
 

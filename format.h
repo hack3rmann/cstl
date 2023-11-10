@@ -61,7 +61,7 @@
 
 
 
-typedef enum {
+typedef enum Cstl_FloatNotation {
     Cstl_FloatNotation_Scientific,
     Cstl_FloatNotation_Point
 } Cstl_FloatNotation;
@@ -70,7 +70,7 @@ typedef enum {
 
 
 
-typedef struct {
+typedef struct Cstl_FloatImpl {
     i32 sign, exp;
     u64 frac;
 } Cstl_FloatImpl;
@@ -91,7 +91,7 @@ void Cstl_FloatImpl_dbg(Cstl_String mut* buf, Cstl_str fmt, Addr value_ptr);
 
 
 
-typedef enum {
+typedef enum Cstl_FloatRound {
     Cstl_FloatRound_Up,
     Cstl_FloatRound_Down,
     Cstl_FloatRound_Math
@@ -101,7 +101,7 @@ typedef enum {
 
 
 
-typedef enum {
+typedef enum Cstl_IntegerFmtFlags {
     Cstl_IntegerFmtFlags_ShowSign = 0x1,
     Cstl_IntegerFmtFlags_Uppercase = 0x2,
 } Cstl_IntegerFmtFlags;
@@ -110,7 +110,7 @@ typedef enum {
 
 
 
-typedef struct {
+typedef struct Cstl_FloatFormatDescriptor {
     f64 value;
     u16 radix;
     u16 flags;
@@ -130,7 +130,7 @@ Cstl_FloatFormatDescriptor Cstl_FloatFormatDescriptor_parse(Cstl_str value);
 
 
 
-typedef struct {
+typedef struct Cstl_IntegerFormatDescriptor {
     u64 value;
     i16 sign;
     u16 radix;
@@ -177,7 +177,7 @@ Cstl_declare_fmt_Type_fn(str);
 
 
 
-typedef enum {
+typedef enum Cstl_BasicType {
     Cstl_BasicType_u8,
     Cstl_BasicType_i8,
     Cstl_BasicType_u16,
@@ -235,8 +235,8 @@ void Cstl_format_scope(
 
     typedef Cstl_FloatNotation FloatNotation;
 
-    #define FloatNotation_Scientific;
-    #define FloatNotation_Point;
+    #define FloatNotation_Scientific Cstl_FloatNotation_Specific
+    #define FloatNotation_Point Cstl_FloatNotation_Point
 
     #define FloatNotation_DEFAULT Cstl_FloatNotation_DEFAULT
 

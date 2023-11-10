@@ -5,7 +5,7 @@
 
 
 
-typedef enum {
+typedef enum Cstl_Ordering {
     Cstl_Ordering_Less = -1,
     Cstl_Ordering_Equal = 0,
     Cstl_Ordering_Greater = 1
@@ -25,6 +25,10 @@ Cstl_Ordering Cstl_u64_cmp(Addr lhs, Addr rhs);
 Cstl_Ordering Cstl_i64_cmp(Addr lhs, Addr rhs);
 Cstl_Ordering Cstl_usize_cmp(Addr lhs, Addr rhs);
 Cstl_Ordering Cstl_isize_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_char_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_Bool_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_f32_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_f64_cmp(Addr lhs, Addr rhs);
 
 u8 u8_max(u8 lhs, u8 rhs);
 i8 i8_max(i8 lhs, i8 rhs);
@@ -36,6 +40,8 @@ u64 u64_max(u64 lhs, u64 rhs);
 i64 i64_max(i64 lhs, i64 rhs);
 usize usize_max(usize lhs, usize rhs);
 isize isize_max(isize lhs, isize rhs);
+char char_max(char lhs, char rhs);
+Bool Bool_max(Bool lhs, Bool rhs);
 
 u8 u8_min(u8 lhs, u8 rhs);
 i8 i8_min(i8 lhs, i8 rhs);
@@ -47,6 +53,8 @@ u64 u64_min(u64 lhs, u64 rhs);
 i64 i64_min(i64 lhs, i64 rhs);
 usize usize_min(usize lhs, usize rhs);
 isize isize_min(isize lhs, isize rhs);
+char char_max(char lhs, char rhs);
+Bool Bool_max(Bool lhs, Bool rhs);
 
 
 
@@ -77,6 +85,10 @@ isize isize_min(isize lhs, isize rhs);
     #define i64_cmp Cstl_i64_cmp
     #define usize_cmp Cstl_usize_cmp
     #define isize_cmp Cstl_isize_cmp
+    #define char_cmp Cstl_char_cmp
+    #define Bool_cmp Cstl_Bool_cmp
+    #define f32_cmp Cstl_f32_cmp
+    #define f64_cmp Cstl_f64_cmp
 
 #endif
 

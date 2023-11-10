@@ -25,7 +25,7 @@
 
 
 
-typedef enum {
+typedef enum Cstl_SliceMetaFlags {
     Cstl_SliceMetaFlags_Default = (u16) 0
 } Cstl_SliceMetaFlags;
 
@@ -33,7 +33,7 @@ Cstl_SliceMetaFlags Cstl_SliceMetaFlags_new(usize elem_size);
 
 
 
-typedef struct {
+typedef struct Cstl_Slice {
     AddrMut ptr;
     usize len;
     Cstl_CollectionMeta meta;
@@ -128,16 +128,13 @@ void Cstl_Slice_reverse(Cstl_Slice self);
 
 
 #define Cstl_declare_basic_type_slice(Type) \
-    typedef struct { \
+    typedef struct Cstl_Slice_##Type { \
         Type* ptr; \
         usize len; \
-    } Cstl_Slice_ ## Type; \
+    } Cstl_Slice_##Type; \
     \
-    Type* Cstl_Slice_ ## Type ## _get_unchecked( \
-        Cstl_Slice_ ## Type self, usize index \
-    ); \
-    \
-    Type* Cstl_Slice_ ## Type ## _get(Cstl_Slice_ ## Type self, usize index);
+    Type mut* Cstl_Slice_##Type##_get_unchecked(Cstl_Slice_##Type self, usize index); \
+    Type mut* Cstl_Slice_##Type##_get(Cstl_Slice_##Type self, usize index);
     
 Cstl_declare_basic_type_slice(u8);
 Cstl_declare_basic_type_slice(i8);
@@ -151,6 +148,9 @@ Cstl_declare_basic_type_slice(usize);
 Cstl_declare_basic_type_slice(isize);
 Cstl_declare_basic_type_slice(f32);
 Cstl_declare_basic_type_slice(f64);
+Cstl_declare_basic_type_slice(char);
+Cstl_declare_basic_type_slice(Bool);
+
 
 
 #ifdef USING_NAMESPACE_CSTL

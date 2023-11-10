@@ -41,15 +41,15 @@ Cstl_FloatImpl Cstl_FloatImpl_from_f32(f32 const value) {
 }
 
 Cstl_FloatImpl Cstl_FloatImpl_from_f64(UNUSED f64 const value) {
-    Cstl_todo("");
+    Cstl_todo("FloatImpl_from_f64");
 }
 
 f32 Cstl_FloatImpl_to_f32(UNUSED Cstl_FloatImpl const self) {
-    Cstl_todo("");
+    Cstl_todo("FloatImpl_to_f32");
 }
 
 f64 Cstl_FloatImpl_to_f64(UNUSED Cstl_FloatImpl const self) {
-    Cstl_todo("");
+    Cstl_todo("FloatImpl_to_f64");
 }
 
 void Cstl_FloatImpl_dbg(
@@ -374,10 +374,9 @@ Bool Cstl__internal_f64_fmt_is_end(char const value) {
 }
 
 void Cstl_f64_fmt(
-    Cstl_String mut* const buf, Cstl_str mut fmt, Addr const value_ptr
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
 ) {
-    Cstl_FloatFormatDescriptor mut desc
-        = Cstl_FloatFormatDescriptor_DEFAULT;
+    Cstl_FloatFormatDescriptor mut desc = Cstl_FloatFormatDescriptor_parse(fmt);
 
     desc.value = *(f64 const*) value_ptr;
 
@@ -387,7 +386,8 @@ void Cstl_f64_fmt(
 void Cstl_f64_fmt_impl(
     Cstl_String mut* const buf, Cstl_FloatFormatDescriptor const desc
 ) {
-    Bool const is_fraction_fixed = u16_MAX != desc.n_fraction_digits;
+    // FIXME: remove `UNUSED`
+    UNUSED Bool const is_fraction_fixed = u16_MAX != desc.n_fraction_digits;
 
     Cstl_FloatImpl const impl = Cstl_FloatImpl_from_f64(desc.value);
 
