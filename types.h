@@ -5,10 +5,18 @@
 
 
 
+#define mut
+
+
+
 typedef enum Bool {
     False = 0,
     True = 1
 } Bool;
+
+Bool Bool_implies(Bool self, Bool other);
+
+
 
 typedef signed char        i8;
 typedef unsigned char      u8;
@@ -62,7 +70,7 @@ typedef double f64;
 typedef char const* StrLit;
 
 typedef void const* Addr;
-typedef void* AddrMut;
+typedef void mut* AddrMut;
 
 
 
