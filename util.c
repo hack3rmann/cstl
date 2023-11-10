@@ -1,15 +1,16 @@
 #define USING_NAMESPACE_CSTL
 
-#include <string.h>
-#include <stdbool.h>
-#include <stdlib.h>
-
 #include "util.h"
+#include "memory.h"
 
 
 
-usize Cstl_CollectionMetaData_elem_size(Cstl_CollectionMetaData const self) {
-    return (self.elem_size & (~(usize) 0 >> 8 * sizeof(u16)));
+usize Cstl_CollectionMeta_elem_size(Cstl_CollectionMeta const self) {
+    return self & u16_MAX;
+}
+
+usize elem_size_of(Cstl_CollectionMeta const meta) {
+    return Cstl_CollectionMeta_elem_size(meta);
 }
 
 void Cstl_swap(AddrMut const lhs, AddrMut const rhs, usize const n_bytes) {
@@ -36,23 +37,21 @@ void Cstl_swap(AddrMut const lhs, AddrMut const rhs, usize const n_bytes) {
 
         static u8 static_buffer[BUFFER_LEN];
 
-        bool const is_allocated = BUFFER_LEN < n_bytes;
+        Bool const is_allocated = BUFFER_LEN < n_bytes;
 
-        u8 mut* buffer = is_allocated ? malloc(n_bytes) : static_buffer;
+        u8 mut* const buffer = is_allocated
+            ? Cstl_mem_alloc(n_bytes)
+            : static_buffer;
 
-        memcpy(buffer, rhs, n_bytes);
-        memcpy(rhs, lhs, n_bytes);
-        memcpy(lhs, buffer, n_bytes);
+        Cstl_mem_copy(buffer, rhs, n_bytes);
+        Cstl_mem_copy(rhs, lhs, n_bytes);
+        Cstl_mem_copy(lhs, buffer, n_bytes);
 
         if (is_allocated) {
-            free(buffer);
+            Cstl_mem_free(buffer);
         }
     } break;
     }
-}
-
-void swap(AddrMut const lhs, AddrMut const rhs, usize const n_bytes) {
-    Cstl_swap(lhs, rhs, n_bytes);
 }
 
 void Cstl_swap_8(AddrMut const lhs, AddrMut const rhs) {

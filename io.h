@@ -7,12 +7,9 @@
 
 
 
-#define Cstl_println(fmt, args...) \
-    Cstl_print(fmt "\n", args)
-
-
-
 void Cstl_print(StrLit fmt, ...);
+
+void Cstl_println(StrLit fmt, ...);
 
 void Cstl_print_impl(StrLit fmt, VariadicArgs mut* args);
 
@@ -20,10 +17,9 @@ void Cstl_print_impl(StrLit fmt, VariadicArgs mut* args);
 
 #ifdef USING_NAMESPACE_CSTL
 
-    #define println(fmt, args...) \
-        print(fmt "\n", args)
-
-    void print(StrLit fmt, ...);
+    #define println Cstl_println
+    #define print Cstl_print
+    #define print_impl Cstl_print_impl
 
 #endif // USING_NAMESPACE_CSTL
 

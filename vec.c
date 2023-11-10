@@ -1,20 +1,12 @@
 #define USING_NAMESPACE_CSTL
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <stdio.h>
-
 #include "vec.h"
 #include "error.h"
-
-#define new_meta(elem_size) Cstl_VecMetaFlags_new(elem_size)
-
-#define elem_size_of(meta) Cstl_CollectionMetaData_elem_size(meta)
+#include "memory.h"
 
 
 
-Cstl_VecMetaFlags Cstl_VecMetaFlags_new(usize const elem_size) {
+Cstl_CollectionMeta Cstl_Vec_new_meta(usize const elem_size) {
     return elem_size;
 }
 
@@ -22,8 +14,8 @@ Cstl_Vec Cstl_Vec_new(usize const elem_size) {
     return (Cstl_Vec) {
         .cap = 0,
         .len = 0,
-        .ptr = NULL,
-        .meta = { new_meta(elem_size) }
+        .ptr = null_mut,
+        .meta = Vec_new_meta(elem_size)
     };
 }
 
@@ -31,8 +23,8 @@ Cstl_Vec Cstl_Vec_with_capacity(usize const cap, usize const elem_size) {
     return (Cstl_Vec) {
         .cap = cap,
         .len = 0,
-        .ptr = malloc(elem_size * cap),
-        .meta = { new_meta(elem_size) }
+        .ptr = Cstl_mem_alloc(elem_size * cap),
+        .meta = Vec_new_meta(elem_size)
     };
 }
 
@@ -42,7 +34,7 @@ Cstl_Vec Cstl_Vec_from_slice(Cstl_Slice const src) {
 
     result.len = src.len;
 
-    memcpy(result.ptr, src.ptr, elem_size_of(src.meta) * src.len);
+    Cstl_mem_copy(result.ptr, src.ptr, elem_size_of(src.meta) * src.len);
 
     return result;
 }
@@ -51,7 +43,7 @@ Cstl_Vec Cstl_Vec_clone(Cstl_Vec const* const self) {
     Cstl_Vec const result
         = Cstl_Vec_with_capacity(self->len, elem_size_of(self->meta));
 
-    memcpy(result.ptr, self->ptr, elem_size_of(result.meta) * self->len);
+    Cstl_mem_copy(result.ptr, self->ptr, elem_size_of(result.meta) * self->len);
 
     return result;
 }
@@ -66,19 +58,16 @@ void Cstl_Vec_clone_from(Cstl_Vec* const self, Cstl_Vec const* const src) {
     
     self->len = src->len;
 
-    memcpy(self->ptr, src->ptr, elem_size_of(self->meta) * src->len);
+    Cstl_mem_copy(self->ptr, src->ptr, elem_size_of(self->meta) * src->len);
 }
 
 void Cstl_Vec_free(Cstl_Vec const* const self) {
-    if (NULL != self->ptr) {
-        free(self->ptr);
-    }
-
+    Cstl_mem_free(self->ptr);
     *(Cstl_Vec mut*) self = Cstl_Vec_new(elem_size_of(self->meta));
 }
 
 void Cstl__internal_Vec_alloc(Cstl_Vec* const self, usize const new_cap) {
-    if (NULL == self->ptr) {
+    if (null_mut == self->ptr) {
         *self = Cstl_Vec_with_capacity(new_cap, elem_size_of(self->meta));
         return;
     }
@@ -87,7 +76,7 @@ void Cstl__internal_Vec_alloc(Cstl_Vec* const self, usize const new_cap) {
         return;
     }
 
-    self->ptr = realloc(self->ptr, elem_size_of(self->meta) * new_cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, elem_size_of(self->meta) * new_cap);
     self->cap = new_cap;
 }
 
@@ -108,15 +97,15 @@ usize Cstl__internal_Vec_next_capacity(
     return 3 * cur_cap / 2;
 }
 
-void Cstl_Vec_push(Cstl_Vec* const self, void const* const elem_ptr) {
-    void mut* const in_place_elem_ptr = Cstl_Vec_push_in_place(self);
-    memcpy(in_place_elem_ptr, elem_ptr, elem_size_of(self->meta));
+void Cstl_Vec_push(Cstl_Vec* const self, Addr const elem_ptr) {
+    AddrMut const in_place_elem_ptr = Cstl_Vec_push_in_place(self);
+    Cstl_mem_copy(in_place_elem_ptr, elem_ptr, elem_size_of(self->meta));
 }
 
-void* Cstl_Vec_pop(Cstl_Vec* const self) {
+AddrMut Cstl_Vec_pop(Cstl_Vec* const self) {
     Cstl_assert(0 < self->len);
 
-    return (u8*) self->ptr + elem_size_of(self->meta) * (--self->len);
+    return (u8 mut*)  self->ptr + elem_size_of(self->meta) * (--self->len);
 }
 
 void Cstl_Vec_reserve_exact(
@@ -145,7 +134,7 @@ void Cstl_Vec_shrink_to(Cstl_Vec* const self, usize const min_cap) {
         return;
     }
 
-    self->ptr = realloc(self->ptr, min_cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, min_cap);
     self->cap = min_cap;
 }
 
@@ -153,44 +142,45 @@ void Cstl_Vec_shrink_to_fit(Cstl_Vec* const self) {
     Cstl_Vec_shrink_to(self, self->len);
 }
 
-void* Cstl_Vec_get(Cstl_Vec const* const self, usize const index) {
+AddrMut Cstl_Vec_get(Cstl_Vec const* const self, usize const index) {
     Cstl_assert(index < self->len);
 
-    return (u8*)self->ptr + elem_size_of(self->meta) * index;
+    return (u8 mut*) self->ptr + elem_size_of(self->meta) * index;
 }
 
 void Cstl_Vec_set(
-    Cstl_Vec const* const self, usize const index, const void* const value_ptr
+    Cstl_Vec const* const self, usize const index, Addr const value_ptr
 ) {
     Cstl_assert(index < self->len);
 
-    memcpy(
-        (u8*)self->ptr + elem_size_of(self->meta) * index,
+    Cstl_mem_copy(
+        (u8 mut*) self->ptr + elem_size_of(self->meta) * index,
         value_ptr,
         elem_size_of(self->meta)
     );
 }
 
-void Cstl_Vec_fill(Cstl_Vec const* const self, const void* const value_ptr) {
-    bool const is_out_of_bounds
+void Cstl_Vec_fill(Cstl_Vec const* const self, Addr const value_ptr) {
+    Bool const is_out_of_bounds
         = value_ptr < self->ptr
-        && (u8*)self->ptr + elem_size_of(self->meta) * self->len
-            <= (u8*)value_ptr;
+        && (u8 mut*) self->ptr + elem_size_of(self->meta) * self->len
+            <= (u8 mut*) value_ptr;
 
     if (is_out_of_bounds) {
         for (usize mut i = 0; i < self->len; ++i) {
-            memcpy(
-                (u8*)self->ptr + elem_size_of(self->meta) * i,
+            Cstl_mem_copy(
+                (u8 mut*) self->ptr + elem_size_of(self->meta) * i,
                 value_ptr,
                 elem_size_of(self->meta)
             );
         }
     } else {
         for (usize mut i = 0; i < self->len; ++i) {
-            void* const cur_ptr = (u8*)self->ptr + elem_size_of(self->meta) * i;
+            AddrMut const cur_ptr
+                = (u8 mut*) self->ptr + elem_size_of(self->meta) * i;
 
             if (cur_ptr != value_ptr) {
-                memcpy(cur_ptr, value_ptr, elem_size_of(self->meta));
+                Cstl_mem_copy(cur_ptr, value_ptr, elem_size_of(self->meta));
             }
         }
     }
@@ -204,7 +194,7 @@ Cstl_Slice Cstl_Vec_as_slice(Cstl_Vec const* const self) {
     };
 }
 
-void* Cstl_Vec_push_in_place(Cstl_Vec mut* const self) {
+AddrMut Cstl_Vec_push_in_place(Cstl_Vec mut* const self) {
     if (self->len == self->cap) {
         usize const new_cap = Cstl__internal_Vec_next_capacity(
             self->cap,
@@ -214,37 +204,35 @@ void* Cstl_Vec_push_in_place(Cstl_Vec mut* const self) {
         Cstl__internal_Vec_alloc(self, new_cap);
     }
 
-    return (u8*)self->ptr + elem_size_of(self->meta) * (self->len++);
+    return (u8 mut*) self->ptr + elem_size_of(self->meta) * (self->len++);
 }
 
-void* Cstl_Vec_extract(
+AddrMut Cstl_Vec_extract(
     Cstl_Vec mut* const self,
     Cstl_Ordering const extremum_type,
     Cstl_Comparator const cmp
 ) {
     Cstl_assert(0 < self->len);
 
-    Cstl_Slice_swap((Cstl_Slice mut*) self, 0, self->len - 1);
+    Cstl_Slice_swap(*(Cstl_Slice const*) self, 0, self->len - 1);
 
     Cstl_Slice mut smaller_slice =
-        Cstl_Slice_slice((Cstl_Slice mut*) self, 0, self->len - 1);
+        Cstl_Slice_slice(*(Cstl_Slice const*) self, 0, self->len - 1);
 
     switch (extremum_type) {
-    case Cstl_Ordering_Less: {
-        Cstl_Slice_min_heapify(&mut smaller_slice, 0, cmp);
-    } break;
-
-    case Cstl_Ordering_Greater: {
-        Cstl_Slice_max_heapify(&mut smaller_slice, 0, cmp);
-    } break;
+    case Cstl_Ordering_Less:
+        Cstl_Slice_min_heapify(smaller_slice, 0, cmp);
+        break;
+        
+    case Cstl_Ordering_Greater:
+        Cstl_Slice_max_heapify(smaller_slice, 0, cmp);
+        break;
 
     case Cstl_Ordering_Equal:
         // fallthrough
     default:
-        Cstl_deny_fmt("invalid extremum_type value %u", (u32) extremum_type);
+        Cstl_deny_fmt("invalid extremum_type value {u32}", (u32) extremum_type);
     }
-
-    Cstl_assert(false);
 
     return Cstl_Vec_pop(self);
 }
@@ -257,8 +245,8 @@ Cstl_Slice Cstl_Vec_slice(
 }
 
 Cstl_Slice Cstl_Vec_slice_unchecked(
-    Cstl_Vec mut* const self, usize const start, usize const end)
-{
+    Cstl_Vec mut* const self, usize const start, usize const end
+) {
     return (Cstl_Slice) {
         .ptr = (u8 mut*) self->ptr + start,
         .len = (start <= end) * (end - start),
@@ -268,76 +256,180 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
 
 
 
-Vec Vec_new(usize const elem_size) {
-    return Cstl_Vec_new(elem_size);
-}
+#define Cstl_impl_typed_Vec(Type) \
+    Cstl_Vec_##Type Cstl_Vec_##Type##_new(void) { \
+        return Cstl_Vec_##Type##_DEFAULT; \
+    } \
+    Cstl_Vec_##Type Cstl_Vec_##Type##_with_capacity(usize const cap) { \
+        return (Cstl_Vec_##Type) { \
+            .ptr = Cstl_mem_alloc(sizeof(Type) * cap), \
+            .cap = cap, \
+            .len = 0 \
+        }; \
+    } \
+    Cstl_Vec_##Type Cstl_Vec_##Type##_from_typed_slice(Cstl_Slice_##Type const src) { \
+        Cstl_Vec_##Type mut result = Cstl_Vec_##Type##_with_capacity(src.len); \
+        Cstl_mem_copy((u8 mut*) result.ptr, (u8 const*) src.ptr, sizeof(Type) * src.len); \
+        result.len = src.len; \
+        return result; \
+    } \
+    Cstl_Vec_##Type Cstl_Vec_##Type##_clone(Cstl_Vec_##Type const* const self) { \
+        return Cstl_Vec_##Type##_from_typed_slice(Cstl_Vec_##Type##_as_typed_slice(self)); \
+    } \
+    void Cstl_Vec_##Type##_clone_from(Cstl_Vec_##Type mut* const self, Cstl_Vec_##Type const* const src) { \
+        if (self->cap < src->cap) { \
+            Cstl_Vec_##Type##_free(self); \
+            *self = Cstl_Vec_##Type##_clone(src); \
+        } \
+        self->len = src->len; \
+        Cstl_mem_copy((u8 mut*) self->ptr, (u8 const*) src->ptr, sizeof(Type) * src->len); \
+    } \
+    void Cstl_Vec_##Type##_free(Cstl_Vec_##Type const* self) { \
+        Cstl_mem_free(self->ptr); \
+        *(Cstl_Vec_##Type mut*) self = Cstl_Vec_##Type##_DEFAULT; \
+    } \
+    void Cstl__internal_Vec_##Type##_alloc(Cstl_Vec_##Type mut* const self, usize const new_cap) { \
+        if (null_mut == self->ptr) { \
+            *self = Cstl_Vec_##Type##_with_capacity(new_cap); \
+            return; \
+        } \
+        if (new_cap <= self->cap) { \
+            return; \
+        } \
+        self->ptr = Cstl_mem_realloc(self->ptr, sizeof(Type) * new_cap); \
+        self->cap = new_cap; \
+    } \
+    usize Cstl__internal_Vec_##Type##_next_capacity(usize const cur_cap) { \
+        if (cur_cap <= 1) { \
+            if (sizeof(Type) <= 16) { \
+                return 8; \
+            } else if (sizeof(Type) <= 256) { \
+                return 4; \
+            } else { \
+                return 2; \
+            } \
+        } \
+        return 3 * cur_cap / 2; \
+    } \
+    void Cstl_Vec_##Type##_push(Cstl_Vec_##Type mut* const self, Type const value) { \
+        *Cstl_Vec_##Type##_push_in_place(self) = value; \
+    } \
+    Type Cstl_Vec_##Type##_pop(Cstl_Vec_##Type mut* const self) { \
+        Cstl_assert(0 < self->len); \
+        return self->ptr[--self->len]; \
+    } \
+    void Cstl_Vec_##Type##_reserve_exact(Cstl_Vec_##Type mut* const self, usize const additional_cap) { \
+        Cstl__internal_Vec_##Type##_alloc(self, self->cap + additional_cap); \
+    } \
+    void Cstl_Vec_##Type##_reserve(Cstl_Vec_##Type mut* self, usize additional_cap) { \
+        usize const cap_sum = self->cap + additional_cap; \
+        usize mut next_cap = Cstl__internal_Vec_##Type##_next_capacity(self->cap); \
+        next_cap = next_cap < cap_sum ? cap_sum : next_cap; \
+        Cstl_Vec_##Type##_reserve_exact(self, next_cap); \
+    } \
+    void Cstl_Vec_##Type##_clear(Cstl_Vec_##Type mut* const self) { \
+        self->len = 0; \
+    } \
+    void Cstl_Vec_##Type##_shrink_to(Cstl_Vec_##Type mut* const self, usize const min_cap) { \
+        if (self->cap <= min_cap) { return; } \
+        self->ptr = Cstl_mem_realloc(self->ptr, min_cap); \
+        self->cap = min_cap; \
+    } \
+    void Cstl_Vec_##Type##_shrink_to_fit(Cstl_Vec_##Type mut* const self) { \
+        Cstl_Vec_##Type##_shrink_to(self, self->len); \
+    } \
+    Type mut* Cstl_Vec_##Type##_get(Cstl_Vec_##Type const* const self, usize const index) { \
+        Cstl_assert(index < self->len); \
+        return &mut self->ptr[index]; \
+    } \
+    void Cstl_Vec_##Type##_set(Cstl_Vec_##Type const* const self, usize const index, Type const value) { \
+        Cstl_assert(index < self->len); \
+        self->ptr[index] = value; \
+    } \
+    void Cstl_Vec_##Type##_fill(Cstl_Vec_##Type const* const self, Type const value) { \
+        for (usize mut i = 0; i < self->len; ++i) { \
+            self->ptr[i] = value; \
+        } \
+    } \
+    Cstl_Slice Cstl_Vec_##Type##_as_slice(Cstl_Vec_##Type const* const self) { \
+        return (Cstl_Slice) { \
+            .ptr = self->ptr, \
+            .len = self->len, \
+            .meta = sizeof(Type) \
+        }; \
+    } \
+    Cstl_Slice_##Type Cstl_Vec_##Type##_as_typed_slice(Cstl_Vec_##Type const* const self) { \
+        return (Cstl_Slice_##Type) { \
+            .ptr = self->ptr, \
+            .len = self->len \
+        }; \
+    } \
+    Type mut* Cstl_Vec_##Type##_push_in_place(Cstl_Vec_##Type mut* const self) { \
+        if (self->len == self->cap) { \
+            usize const new_cap = Cstl__internal_Vec_##Type##_next_capacity(self->cap); \
+            Cstl__internal_Vec_##Type##_alloc(self, new_cap); \
+        } \
+        return &mut self->ptr[self->len++]; \
+    } \
+    Type Cstl_Vec_##Type##_extract(Cstl_Vec_##Type mut* const self, Cstl_Ordering const extremum_type) { \
+        Cstl_assert(0 < self->len); \
+        Cstl_Slice_swap(Cstl_Vec_##Type##_as_slice(self), 0, self->len - 1); \
+        Cstl_Slice mut smaller_slice = Cstl_Vec_##Type##_slice_unchecked(self, 0, self->len - 1); \
+        switch (extremum_type) { \
+        case Cstl_Ordering_Less:    Cstl_Slice_min_heapify(smaller_slice, 0, Type##_cmp); break; \
+        case Cstl_Ordering_Greater: Cstl_Slice_max_heapify(smaller_slice, 0, Type##_cmp); break; \
+        case Cstl_Ordering_Equal:   default: \
+            Cstl_deny_fmt("invalid extremum_type value {u32}", (u32) extremum_type); \
+        } \
+        return Cstl_Vec_##Type##_pop(self); \
+    } \
+    Type Cstl_Vec_##Type##_extract_min(Cstl_Vec_##Type mut* const self) { \
+        return Cstl_Vec_##Type##_extract(self, Cstl_Ordering_Less); \
+    } \
+    Type Cstl_Vec_##Type##_extract_max(Cstl_Vec_##Type mut* const self) { \
+        return Cstl_Vec_##Type##_extract(self, Cstl_Ordering_Greater); \
+    } \
+    Cstl_Slice Cstl_Vec_##Type##_slice(Cstl_Vec_##Type const* const self, usize const start, usize const end) { \
+        Cstl_assert(start < self->len && end <= self->len); \
+        return Cstl_Vec_##Type##_slice_unchecked(self, start, end); \
+    } \
+    Cstl_Slice_##Type Cstl_Vec_##Type##_slice_typed(Cstl_Vec_##Type const* const self, usize const start, usize const end) { \
+        Cstl_assert(start < self->len && end <= self->len); \
+        return Cstl_Vec_##Type##_slice_typed_unchecked(self, start, end); \
+    } \
+    Cstl_Slice Cstl_Vec_##Type##_slice_unchecked(Cstl_Vec_##Type const* const self, usize const start, usize const end) { \
+        return (Cstl_Slice) { \
+            .ptr = self->ptr + start, \
+            .len = start <= end ? end - start : 0, \
+            .meta = sizeof(Type) \
+        }; \
+    } \
+    Cstl_Slice_##Type Cstl_Vec_##Type##_slice_typed_unchecked(Cstl_Vec_##Type const* const self, usize const start, usize const end) { \
+        return (Cstl_Slice_##Type) { \
+            .ptr = self->ptr + start, \
+            .len = start <= end ? end - start : 0 \
+        }; \
+    } \
+    Cstl_Vec Cstl_Vec_##Type##_to_untyped(Cstl_Vec_##Type const* const self) { \
+        return (Cstl_Vec) { \
+            .ptr = self->ptr, \
+            .len = self->len, \
+            .cap = self->cap, \
+            .meta = sizeof(Type) \
+        }; \
+    }
 
-Vec Vec_with_capacity(usize const cap, usize const elem_size) {
-    return Cstl_Vec_with_capacity(cap, elem_size);
-}
-
-Vec Vec_from_slice(Slice const src) {
-    return Cstl_Vec_from_slice(src);
-}
-
-Vec Vec_clone(const Vec *const self) {
-    return Cstl_Vec_clone(self);
-}
-
-void Vec_clone_from(Vec* const self, Vec const* const src) {
-    Cstl_Vec_clone_from(self, src);
-}
-
-void Vec_free(Vec const* const self) {
-    Cstl_Vec_free(self);
-}
-
-void Vec_push(Cstl_Vec* const self, void const* const value_ptr) {
-    Cstl_Vec_push(self, value_ptr);
-}
-
-void* Vec_pop(Vec* const self) {
-    return Cstl_Vec_pop(self);
-}
-
-void Vec_reserve_exact(Vec* const self, usize const additional_cap) {
-    Cstl_Vec_reserve_exact(self, additional_cap);
-}
-
-void Vec_reserve(Vec* const self, usize const additional_cap) {
-    Cstl_Vec_reserve(self, additional_cap);
-}
-
-void Vec_clear(Vec* const self) {
-    Cstl_Vec_clear(self);
-}
-
-void Vec_shrink_to(Vec* const self, usize const min_cap) {
-    Cstl_Vec_shrink_to(self, min_cap);
-}
-
-void Vec_shrink_to_fit(Vec* const self) {
-    Cstl_Vec_shrink_to_fit(self);
-}
-
-void* Vec_get(Vec const* const self, usize const index) {
-    return Cstl_Vec_get(self, index);
-}
-
-void Vec_set(
-    Vec const* const self, usize const index, const void* const value_ptr
-) {
-    Cstl_Vec_set(self, index, value_ptr);
-}
-
-void Vec_fill(Vec const* const self, const void* const value_ptr) {
-    Cstl_Vec_fill(self, value_ptr);
-}
-
-Slice Vec_as_slice(Vec const* const self) {
-    return Cstl_Vec_as_slice(self);
-}
-
-void* Vec_push_in_place(Vec* const self) {
-    return Cstl_Vec_push_in_place(self);
-}
+Cstl_impl_typed_Vec(u8)
+Cstl_impl_typed_Vec(i8)
+Cstl_impl_typed_Vec(u16)
+Cstl_impl_typed_Vec(i16)
+Cstl_impl_typed_Vec(u32)
+Cstl_impl_typed_Vec(i32)
+Cstl_impl_typed_Vec(u64)
+Cstl_impl_typed_Vec(i64)
+Cstl_impl_typed_Vec(usize)
+Cstl_impl_typed_Vec(isize)
+Cstl_impl_typed_Vec(char)
+Cstl_impl_typed_Vec(Bool)
+Cstl_impl_typed_Vec(f32)
+Cstl_impl_typed_Vec(f64)

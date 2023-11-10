@@ -1,8 +1,3 @@
-#include <stdlib.h>
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-
 #if defined(_WIN32) && defined(_WIN64)
 #   include <windows.h>
 #endif
@@ -12,90 +7,95 @@
 #include "util.h"
 #include "compare.h"
 #include "variadic.h"
+#include "memory.h"
 #include "io.h"
 
 
 
+extern int putchar(int symbol);
+
+
+
 Cstl_String const Cstl_String_DEFAULT = (Cstl_String) {
-    .ptr = NULL,
+    .ptr = null_mut,
     .len = 0,
     .cap = 0
 };
 
-Bool Cstl_Utf8ByteClassification_is_single_byte(u8 const byte) {
-    return Cstl_String_utf8_1_byte_entry
-        == (byte & ~(u8) Cstl_String_utf8_1_byte_mask & 255);
+Bool Cstl_Utf8ByteType_is_single_byte(u8 const byte) {
+    return Cstl_String_UTF8_1_BYTE_ENTRY
+        == (byte & ~(u8) Cstl_String_UTF8_1_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_pair_byte_entry(u8 const byte) {
-    return Cstl_String_utf8_2_byte_entry
-        == (byte & ~(u8) Cstl_String_utf8_2_byte_mask & 255);
+Bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 const byte) {
+    return Cstl_String_UTF8_2_BYTE_ENTRY
+        == (byte & ~(u8) Cstl_String_UTF8_2_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_triple_byte_entry(u8 const byte) {
-    return Cstl_String_utf8_3_byte_entry
-        == (byte & ~(u8) Cstl_String_utf8_3_byte_mask & 255);
+Bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 const byte) {
+    return Cstl_String_UTF8_3_BYTE_ENTRY
+        == (byte & ~(u8) Cstl_String_UTF8_3_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_quad_byte_entry(u8 const byte) {
-    return Cstl_String_utf8_4_byte_entry
-        == (byte & ~(u8) Cstl_String_utf8_4_byte_mask & 255);
+Bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 const byte) {
+    return Cstl_String_UTF8_4_BYTE_ENTRY
+        == (byte & ~(u8) Cstl_String_UTF8_4_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_tail_byte(u8 const byte) {
-    return Cstl_String_utf8_tail_byte_entry
-        == (byte & ~(u8) Cstl_String_utf8_tail_byte_mask & 255);
+Bool Cstl_Utf8ByteType_is_tail_byte(u8 const byte) {
+    return Cstl_String_UTF8_TAIL_BYTE_ENTRY
+        == (byte & ~(u8) Cstl_String_UTF8_TAIL_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteClassification_is_invalid_byte(u8 const byte) {
-    return !Cstl_Utf8ByteClassification_is_single_byte(byte)
-        && !Cstl_Utf8ByteClassification_is_pair_byte_entry(byte)
-        && !Cstl_Utf8ByteClassification_is_triple_byte_entry(byte)
-        && !Cstl_Utf8ByteClassification_is_quad_byte_entry(byte)
-        && !Cstl_Utf8ByteClassification_is_tail_byte(byte);
+Bool Cstl_Utf8ByteType_is_invalid_byte(u8 const byte) {
+    return !Cstl_Utf8ByteType_is_single_byte(byte)
+        && !Cstl_Utf8ByteType_is_pair_byte_entry(byte)
+        && !Cstl_Utf8ByteType_is_triple_byte_entry(byte)
+        && !Cstl_Utf8ByteType_is_quad_byte_entry(byte)
+        && !Cstl_Utf8ByteType_is_tail_byte(byte);
 }
 
-Cstl_Utf8ByteClassification Cstl_Utf8ByteClassification_of(u8 const byte) {
-    if (Cstl_Utf8ByteClassification_is_single_byte(byte)) {
-        return Cstl_Utf8ByteClassification_SingleByte;
+Cstl_Utf8ByteType Cstl_Utf8ByteType_of(u8 const byte) {
+    if (Cstl_Utf8ByteType_is_single_byte(byte)) {
+        return Cstl_Utf8ByteType_SingleByte;
     }
 
-    if (Cstl_Utf8ByteClassification_is_pair_byte_entry(byte)) {
-        return Cstl_Utf8ByteClassification_PairByteEntry;
+    if (Cstl_Utf8ByteType_is_pair_byte_entry(byte)) {
+        return Cstl_Utf8ByteType_PairByteEntry;
     }
 
-    if (Cstl_Utf8ByteClassification_is_tail_byte(byte)) {
-        return Cstl_Utf8ByteClassification_TailByte;
+    if (Cstl_Utf8ByteType_is_tail_byte(byte)) {
+        return Cstl_Utf8ByteType_TailByte;
     }
 
-    if (Cstl_Utf8ByteClassification_is_triple_byte_entry(byte)) {
-        return Cstl_Utf8ByteClassification_TripleByteEntry;
+    if (Cstl_Utf8ByteType_is_triple_byte_entry(byte)) {
+        return Cstl_Utf8ByteType_TripleByteEntry;
     }
     
-    if (Cstl_Utf8ByteClassification_is_quad_byte_entry(byte)) {
-        return Cstl_Utf8ByteClassification_QuadByteEntry;
+    if (Cstl_Utf8ByteType_is_quad_byte_entry(byte)) {
+        return Cstl_Utf8ByteType_QuadByteEntry;
     }
 
-    return Cstl_Utf8ByteClassification_InvalidByte;
+    return Cstl_Utf8ByteType_InvalidByte;
 }
 
-usize Cstl_Utf8ByteClassification_size(Cstl_Utf8ByteClassification const self) {
+usize Cstl_Utf8ByteType_size(Cstl_Utf8ByteType const self) {
     switch (self) {
-    case Cstl_Utf8ByteClassification_SingleByte:
+    case Cstl_Utf8ByteType_SingleByte:
         return 1;
-    case Cstl_Utf8ByteClassification_PairByteEntry:
+    case Cstl_Utf8ByteType_PairByteEntry:
         return 2;
-    case Cstl_Utf8ByteClassification_TripleByteEntry:
+    case Cstl_Utf8ByteType_TripleByteEntry:
         return 3;
-    case Cstl_Utf8ByteClassification_QuadByteEntry:
+    case Cstl_Utf8ByteType_QuadByteEntry:
         return 4;
 
-    case Cstl_Utf8ByteClassification_TailByte:
-    case Cstl_Utf8ByteClassification_InvalidByte:
+    case Cstl_Utf8ByteType_TailByte:
+    case Cstl_Utf8ByteType_InvalidByte:
         // fallthrough
     default:
         Cstl_deny_fmt(
-            "invalid enum Cstl_Utf8ByteClassification value %u", self
+            "invalid enum Cstl_Utf8ByteType value {u32}", (u32) self
         );
     }
 }
@@ -112,8 +112,8 @@ u32 Cstl_Char_encode_utf8(Cstl_Char const self) {
     if (self < 0x800) {
         Cstl_Char mut result = 0;
 
-        result |= Cstl_String_utf8_2_byte_entry << 24;
-        result |= Cstl_String_utf8_tail_byte_mask << 16;
+        result |= Cstl_String_UTF8_2_BYTE_ENTRY << 24;
+        result |= Cstl_String_UTF8_TAIL_BYTE_MASK << 16;
 
         result |= (self & (u32) 0x7C0) << (2 + 16);
         result |= (self & (u32) 0x3F) << 16;
@@ -125,9 +125,9 @@ u32 Cstl_Char_encode_utf8(Cstl_Char const self) {
     if (self < 0x10000) {
         Cstl_Char mut result = 0;
 
-        result |= Cstl_String_utf8_3_byte_entry << 24;
-        result |= Cstl_String_utf8_tail_byte_entry << 16;
-        result |= Cstl_String_utf8_tail_byte_entry << 8;
+        result |= Cstl_String_UTF8_3_BYTE_ENTRY << 24;
+        result |= Cstl_String_UTF8_TAIL_BYTE_ENTRY << 16;
+        result |= Cstl_String_UTF8_TAIL_BYTE_ENTRY << 8;
 
         result |= (self & (u32) 0xF000) << (4 + 8);
         result |= (self & (u32) 0xFC0) << (2 + 8);
@@ -140,10 +140,10 @@ u32 Cstl_Char_encode_utf8(Cstl_Char const self) {
     if (self < 0x200000) {
         Cstl_Char mut result = 0;
 
-        result |= Cstl_String_utf8_4_byte_entry << 24;
-        result |= Cstl_String_utf8_tail_byte_entry << 16;
-        result |= Cstl_String_utf8_tail_byte_entry << 8;
-        result |= Cstl_String_utf8_tail_byte_entry << 0;
+        result |= Cstl_String_UTF8_4_BYTE_ENTRY << 24;
+        result |= Cstl_String_UTF8_TAIL_BYTE_ENTRY << 16;
+        result |= Cstl_String_UTF8_TAIL_BYTE_ENTRY << 8;
+        result |= Cstl_String_UTF8_TAIL_BYTE_ENTRY << 0;
 
         result |= (self & (u32) 0x1C0000) << 6;
         result |= (self & (u32) 0x3F000) << 4;
@@ -153,29 +153,29 @@ u32 Cstl_Char_encode_utf8(Cstl_Char const self) {
         return result;
     }
 
-    Cstl_deny_fmt("too large character %u", (u32) self);
+    Cstl_deny_fmt("too large character {u32}", (u32) self);
 }
 
 Cstl_Char Cstl_Char_from_code(u32 const code) {
-    switch (Cstl_Utf8ByteClassification_of((u8) (code >> 24))) {
-        case Cstl_Utf8ByteClassification_SingleByte:
-            return code >> 24;
+    switch (Cstl_Utf8ByteType_of((u8) (code >> 24))) {
+    case Cstl_Utf8ByteType_SingleByte:
+        return code >> 24;
 
-        case Cstl_Utf8ByteClassification_PairByteEntry:
-            return (0x7C0 & (code >> 18)) | (0x3F & (code >> 16));
+    case Cstl_Utf8ByteType_PairByteEntry:
+        return (0x7C0 & (code >> 18)) | (0x3F & (code >> 16));
 
-        case Cstl_Utf8ByteClassification_TripleByteEntry:
-            return (0xF000 & (code >> 12))
-                 | (0xFC0 & (code >> 10)) | (0x3F & (code >> 8));
+    case Cstl_Utf8ByteType_TripleByteEntry:
+        return (0xF000 & (code >> 12))
+                | (0xFC0 & (code >> 10)) | (0x3F & (code >> 8));
 
-        case Cstl_Utf8ByteClassification_QuadByteEntry:
-            return (0x1C0000 & (code >> 6)) | (0x3F000 & (code >> 4))
-                 | (0xFC0 & (code >> 2)) | (0x3F & (code >> 0));
+    case Cstl_Utf8ByteType_QuadByteEntry:
+        return (0x1C0000 & (code >> 6)) | (0x3F000 & (code >> 4))
+                | (0xFC0 & (code >> 2)) | (0x3F & (code >> 0));
 
-        case Cstl_Utf8ByteClassification_TailByte:
-            // fallthrough
-        case Cstl_Utf8ByteClassification_InvalidByte:
-            Cstl_deny_fmt("invalid utf-8 code format %u", code);
+    case Cstl_Utf8ByteType_TailByte:
+        // fallthrough
+    case Cstl_Utf8ByteType_InvalidByte:
+        Cstl_deny_fmt("invalid utf-8 code format {u32}", code);
     }
 
     return U'\0';
@@ -187,7 +187,7 @@ void Cstl_set_utf8_output_encoding(void) {
 #   if defined(_WIN32) && defined(_WIN64)
         Cstl_assert_fmt(
             SetConsoleOutputCP(65001),
-            "SetConsoleOutputCP(65001) failed, error code: %u",
+            "SetConsoleOutputCP(65001) failed, error code: {u32}",
             (u32) GetLastError()
         );
 #   endif
@@ -199,7 +199,7 @@ Cstl_String Cstl_String_with_capacity(usize const cap) {
     return (Cstl_String) {
         .cap = cap,
         .len = 0,
-        .ptr = malloc(sizeof(u8) * cap)
+        .ptr = Cstl_mem_alloc(sizeof(u8) * cap)
     };
 }
 
@@ -208,13 +208,13 @@ Cstl_String Cstl_String_new(void) {
 }
 
 Cstl_String Cstl_String_from_str(Cstl_str const string) {
-    Cstl_String result = {
-        .ptr = malloc(string.len),
+    Cstl_String const result = {
+        .ptr = Cstl_mem_alloc(string.len),
         .len = string.len,
         .cap = string.len
     };
 
-    memcpy(result.ptr, string.ptr, string.len);
+    Cstl_mem_copy(result.ptr, string.ptr, string.len);
 
     return result;
 }
@@ -223,7 +223,7 @@ Cstl_String Cstl_String_clone(Cstl_String const* const self) {
     Cstl_String mut result = Cstl_String_with_capacity(self->len);
     result.len = self->len;
 
-    memcpy(result.ptr, self->ptr, result.len);
+    Cstl_mem_copy(result.ptr, self->ptr, result.len);
 
     return result;
 }
@@ -236,17 +236,17 @@ void Cstl_String_clone_from(
         *self = Cstl_String_with_capacity(src->len);
     }
 
-    memcpy(self->ptr, src->ptr, src->len);
+    Cstl_mem_copy(self->ptr, src->ptr, src->len);
     self->len = src->len;
 }
 
-void Cstl_String_free(Cstl_String mut* const self) {
-    free(self->ptr);
-    *self = Cstl_String_DEFAULT;
+void Cstl_String_free(Cstl_String const* const self) {
+    Cstl_mem_free(self->ptr);
+    *(Cstl_String mut*) self = Cstl_String_DEFAULT;
 }
 
 void Cstl__internal_String_alloc(Cstl_String mut* const self, usize const cap) {
-    if (NULL == self->ptr) {
+    if (null_mut == self->ptr) {
         *self = Cstl_String_with_capacity(cap);
         return;
     }
@@ -255,7 +255,7 @@ void Cstl__internal_String_alloc(Cstl_String mut* const self, usize const cap) {
         return;
     }
 
-    self->ptr = realloc(self->ptr, sizeof(*self->ptr) * cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, sizeof(*self->ptr) * cap);
     self->cap = cap;
 }
 
@@ -302,13 +302,13 @@ void Cstl_String_push_byte(Cstl_String mut* const self, u8 const value) {
 Cstl_Char Cstl_String_pop(Cstl_String mut* const self) {
     Cstl_assert(0 != self->len);
 
-    if (Cstl_Utf8ByteClassification_is_single_byte(self->ptr[self->len - 1])) {
+    if (Cstl_Utf8ByteType_is_single_byte(self->ptr[self->len - 1])) {
         return Cstl_Char_from_code(self->ptr[--self->len]);
     }
     
     usize mut n_tail_bytes = 1;
 
-    while (Cstl_Utf8ByteClassification_is_tail_byte(
+    while (Cstl_Utf8ByteType_is_tail_byte(
         self->ptr[self->len - n_tail_bytes - 1]
     )) {
         n_tail_bytes += 1;
@@ -330,7 +330,7 @@ void Cstl_String_shrink_to(Cstl_String mut* const self, usize const cap) {
         return;
     }
 
-    self->ptr = realloc(self->ptr, cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, cap);
     self->cap = cap;
 }
 
@@ -351,7 +351,7 @@ void Cstl_String_append_bytes(
         Cstl_String_reserve(self, slice.len + self->len - self->cap);
     }
 
-    memcpy(self->ptr + self->len, slice.ptr, slice.len);
+    Cstl_mem_copy(self->ptr + self->len, slice.ptr, slice.len);
 
     self->len += slice.len;
 }
@@ -391,7 +391,7 @@ Cstl_String Cstl_String_from_utf8_unchecked(
     Cstl_String mut result = Cstl_String_with_capacity(n_bytes);
     result.len = n_bytes;
 
-    memcpy(result.ptr, bytes, n_bytes);
+    Cstl_mem_copy(result.ptr, bytes, n_bytes);
 
     return result;
 }
@@ -403,26 +403,26 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
     for (usize mut i = 0; i < n_bytes; ) {
         u8 const leader_byte = bytes[i];
 
-        Cstl_Utf8ByteClassification const class
-            = Cstl_Utf8ByteClassification_of(leader_byte);
+        Cstl_Utf8ByteType const class
+            = Cstl_Utf8ByteType_of(leader_byte);
 
         switch (class) {
-            case Cstl_Utf8ByteClassification_SingleByte: {
+            case Cstl_Utf8ByteType_SingleByte: {
                 result.ptr[i] = leader_byte;
                 i += 1;
             } break;
 
-            case Cstl_Utf8ByteClassification_PairByteEntry: {
+            case Cstl_Utf8ByteType_PairByteEntry: {
                 Cstl_assert_fmt(
                     i + 1 < n_bytes,
-                    "not enough bytes, `n_bytes = %zu`",
+                    "not enough bytes, `n_bytes = {usize}`",
                     n_bytes
                 );
 
                 Cstl_assert_fmt(
-                    Cstl_Utf8ByteClassification_is_tail_byte(bytes[i + 1]),
-                    "invalid UTF-8 pair tail byte %u",
-                    (u32) bytes[i + 1]
+                    Cstl_Utf8ByteType_is_tail_byte(bytes[i + 1]),
+                    "invalid UTF-8 pair tail byte {u8}",
+                    bytes[i + 1]
                 );
 
                 result.ptr[i] = leader_byte;
@@ -431,10 +431,10 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                 i += 2;
             } break;
 
-            case Cstl_Utf8ByteClassification_TripleByteEntry: {
+            case Cstl_Utf8ByteType_TripleByteEntry: {
                 Cstl_assert_fmt(
                     i + 2 < n_bytes,
-                    "not enough bytes, `n_bytes = %zu`",
+                    "not enough bytes, `n_bytes = {usize}`",
                     n_bytes
                 );
 
@@ -444,9 +444,9 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                     u8 const byte = bytes[i + j];
 
                     Cstl_assert_fmt(
-                        Cstl_Utf8ByteClassification_is_tail_byte(byte),
-                        "invalid UTF-8 triple tail byte %u",
-                        (u32) byte
+                        Cstl_Utf8ByteType_is_tail_byte(byte),
+                        "invalid UTF-8 triple tail byte {u8}",
+                        byte
                     );
 
                     result.ptr[i + j] = byte;
@@ -455,10 +455,10 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                 i += 3;
             } break;
 
-            case Cstl_Utf8ByteClassification_QuadByteEntry: {
+            case Cstl_Utf8ByteType_QuadByteEntry: {
                 Cstl_assert_fmt(
                     i + 3 < n_bytes,
-                    "not enough bytes, `n_bytes = %zu`",
+                    "not enough bytes, `n_bytes = {usize}`",
                     n_bytes
                 );
 
@@ -468,9 +468,9 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                     u8 const byte = bytes[i + j];
 
                     Cstl_assert_fmt(
-                        Cstl_Utf8ByteClassification_is_tail_byte(byte),
-                        "invalid UTF-8 quad tail byte %u",
-                        (u32) byte
+                        Cstl_Utf8ByteType_is_tail_byte(byte),
+                        "invalid UTF-8 quad tail byte {u8}",
+                        byte
                     );
 
                     result.ptr[i + j] = byte;
@@ -479,11 +479,11 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
                 i += 4;
             } break;
 
-            case Cstl_Utf8ByteClassification_TailByte:
+            case Cstl_Utf8ByteType_TailByte:
                 // fallthrough
-            case Cstl_Utf8ByteClassification_InvalidByte: {
+            case Cstl_Utf8ByteType_InvalidByte: {
                 Cstl_deny_fmt(
-                    "invalid UTF-8 leader byte %u", (u32) leader_byte
+                    "invalid UTF-8 leader byte {u8}", leader_byte
                 );
             } break;
 
@@ -496,24 +496,8 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
     return result;
 }
 
-Cstl_str Cstl_String_as_str(Cstl_String mut* const self) {
+Cstl_str Cstl_String_as_str(Cstl_String const* const self) {
     return *(Cstl_str mut*) self;
-}
-
-Bool Cstl_String_eq(
-    Cstl_String const* const self, Cstl_String const* const value
-) {
-    if (self->len != value->len) {
-        return False;
-    }
-
-    for (usize mut i = 0; i < self->len; ++i) {
-        if (self->ptr[i] != value->ptr[i]) {
-            return False;
-        }
-    }
-
-    return True;
 }
 
 Cstl_str Cstl_str_split_one(Cstl_str mut* const self, Cstl_str const delim) {
@@ -550,10 +534,25 @@ void Cstl_str_print(Cstl_str const self) {
 
 
 
-Bool Cstl_String_ne(
-    Cstl_String const* const self, Cstl_String const* const value
-) {
-    return !Cstl_String_eq(self, value);
+Bool Cstl_String_eq(Addr const lhs, Addr const rhs) {
+    Cstl_String const* const self = lhs;
+    Cstl_String const* const value = rhs;
+
+    if (self->len != value->len) {
+        return False;
+    }
+
+    for (usize mut i = 0; i < self->len; ++i) {
+        if (self->ptr[i] != value->ptr[i]) {
+            return False;
+        }
+    }
+
+    return True;
+}
+
+Bool Cstl_String_ne(Addr const lhs, Addr const rhs) {
+    return !Cstl_String_eq(lhs, rhs);
 }
 
 Cstl_String Cstl_String_concat(usize const n_strings, ...) {
@@ -566,17 +565,16 @@ Cstl_String Cstl_String_concat(usize const n_strings, ...) {
     usize mut len_sum = 0;
 
     for (usize mut i = 0; i < n_strings; ++i) {
-        len_sum += VariadicArgs_get(args_clone, Cstl_str const*)->len;
+        len_sum += VariadicArgs_get(args_clone, Cstl_str).len;
     }
 
     Cstl_String mut result = Cstl_String_with_capacity(len_sum);
 
     for (usize mut i = 0; i < n_strings; ++i) {
-        Cstl_str const* const str_ptr
-            = VariadicArgs_get(args, Cstl_str const*);
+        Cstl_str const value = VariadicArgs_get(args, Cstl_str);
 
-        memcpy(result.ptr + result.len, str_ptr->ptr, str_ptr->len);
-        result.len += str_ptr->len;
+        Cstl_mem_copy(result.ptr + result.len, value.ptr, value.len);
+        result.len += value.len;
     }
 
     VariadicArgs_end(args_clone);
@@ -588,7 +586,7 @@ Cstl_String Cstl_String_concat(usize const n_strings, ...) {
 
 
 Cstl_str const Cstl_str_DEFAULT = (Cstl_str) {
-    .ptr = NULL,
+    .ptr = null_mut,
     .len = 0
 };
 
@@ -651,7 +649,7 @@ Cstl_str Cstl_Split_next(Cstl_Split mut* const self) {
 }
 
 Bool Cstl_Split_is_expired(Cstl_str const* const ret) {
-    return NULL == ret->ptr;
+    return null_mut == ret->ptr;
 }
 
 
@@ -673,7 +671,7 @@ Cstl_str Cstl_SplitAny_next(Cstl_SplitAny mut* const self) {
     while (0 < self->string.len) {
         for (usize mut i = 0; i < self->delims.len; ++i) {
             Cstl_str const delim
-                = Cstl_Slice_get_value(&self->delims, Cstl_str, i);
+                = Cstl_Slice_get_value(self->delims, Cstl_str, i);
 
             if (delim.len <= self->string.len) {
                 Cstl_str const check_str = {
@@ -700,7 +698,7 @@ Cstl_str Cstl_SplitAny_next(Cstl_SplitAny mut* const self) {
 }
 
 Bool Cstl_SplitAny_is_expired(Cstl_str const* const ret) {
-    return NULL == ret->ptr;
+    return null_mut == ret->ptr;
 }
 
 
@@ -731,7 +729,7 @@ Cstl_str Cstl_SplitWhitespace_next(Cstl_SplitWhitespace mut* const self) {
 }
 
 Bool Cstl_SplitWhitespace_is_expired(Cstl_str const* const ret) {
-    return NULL == ret->ptr;
+    return null_mut == ret->ptr;
 }
 
 
@@ -747,10 +745,10 @@ Cstl_Char Cstl_Chars_next(Cstl_Chars mut* const self) {
         return ~(Cstl_Char) 0;
     }
 
-    Cstl_Utf8ByteClassification const class
-        = Cstl_Utf8ByteClassification_of(*self->string.ptr);
+    Cstl_Utf8ByteType const class
+        = Cstl_Utf8ByteType_of(*self->string.ptr);
 
-    usize const size = Cstl_Utf8ByteClassification_size(class);
+    usize const size = Cstl_Utf8ByteType_size(class);
 
     self->string.len -= size;
     self->string.ptr += size;

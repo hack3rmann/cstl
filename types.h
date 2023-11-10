@@ -1,7 +1,9 @@
 #ifndef _CSTL_TYPES_H_
 #define _CSTL_TYPES_H_
 
-#include <stddef.h>
+
+
+#define mut
 
 
 
@@ -10,28 +12,26 @@ typedef enum Bool {
     True = 1
 } Bool;
 
+Bool Bool_implies(Bool self, Bool other);
+
+
+
 typedef signed char        i8;
 typedef unsigned char      u8;
 typedef short              i16;
 typedef unsigned short     u16;
-typedef int                i32;
-typedef unsigned           u32;
-typedef long long          i64;
-typedef unsigned long long u64;
 
-typedef size_t     usize;
-typedef ptrdiff_t  isize;
+#if __INT_MAX__ == 2147483647
+    typedef int i32;
+    typedef unsigned u32;
+#elif __LONG_MAX__ == 2147483647
+    typedef long i32;
+    typedef unsigned long u32;
+#endif
 
-#ifdef _WIN64
-#   define isize_MIN  ((isize) i64_MIN)
-#   define isize_MAX  ((isize) i64_MAX)
-#   define usize_MIN  ((usize) u64_MIN)
-#   define usize_MAX  ((usize) u64_MAX)
-#else
-#   define isize_MIN  ((isize) i32_MIN)
-#   define isize_MAX  ((isize) i32_MAX)
-#   define usize_MIN  ((usize) u32_MIN)
-#   define usize_MAX  ((usize) u32_MAX)
+#if __LONG_LONG_MAX__ == 9223372036854775807
+    typedef long long i64;
+    typedef unsigned long long u64;
 #endif
 
 typedef float  f32;
@@ -59,10 +59,40 @@ typedef double f64;
 
 
 
+#if __PTRDIFF_MAX__ == 32767
+    typedef u16 usize;
+    typedef i16 isize;
+
+#   define usize_MIN u16_MIN
+#   define usize_MAX u16_MAX
+#   define isize_MIN i16_MIN
+#   define isize_MAX i16_MAX
+#elif __PTRDIFF_MAX__ == 2147483647
+    typedef u32 usize;
+    typedef i32 isize;
+
+#   define usize_MIN u32_MIN
+#   define usize_MAX u32_MAX
+#   define isize_MIN i32_MIN
+#   define isize_MAX i32_MAX
+#elif __PTRDIFF_MAX__ == 9223372036854775807
+    typedef u64 usize;
+    typedef i64 isize;
+
+#   define usize_MIN u64_MIN
+#   define usize_MAX u64_MAX
+#   define isize_MIN i64_MIN
+#   define isize_MAX i64_MAX
+#endif
+
+
+
 typedef char const* StrLit;
+typedef char const* CStr;
+typedef char mut* CStrMut;
 
 typedef void const* Addr;
-typedef void* AddrMut;
+typedef void mut* AddrMut;
 
 
 

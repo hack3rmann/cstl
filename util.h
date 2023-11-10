@@ -10,22 +10,18 @@
 #define Cstl_swap_values(lhs_ptr, rhs_ptr) \
     Cstl_swap((lhs_ptr), (rhs_ptr), sizeof(*lhs_ptr)) 
 
-#define mut
-
 #define Cstl_lit_ptr(Type, value) \
     ((Type[]) { (Type) (value) })
 
+#define UNUSED __attribute__((unused))
 
 
-typedef union {
-    usize elem_size;
-    struct {
-        u8 _padding[sizeof(usize) - 2];
-        u16 meta;
-    } last_byte;
-} Cstl_CollectionMetaData;
 
-usize Cstl_CollectionMetaData_elem_size(Cstl_CollectionMetaData meta);
+typedef usize Cstl_CollectionMeta;
+
+usize Cstl_CollectionMeta_elem_size(Cstl_CollectionMeta self);
+
+usize elem_size_of(Cstl_CollectionMeta meta);
 
 
 
@@ -40,14 +36,20 @@ void Cstl_swap_64(AddrMut lhs, AddrMut rhs);
 
 #ifdef USING_NAMESPACE_CSTL
 
-    #define array_len(array) Cstl_array_len(array)
+    typedef Cstl_CollectionMeta CollectionMeta;
 
-    #define lit_ptr(Type, value) \
-        Cstl_lit_ptr(Type, value)
+    #define CollectionMeta_elem_size Cstl_CollectionMeta_elem_size
 
-    #define swap_values(lhs_ptr, rhs_ptr) Cstl_swap_values(lhs_ptr, rhs_ptr)
 
-    void swap(AddrMut lhs, AddrMut rhs, usize n_bytes);
+
+    #define array_len Cstl_array_len
+    #define lit_ptr Cstl_lit_ptr
+    #define swap_values Cstl_swap_values
+    #define swap Cstl_swap
+    #define swap_8 Cstl_swap_8
+    #define swap_16 Cstl_swap_16
+    #define swap_32 Cstl_swap_32
+    #define swap_64 Cstl_swap_64
 
 #endif // USING_NAMESPACE_CSTL
 

@@ -61,21 +61,99 @@
 
 
 
-typedef enum {
-    Cstl_IntFmtFlags_Sign = 0x1,
-    Cstl_IntFmtFlags_Case = 0x2,
-    Cstl_IntFmtFlags_Default = 0x0
-} Cstl_IntFmtFlags;
+typedef enum Cstl_FloatNotation {
+    Cstl_FloatNotation_Scientific,
+    Cstl_FloatNotation_Point
+} Cstl_FloatNotation;
+
+#define Cstl_FloatNotation_DEFAULT Cstl_FloatNotation_Point
 
 
 
-void Cstl_i64_fmt_impl(Cstl_String mut* buf, i64 value, u16 radix, u32 flags);
+typedef struct Cstl_FloatImpl {
+    i32 sign, exp;
+    u64 frac;
+} Cstl_FloatImpl;
+
+#define Cstl_FloatImpl_DEFAULT ((Cstl_FloatImpl) { \
+    .sign = 1, .exp = 0, .frac = 0 \
+})
+
+Cstl_FloatImpl Cstl_FloatImpl_from_f32(f32 value);
+
+Cstl_FloatImpl Cstl_FloatImpl_from_f64(f64 value);
+
+f32 Cstl_FloatImpl_to_f32(Cstl_FloatImpl self);
+
+f64 Cstl_FloatImpl_to_f64(Cstl_FloatImpl self);
+
+void Cstl_FloatImpl_dbg(Cstl_String mut* buf, Cstl_str fmt, Addr value_ptr);
+
+
+
+typedef enum Cstl_FloatRound {
+    Cstl_FloatRound_Up,
+    Cstl_FloatRound_Down,
+    Cstl_FloatRound_Math
+} Cstl_FloatRound;
+
+#define Cstl_FloatRound_DEFAULT Cstl_FloatRound_Math
+
+
+
+typedef enum Cstl_IntegerFmtFlags {
+    Cstl_IntegerFmtFlags_ShowSign = 0x1,
+    Cstl_IntegerFmtFlags_Uppercase = 0x2,
+} Cstl_IntegerFmtFlags;
+
+#define Cstl_IntegerFmtFlags_DEFAULT 0
+
+
+
+typedef struct Cstl_FloatFormatDescriptor {
+    f64 value;
+    u16 radix;
+    u16 flags;
+    u16 n_fraction_digits;
+    char fraction_delim;
+    Cstl_FloatRound round;
+    Cstl_FloatNotation notation;
+} Cstl_FloatFormatDescriptor;
+
+#define Cstl_FloatFormatDescriptor_DEFAULT ((Cstl_FloatFormatDescriptor) { \
+    .value = 0.0, .radix = 10, .flags = Cstl_IntegerFmtFlags_DEFAULT, \
+    .n_fraction_digits = u16_MAX, .fraction_delim = '.', \
+    .round = Cstl_FloatRound_DEFAULT, .notation = Cstl_FloatNotation_DEFAULT \
+})
+
+Cstl_FloatFormatDescriptor Cstl_FloatFormatDescriptor_parse(Cstl_str value);
+
+
+
+typedef struct Cstl_IntegerFormatDescriptor {
+    u64 value;
+    i16 sign;
+    u16 radix;
+    u32 flags;
+} Cstl_IntegerFormatDescriptor;
+
+#define Cstl_IntegerFormatDescriptor_DEFAULT ((Cstl_IntegerFormatDescriptor) { \
+    .value = 0, .sign = 1, .radix = 10, .flags = Cstl_IntegerFmtFlags_DEFAULT \
+})
+
+Cstl_IntegerFormatDescriptor Cstl_IntegerFormatDescriptor_parse(Cstl_str value);
+
+
+
+void Cstl_x64_fmt_impl(Cstl_String mut* buf, Cstl_IntegerFormatDescriptor desc);
+
+void Cstl_f64_fmt_impl(Cstl_String mut* buf, Cstl_FloatFormatDescriptor desc);
 
 
 
 #define Cstl_declare_fmt_Type_fn(Type) \
     void Cstl_ ## Type ## _fmt( \
-        Cstl_String mut* buf, Cstl_str fmt, void const* value_ptr \
+        Cstl_String mut* buf, Cstl_str fmt, Addr value_ptr \
     );
 
 Cstl_declare_fmt_Type_fn(u8);
@@ -90,13 +168,16 @@ Cstl_declare_fmt_Type_fn(f32);
 Cstl_declare_fmt_Type_fn(f64);
 Cstl_declare_fmt_Type_fn(usize);
 Cstl_declare_fmt_Type_fn(isize);
+Cstl_declare_fmt_Type_fn(char);
+Cstl_declare_fmt_Type_fn(Addr);
 Cstl_declare_fmt_Type_fn(Vec);
 Cstl_declare_fmt_Type_fn(Slice);
 Cstl_declare_fmt_Type_fn(String);
 Cstl_declare_fmt_Type_fn(str);
 
 
-typedef enum {
+
+typedef enum Cstl_BasicType {
     Cstl_BasicType_u8,
     Cstl_BasicType_i8,
     Cstl_BasicType_u16,
@@ -109,18 +190,23 @@ typedef enum {
     Cstl_BasicType_f64,
     Cstl_BasicType_usize,
     Cstl_BasicType_isize,
+    Cstl_BasicType_char,
+    Cstl_BasicType_Addr,
     Cstl_BasicType_Vec,
     Cstl_BasicType_Slice,
     Cstl_BasicType_String,
     Cstl_BasicType_str,
+    Cstl_BasicType_Generic,
     Cstl_BasicType_Invalid
 } Cstl_BasicType;
+
+#define Cstl_BasicType_DEFAULT Cstl_BasicType_i32
 
 Cstl_BasicType Cstl_BasicType_from_str(Cstl_str value);
 
 
 
-typedef void (*Cstl_FormatFn)(Cstl_String mut*, Cstl_str, void const*);
+typedef void (*Cstl_FormatFn)(Cstl_String mut*, Cstl_str, Addr);
 
 Cstl_FormatFn Cstl_FormatFn_from_type_name(Cstl_str type_name);
 
@@ -139,9 +225,133 @@ Cstl_String Cstl_format(StrLit fmt, ...);
 void Cstl_format_scope(
     Cstl_String mut* buf,
     Cstl_str fmt,
-    void const* value_ptr,
+    Addr value_ptr,
     Cstl_FormatFn mut* format_fn
 );
+
+
+
+#ifdef USING_NAMESPACE_CSTL
+
+    typedef Cstl_FloatNotation FloatNotation;
+
+    #define FloatNotation_Scientific Cstl_FloatNotation_Specific
+    #define FloatNotation_Point Cstl_FloatNotation_Point
+
+    #define FloatNotation_DEFAULT Cstl_FloatNotation_DEFAULT
+
+
+
+    typedef Cstl_FloatImpl FloatImpl;
+
+    #define FloatImpl_DEFAULT Cstl_FloatImpl_DEFAULT
+
+    #define FloatImpl_from_f32 Cstl_FloatImpl_from_f32
+    #define FloatImpl_to_f32 Cstl_FloatImpl_to_f32
+    #define FloatImpl_from_f64 Cstl_FloatImpl_from_f64
+    #define FloatImpl_to_f64 Cstl_FloatImpl_to_f64
+    #define FloatImpl_dbg Cstl_FloatImpl_dbg
+
+
+
+    typedef Cstl_FloatRound Round;
+
+    #define Round_Up   Cstl_FloatRound_Up
+    #define Round_Down Cstl_FloatRound_Down
+    #define Round_Math Cstl_FloatRound_Math
+    
+    #define FloatRound_DEFAULT Cstl_FloatRound_DEFAULT
+
+
+
+    typedef Cstl_IntegerFmtFlags IntegerFmtFlags;
+
+    #define IntegerFmtFlags_DEFAULT Cstl_IntegerFmtFlags_DEFAULT
+
+
+
+    typedef Cstl_FloatFormatDescriptor FloatFormatDescriptor;
+
+    #define FloatFormatDescriptor_DEFAULT Cstl_FloatFormatDescriptor_DEFAULT
+    
+    #define FloatFormatDescriptor_parse Cstl_FloatFormatDescriptor_parse
+
+
+
+    typedef Cstl_IntegerFormatDescriptor IntegerFormatDescriptor;
+
+    #define IntegerFormatDescriptor_DEFAULT Cstl_IntegerFormatDescriptor_DEFAULT
+
+    #define IntegerFormatDescriptor_parse Cstl_IntegerFormatDescriptor_parse
+
+
+
+    #define x64_fmt_impl Cstl_x64_fmt_impl
+    #define f64_fmt_impl Cstl_x64_fmt_impl
+
+
+
+    #define i8_fmt Cstl_i8_fmt
+    #define u8_fmt Cstl_u8_fmt
+    #define i16_fmt Cstl_i16_fmt
+    #define u16_fmt Cstl_u16_fmt
+    #define i32_fmt Cstl_i32_fmt
+    #define u32_fmt Cstl_u32_fmt
+    #define i64_fmt Cstl_i64_fmt
+    #define u64_fmt Cstl_u64_fmt
+    #define isize_fmt Cstl_isize_fmt
+    #define usize_fmt Cstl_usize_fmt
+    #define Addr_fmt Cstl_Addr_fmt
+    #define char_fmt Cstl_char_fmt
+    #define f32_fmt Cstl_f32_fmt
+    #define f64_fmt Cstl_f64_fmt
+    #define Vec_fmt Cstl_Vec_fmt
+    #define Slice_fmt Cstl_Slice_fmt
+    #define String_fmt Cstl_String_fmt
+    #define str_fmt Cstl_str_fmt
+
+
+
+    typedef Cstl_BasicType BasicType;
+
+    #define BasicType_DEFAULT Cstl_BasicType_DEFAULT
+
+    #define BasicType_u8        Cstl_BasicType_u8
+    #define BasicType_i8        Cstl_BasicType_i8
+    #define BasicType_u16       Cstl_BasicType_u16
+    #define BasicType_i16       Cstl_BasicType_i16
+    #define BasicType_u32       Cstl_BasicType_u32
+    #define BasicType_i32       Cstl_BasicType_i32
+    #define BasicType_u64       Cstl_BasicType_u64
+    #define BasicType_i64       Cstl_BasicType_i64
+    #define BasicType_usize     Cstl_BasicType_usize
+    #define BasicType_isize     Cstl_BasicType_isize
+    #define BasicType_Addr      Cstl_BasicType_Addr
+    #define BasicType_char      Cstl_BasicType_char
+    #define BasicType_Vec       Cstl_BasicType_Vec
+    #define BasicType_Slice     Cstl_BasicType_Slice
+    #define BasicType_String    Cstl_BasicType_String
+    #define BasicType_str       Cstl_BasicType_str
+    #define BasicType_Generic   Cstl_BasicType_Generic
+    #define BasicType_Invalid   Cstl_BasicType_Invalid
+
+    #define BasicType_from_str Cstl_BasicType_from_str
+
+
+
+    typedef Cstl_FormatFn FormatFn;
+
+    #define FormatFn_from_type_name Cstl_FormatFn_from_type_name
+    #define FormatFn_from_basic_type Cstl_FormatFn_from_basic_type
+
+
+
+    #define format_args Cstl_format_args
+    #define format_args_impl Cstl_format_args_impl
+    #define format Cstl_format
+    #define format_scope Cstl_format_scope
+
+#endif // USING_NAMESPACE_CSTL
 
 
 
