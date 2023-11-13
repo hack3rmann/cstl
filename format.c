@@ -76,7 +76,7 @@ f64 Cstl_FloatImpl_to_f64(Cstl_FloatImpl const self) {
 
     x.bits |= (u64) ((1 - self.sign) / 2) << 63;
     x.bits |= (u64) (self.exp + 1023) << 52;
-    x.bits |= (u64) (self.frac >> 12) & 4503599627370495; // апофинея
+    x.bits |= (u64) (self.frac >> 12) & 4503599627370495;
 
     return x.value;
 }
