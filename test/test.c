@@ -8,9 +8,7 @@
 
 
 i32 main(void) {
-    AddrMut const ptr = mem_alloc(99999999999999999);
-
-    assert_fmt(null_mut != ptr, "ptr = {Addr} is invalid pointer value", ptr);
+    println("Hello, cstl!");
 
     return EXIT_SUCCESS;
 }

@@ -151,6 +151,8 @@ Cstl_Char Cstl_Chars_next(Cstl_Chars mut* self);
 
 Bool Cstl_Chars_is_expired(Cstl_Char const* ret);
 
+Cstl_Slice_u8 Cstl_str_as_bytes(Cstl_str self);
+
 
 
 typedef struct Cstl_String {
@@ -213,6 +215,8 @@ Bool Cstl_String_ne(Addr lhs, Addr rhs);
 
 Cstl_String Cstl_String_concat(usize n_strings, ...);
 
+Cstl_Slice_u8 Cstl_String_as_bytes(Cstl_String const* self);
+
 
 
 #ifdef USING_NAMESPACE_CSTL
@@ -244,6 +248,7 @@ Cstl_String Cstl_String_concat(usize n_strings, ...);
     #define str_split_one Cstl_str_split_one
     #define str_print Cstl_str_print
     #define str_debug Cstl_str_debug
+    #define str_as_bytes Cstl_str_as_bytes
 
 
 
@@ -315,6 +320,7 @@ Cstl_String Cstl_String_concat(usize n_strings, ...);
     #define String_eq Cstl_String_eq
     #define String_ne Cstl_String_ne
     #define String_concat Cstl_String_concat
+    #define String_as_bytes Cstl_String_as_bytes
 
 #endif // USING_NAMESPACE_CSTL
 

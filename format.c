@@ -28,31 +28,61 @@ Cstl_impl_fmt_integer_Type_fn(isize);
 
 
 Cstl_FloatImpl Cstl_FloatImpl_from_f32(f32 const value) {
-    u32 const bits = *(u32 const*) &value;
+    union {
+        f32 value;
+        u32 bits;
+    } mut x = { .value = value };
+
+    x.value = value;
 
     return (Cstl_FloatImpl) {
-        .sign = 1 - 2 * (i32) (bits >> 31),
-        .exp = ((bits >> 23) & 255) - 127,
-        .frac = (u64) (bits & 8388607) << 41
+        .sign = 1 - 2 * (i32) (x.bits >> 31),
+        .exp = ((x.bits >> 23) & 255) - 127,
+        .frac = (u64) (x.bits & 8388607) << 41
     };
 }
 
-Cstl_FloatImpl Cstl_FloatImpl_from_f64(UNUSED f64 const value) {
-    Cstl_todo("FloatImpl_from_f64");
+Cstl_FloatImpl Cstl_FloatImpl_from_f64(f64 const value) {
+    union {
+        f64 value;
+        u64 bits;
+    } mut x = { .value = value };
+
+    return (Cstl_FloatImpl) {
+        .sign = 1 - 2 * (i32) (x.bits >> 63),
+        .exp = ((x.bits >> 52) & 2048) - 1023,
+        .frac = (u64) (x.bits & 4503599627370495) << 12
+    };
 }
 
-f32 Cstl_FloatImpl_to_f32(UNUSED Cstl_FloatImpl const self) {
-    Cstl_todo("FloatImpl_to_f32");
+f32 Cstl_FloatImpl_to_f32(Cstl_FloatImpl const self) {
+    union {
+        f32 value;
+        u32 bits;
+    } mut x = { .bits = 0 };
+
+    x.bits |= ((1 - self.sign) / 2) << 31;
+    x.bits |= (self.exp + 127) << 23;
+    x.bits |= (self.frac >> 41) & 8388607;
+
+    return x.value;
 }
 
-f64 Cstl_FloatImpl_to_f64(UNUSED Cstl_FloatImpl const self) {
-    Cstl_todo("FloatImpl_to_f64");
+f64 Cstl_FloatImpl_to_f64(Cstl_FloatImpl const self) {
+    union {
+        f64 value;
+        u64 bits;
+    } mut x = { .bits = 0 };
+
+    x.bits |= (u64) ((1 - self.sign) / 2) << 63;
+    x.bits |= (u64) (self.exp + 1023) << 52;
+    x.bits |= (u64) (self.frac >> 12) & 4503599627370495; // апофинея
+
+    return x.value;
 }
 
 void Cstl_FloatImpl_dbg(
-    Cstl_String mut* const buf,
-    UNUSED Cstl_str const fmt,
-    Addr const value_ptr
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
 ) {
     Cstl_assert(0 == fmt.len);
 
