@@ -34,9 +34,6 @@ typedef unsigned short     u16;
     typedef unsigned long long u64;
 #endif
 
-typedef float  f32;
-typedef double f64;
-
 #define i8_MIN     ((i8) -128)
 #define i8_MAX     ((i8) 127)
 #define u8_MIN     ((u8) 0)
@@ -56,6 +53,11 @@ typedef double f64;
 #define i64_MAX    ((i64) 9223372036854775807)
 #define u64_MIN    ((u64) 0)
 #define u64_MAX    ((u64) 0xffffffffffffffff)
+
+
+
+typedef float  f32;
+typedef double f64;
 
 
 
@@ -91,8 +93,21 @@ typedef char const* StrLit;
 typedef char const* CStr;
 typedef char mut* CStrMut;
 
+
+
 typedef void const* Addr;
+
+Addr Addr_from_usize(usize value);
+
+usize Addr_as_usize(Addr self);
+
+
+
 typedef void mut* AddrMut;
+
+AddrMut AddrMut_from_usize(usize value);
+
+usize AddrMut_as_usize(AddrMut self);
 
 
 

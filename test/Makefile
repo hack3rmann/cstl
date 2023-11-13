@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -Wall -Werror -Wformat-security -Wignored-qualifiers -Winit-self \
+CFLAGS = -O3 -Wall -Werror -Wformat-security -Wignored-qualifiers -Winit-self \
 	-Wswitch-default -Wfloat-equal -Wpointer-arith -Wtype-limits -Wempty-body \
 	-Wno-logical-op -Wstrict-prototypes -Wold-style-declaration \
 	-Wold-style-definition -Wmissing-parameter-type \

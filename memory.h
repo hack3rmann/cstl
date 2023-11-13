@@ -8,6 +8,28 @@
 
 
 
+/// # Safety
+/// 
+/// `n_bytes` should be a power of 2
+Addr Addr_align_up(Addr self, usize n_bytes);
+
+/// # Safety
+/// 
+/// `n_bytes` should be a power of 2
+Addr Addr_align_down(Addr self, usize n_bytes);
+
+/// # Safety
+/// 
+/// `n_bytes` should be a power of 2
+AddrMut AddrMut_align_up(AddrMut self, usize n_bytes);
+
+/// # Safety
+/// 
+/// `n_bytes` should be a power of 2
+AddrMut AddrMut_align_down(AddrMut self, usize n_bytes);
+
+
+
 AddrMut Cstl_mem_alloc(usize n_bytes);
 AddrMut Cstl_mem_alloc_init(usize n_bytes, u8 init);
 AddrMut Cstl_mem_alloc_zeroed(usize n_bytes);
