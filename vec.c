@@ -23,7 +23,7 @@ Cstl_Vec Cstl_Vec_with_capacity(usize const cap, usize const elem_size) {
     return (Cstl_Vec) {
         .cap = cap,
         .len = 0,
-        .ptr = Cstl_mem_alloc(elem_size * cap),
+        .ptr = Cstl_mem_alloc_unaligned(elem_size * cap),
         .meta = Vec_new_meta(elem_size)
     };
 }
@@ -62,7 +62,7 @@ void Cstl_Vec_clone_from(Cstl_Vec* const self, Cstl_Vec const* const src) {
 }
 
 void Cstl_Vec_free(Cstl_Vec const* const self) {
-    Cstl_mem_free(self->ptr);
+    Cstl_mem_free_unaligned(self->ptr);
     *(Cstl_Vec mut*) self = Cstl_Vec_new(elem_size_of(self->meta));
 }
 
@@ -76,7 +76,7 @@ void Cstl__internal_Vec_alloc(Cstl_Vec* const self, usize const new_cap) {
         return;
     }
 
-    self->ptr = Cstl_mem_realloc(self->ptr, elem_size_of(self->meta) * new_cap);
+    self->ptr = Cstl_mem_realloc_unaligned(self->ptr, elem_size_of(self->meta) * new_cap);
     self->cap = new_cap;
 }
 
@@ -134,7 +134,7 @@ void Cstl_Vec_shrink_to(Cstl_Vec* const self, usize const min_cap) {
         return;
     }
 
-    self->ptr = Cstl_mem_realloc(self->ptr, min_cap);
+    self->ptr = Cstl_mem_realloc_unaligned(self->ptr, min_cap);
     self->cap = min_cap;
 }
 
@@ -262,7 +262,7 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
     } \
     Cstl_Vec_##Type Cstl_Vec_##Type##_with_capacity(usize const cap) { \
         return (Cstl_Vec_##Type) { \
-            .ptr = Cstl_mem_alloc(sizeof(Type) * cap), \
+            .ptr = Cstl_mem_alloc_unaligned(sizeof(Type) * cap), \
             .cap = cap, \
             .len = 0 \
         }; \
@@ -285,7 +285,7 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
         Cstl_mem_copy((u8 mut*) self->ptr, (u8 const*) src->ptr, sizeof(Type) * src->len); \
     } \
     void Cstl_Vec_##Type##_free(Cstl_Vec_##Type const* self) { \
-        Cstl_mem_free(self->ptr); \
+        Cstl_mem_free_unaligned(self->ptr); \
         *(Cstl_Vec_##Type mut*) self = Cstl_Vec_##Type##_DEFAULT; \
     } \
     void Cstl__internal_Vec_##Type##_alloc(Cstl_Vec_##Type mut* const self, usize const new_cap) { \
@@ -296,7 +296,7 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
         if (new_cap <= self->cap) { \
             return; \
         } \
-        self->ptr = Cstl_mem_realloc(self->ptr, sizeof(Type) * new_cap); \
+        self->ptr = Cstl_mem_realloc_unaligned(self->ptr, sizeof(Type) * new_cap); \
         self->cap = new_cap; \
     } \
     usize Cstl__internal_Vec_##Type##_next_capacity(usize const cur_cap) { \
@@ -332,7 +332,7 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
     } \
     void Cstl_Vec_##Type##_shrink_to(Cstl_Vec_##Type mut* const self, usize const min_cap) { \
         if (self->cap <= min_cap) { return; } \
-        self->ptr = Cstl_mem_realloc(self->ptr, min_cap); \
+        self->ptr = Cstl_mem_realloc_unaligned(self->ptr, min_cap); \
         self->cap = min_cap; \
     } \
     void Cstl_Vec_##Type##_shrink_to_fit(Cstl_Vec_##Type mut* const self) { \

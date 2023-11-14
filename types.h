@@ -69,6 +69,8 @@ typedef double f64;
 #   define usize_MAX u16_MAX
 #   define isize_MIN i16_MIN
 #   define isize_MAX i16_MAX
+
+#   define Addr_SIZE 2
 #elif __PTRDIFF_MAX__ == 2147483647
     typedef u32 usize;
     typedef i32 isize;
@@ -77,6 +79,8 @@ typedef double f64;
 #   define usize_MAX u32_MAX
 #   define isize_MIN i32_MIN
 #   define isize_MAX i32_MAX
+
+#   define Addr_SIZE 4
 #elif __PTRDIFF_MAX__ == 9223372036854775807
     typedef u64 usize;
     typedef i64 isize;
@@ -85,7 +89,11 @@ typedef double f64;
 #   define usize_MAX u64_MAX
 #   define isize_MIN i64_MIN
 #   define isize_MAX i64_MAX
+
+#   define Addr_SIZE 8
 #endif
+
+#define AddrMut_SIZE Addr_SIZE
 
 
 
