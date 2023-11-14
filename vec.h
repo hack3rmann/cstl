@@ -261,11 +261,9 @@ Cstl_declare_typed_Vec(f64);
 
 
 
-    #define Vec(Type, elems...) \
-        Vec_from_elems(Type, elems)
-
     #define Vec_get_value Cstl_Vec_get_value
     #define Vec_from_elems Cstl_Vec_from_elems
+    #define Vec Vec_from_elems
     #define Vec_push_value Cstl_Vec_push_value
 
 

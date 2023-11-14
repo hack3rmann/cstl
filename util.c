@@ -40,7 +40,7 @@ void Cstl_swap(AddrMut const lhs, AddrMut const rhs, usize const n_bytes) {
         Bool const is_allocated = BUFFER_LEN < n_bytes;
 
         u8 mut* const buffer = is_allocated
-            ? Cstl_mem_alloc_unaligned(n_bytes)
+            ? Cstl_mem_alloc(n_bytes)
             : static_buffer;
 
         Cstl_mem_copy(buffer, rhs, n_bytes);
@@ -48,7 +48,7 @@ void Cstl_swap(AddrMut const lhs, AddrMut const rhs, usize const n_bytes) {
         Cstl_mem_copy(lhs, buffer, n_bytes);
 
         if (is_allocated) {
-            Cstl_mem_free_unaligned(buffer);
+            Cstl_mem_free(buffer);
         }
     } break;
     }

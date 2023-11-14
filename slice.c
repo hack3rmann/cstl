@@ -32,7 +32,7 @@ void Cstl_Slice_set_unchecked(
     Cstl_Slice const self, usize const index, Addr const value_ptr
 ) {
     Cstl_mem_copy(
-        (u8 mut*) self.ptr + elem_size_of(self.meta) * index,
+        self.ptr + elem_size_of(self.meta) * index,
         value_ptr,
         elem_size_of(self.meta)
     );

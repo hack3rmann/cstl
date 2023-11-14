@@ -166,16 +166,15 @@ Cstl_Char Cstl_Char_from_code(u32 const code) {
 
     case Cstl_Utf8ByteType_TripleByteEntry:
         return (0xF000 & (code >> 12))
-             | (0xFC0 & (code >> 10)) | (0x3F & (code >> 8));
+                | (0xFC0 & (code >> 10)) | (0x3F & (code >> 8));
 
     case Cstl_Utf8ByteType_QuadByteEntry:
         return (0x1C0000 & (code >> 6)) | (0x3F000 & (code >> 4))
-             | (0xFC0 & (code >> 2)) | (0x3F & (code >> 0));
+                | (0xFC0 & (code >> 2)) | (0x3F & (code >> 0));
 
     case Cstl_Utf8ByteType_TailByte:
-    case Cstl_Utf8ByteType_InvalidByte:
         // fallthrough
-    default:
+    case Cstl_Utf8ByteType_InvalidByte:
         Cstl_deny_fmt("invalid utf-8 code format {u32}", code);
     }
 
@@ -200,7 +199,7 @@ Cstl_String Cstl_String_with_capacity(usize const cap) {
     return (Cstl_String) {
         .cap = cap,
         .len = 0,
-        .ptr = Cstl_mem_alloc_unaligned(sizeof(u8) * cap)
+        .ptr = Cstl_mem_alloc(sizeof(u8) * cap)
     };
 }
 
@@ -210,7 +209,7 @@ Cstl_String Cstl_String_new(void) {
 
 Cstl_String Cstl_String_from_str(Cstl_str const string) {
     Cstl_String const result = {
-        .ptr = Cstl_mem_alloc_unaligned(string.len),
+        .ptr = Cstl_mem_alloc(string.len),
         .len = string.len,
         .cap = string.len
     };
@@ -242,7 +241,7 @@ void Cstl_String_clone_from(
 }
 
 void Cstl_String_free(Cstl_String const* const self) {
-    Cstl_mem_free_unaligned(self->ptr);
+    Cstl_mem_free(self->ptr);
     *(Cstl_String mut*) self = Cstl_String_DEFAULT;
 }
 
@@ -256,7 +255,7 @@ void Cstl__internal_String_alloc(Cstl_String mut* const self, usize const cap) {
         return;
     }
 
-    self->ptr = Cstl_mem_realloc_unaligned(self->ptr, sizeof(*self->ptr) * cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, sizeof(*self->ptr) * cap);
     self->cap = cap;
 }
 
@@ -331,7 +330,7 @@ void Cstl_String_shrink_to(Cstl_String mut* const self, usize const cap) {
         return;
     }
 
-    self->ptr = Cstl_mem_realloc_unaligned(self->ptr, cap);
+    self->ptr = Cstl_mem_realloc(self->ptr, cap);
     self->cap = cap;
 }
 
@@ -342,7 +341,7 @@ void Cstl_String_shrink_to_fit(Cstl_String mut* const self) {
 void Cstl_String_append(
     Cstl_String mut* const self, Cstl_str const src
 ) {
-    Cstl_String_append_bytes(self, Cstl_str_as_bytes(src));
+    Cstl_String_append_bytes(self, *(Cstl_Slice_u8 const*) &src);
 }
 
 void Cstl_String_append_bytes(
@@ -387,7 +386,7 @@ Cstl_String Cstl_String_from_raw_c_string(
 }
 
 Cstl_String Cstl_String_from_utf8_unchecked(
-    u8 mut* const bytes, usize const n_bytes
+    u8* const bytes, usize const n_bytes
 ) {
     Cstl_String mut result = Cstl_String_with_capacity(n_bytes);
     result.len = n_bytes;
@@ -584,10 +583,6 @@ Cstl_String Cstl_String_concat(usize const n_strings, ...) {
     return result;
 }
 
-Cstl_Slice_u8 Cstl_String_as_bytes(Cstl_String const* const self) {
-    return Cstl_str_as_bytes(Cstl_String_as_str(self));
-}
-
 
 
 Cstl_str const Cstl_str_DEFAULT = (Cstl_str) {
@@ -614,15 +609,6 @@ Bool Cstl_str_eq(Cstl_str const self, Cstl_str const value) {
     }
 
     return True;
-}
-
-Cstl_Slice_u8 Cstl_str_as_bytes(Cstl_str self) {
-    union {
-        Cstl_Slice_u8 slice;
-        Cstl_str string;
-    } const result = { .string = self };
-
-    return result.slice;
 }
 
 Cstl_Split Cstl_str_split(Cstl_str const self, Cstl_str const delim) {

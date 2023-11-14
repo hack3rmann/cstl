@@ -159,10 +159,8 @@ Cstl_declare_basic_type_slice(Bool);
 
     typedef Cstl_Slice Slice;
 
-    #define Slice(Type, elems...) \
-        Slice_from_elems(Type, elems)
-
     #define Slice_from_elems Cstl_Slice_from_elems
+    #define Slice Slice_from_elems
     #define Slice_get_value Cstl_Slice_get_value
     #define Slice_set_value_unchecked Cstl_Slice_set_value_unchecked
     #define Slice_set_value Cstl_Slice_set_value

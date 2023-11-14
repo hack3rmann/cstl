@@ -8,14 +8,9 @@
 
 
 i32 main(void) {
-    Vec_i32 mut vec = Vec_i32_with_capacity(256);
-    vec.len = vec.cap;
+    AddrMut const ptr = mem_alloc(99999999999999999);
 
-    Cstl_mem_set((u8 mut*) vec.ptr, 1, sizeof(*vec.ptr) * vec.len);
-
-    println("{Slice::i32:0b}", Vec_i32_as_slice(&vec));
-
-    Vec_i32_free(&vec);
+    assert_fmt(null_mut != ptr, "ptr = {Addr} is invalid pointer value", ptr);
 
     return EXIT_SUCCESS;
 }
