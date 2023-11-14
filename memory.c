@@ -3,9 +3,6 @@
 #include "memory.h"
 #include "compare.h"
 
-// FIXME: remove
-#include "io.h"
-
 
 
 Addr Addr_align_up(Addr const self, usize const n_bytes) {
@@ -32,9 +29,7 @@ AddrMut AddrMut_align_down(AddrMut const self, usize const n_bytes) {
     return AddrMut_from_usize(address);
 }
 
-usize mem_align_size(usize const n_bytes) {
-    // TODO: make it faster
-
+usize Cstl_mem_align_size(usize const n_bytes) {
     if (n_bytes <= sizeof(Addr)) {
 #       if Addr_SIZE == 2
             return n_bytes
@@ -210,5 +205,19 @@ void Cstl_mem_set(u8 mut* mut ptr, u8 const value, usize mut n_bytes) {
 
     for (usize mut i = 0; i < n_bytes; ++i) {
         ptr[i] = value;
+    }
+}
+
+void Cstl_mem_set_aligned(
+    u8 mut* const ptr, u8 const value, usize const n_bytes
+) {
+    usize mut large_value = 0;
+
+    for (usize mut i = 0; i < sizeof(Addr); ++i) {
+        large_value |= (usize) value << 8 * i;
+    }
+
+    for (usize mut i = 0; i < n_bytes / sizeof(Addr); ++i) {
+        ((usize mut*) ptr)[i] = large_value;
     }
 }

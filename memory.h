@@ -54,6 +54,12 @@ void Cstl_mem_copy(u8 mut* dst, u8 const* src, usize n_bytes);
 void Cstl_mem_move(u8 mut* dst, u8 const* src, usize n_bytes);
 void Cstl_mem_set(u8 mut* ptr, u8 value, usize n_bytes);
 
+/// # Safety
+/// 
+/// - `ptr` is aligned at least to `sizeof(Addr)`
+/// - `n_bytes` is divisible by `sizeof(Addr)`
+void Cstl_mem_set_aligned(u8 mut* ptr, u8 value, usize n_bytes);
+
 
 
 #ifdef USING_NAMESPACE_CSTL
@@ -77,6 +83,7 @@ void Cstl_mem_set(u8 mut* ptr, u8 value, usize n_bytes);
     #define mem_copy Cstl_mem_copy
     #define mem_move Cstl_mem_move
     #define mem_set Cstl_mem_set
+    #define mem_set_aligned Cstl_mem_set_aligned
 
 #endif // USING_NAMESPACE_CSTL
 
