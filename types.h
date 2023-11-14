@@ -34,9 +34,6 @@ typedef unsigned short     u16;
     typedef unsigned long long u64;
 #endif
 
-typedef float  f32;
-typedef double f64;
-
 #define i8_MIN     ((i8) -128)
 #define i8_MAX     ((i8) 127)
 #define u8_MIN     ((u8) 0)
@@ -59,6 +56,11 @@ typedef double f64;
 
 
 
+typedef float  f32;
+typedef double f64;
+
+
+
 #if __PTRDIFF_MAX__ == 32767
     typedef u16 usize;
     typedef i16 isize;
@@ -67,6 +69,8 @@ typedef double f64;
 #   define usize_MAX u16_MAX
 #   define isize_MIN i16_MIN
 #   define isize_MAX i16_MAX
+
+#   define Addr_SIZE 2
 #elif __PTRDIFF_MAX__ == 2147483647
     typedef u32 usize;
     typedef i32 isize;
@@ -75,6 +79,8 @@ typedef double f64;
 #   define usize_MAX u32_MAX
 #   define isize_MIN i32_MIN
 #   define isize_MAX i32_MAX
+
+#   define Addr_SIZE 4
 #elif __PTRDIFF_MAX__ == 9223372036854775807
     typedef u64 usize;
     typedef i64 isize;
@@ -83,7 +89,11 @@ typedef double f64;
 #   define usize_MAX u64_MAX
 #   define isize_MIN i64_MIN
 #   define isize_MAX i64_MAX
+
+#   define Addr_SIZE 8
 #endif
+
+#define AddrMut_SIZE Addr_SIZE
 
 
 
@@ -91,8 +101,21 @@ typedef char const* StrLit;
 typedef char const* CStr;
 typedef char mut* CStrMut;
 
+
+
 typedef void const* Addr;
+
+Addr Addr_from_usize(usize value);
+
+usize Addr_as_usize(Addr self);
+
+
+
 typedef void mut* AddrMut;
+
+AddrMut AddrMut_from_usize(usize value);
+
+usize AddrMut_as_usize(AddrMut self);
 
 
 

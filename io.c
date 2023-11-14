@@ -32,7 +32,7 @@ void Cstl_print_impl(StrLit const fmt, VariadicArgs mut* const args) {
     Cstl_String mut out = Cstl_String_with_capacity(32);
     Cstl_format_args_impl(&mut out, fmt, args);
 
-    Cstl_str_print(*(Cstl_str const*) &out);
+    Cstl_str_print(Cstl_String_as_str(&mut out));
 
     Cstl_String_free(&out);
 }
