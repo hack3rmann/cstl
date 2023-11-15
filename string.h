@@ -88,12 +88,22 @@ void Cstl_set_utf8_output_encoding(void);
 
 
 
+usize CStr_len(CStr self);
+
+
+
+usize CStrMut_len(CStrMut self);
+
+
+
 typedef struct Cstl_str {
     u8 mut* ptr;
     usize len;
 } Cstl_str;
 
-extern Cstl_str const Cstl_str_DEFAULT;
+#define Cstl_str_DEFAULT ((Cstl_str) { \
+    .ptr = null_mut, .len = 0 \
+})
 
 Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* ptr, usize len);
 
@@ -173,7 +183,9 @@ typedef struct Cstl_String {
     usize cap;
 } Cstl_String;
 
-extern Cstl_String const Cstl_String_DEFAULT;
+#define Cstl_String_DEFAULT ((Cstl_String) { \
+    .ptr = null_mut, .len = 0, .cap = 0 \
+})
 
 Cstl_String Cstl_String_with_capacity(usize cap);
 

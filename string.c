@@ -16,12 +16,6 @@ extern int putchar(int symbol);
 
 
 
-Cstl_String const Cstl_String_DEFAULT = (Cstl_String) {
-    .ptr = null_mut,
-    .len = 0,
-    .cap = 0
-};
-
 Bool Cstl_Utf8ByteType_is_single_byte(u8 const byte) {
     return Cstl_String_UTF8_1_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_1_BYTE_MASK & 255);
@@ -192,6 +186,22 @@ void Cstl_set_utf8_output_encoding(void) {
             (u32) GetLastError()
         );
 #   endif
+}
+
+
+
+usize CStr_len(CStr const self) {
+    CStr mut cur_ptr = self;
+
+    while ('\0' != *(cur_ptr++));
+
+    return (usize) (cur_ptr - self);
+}
+
+
+
+usize CStrMut_len(CStrMut const self) {
+    return CStr_len(self);
 }
 
 
@@ -589,11 +599,6 @@ Cstl_Slice_u8 Cstl_String_as_bytes(Cstl_String const* const self) {
 }
 
 
-
-Cstl_str const Cstl_str_DEFAULT = (Cstl_str) {
-    .ptr = null_mut,
-    .len = 0
-};
 
 Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* const ptr, usize const len) {
     return (Cstl_str) {

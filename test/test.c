@@ -8,6 +8,11 @@
 
 
 i32 main(void) {
+    isize const value = -10;
+
+    BasicType const type = BasicType_from_value(value);
+
+    println("{*}", BasicType_dbg, &type);
 
     return EXIT_SUCCESS;
 }

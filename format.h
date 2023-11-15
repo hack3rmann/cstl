@@ -58,6 +58,7 @@
 
 #include "string.h"
 #include "variadic.h"
+#include "generic.h"
 
 
 
@@ -170,39 +171,33 @@ Cstl_declare_fmt_Type_fn(usize);
 Cstl_declare_fmt_Type_fn(isize);
 Cstl_declare_fmt_Type_fn(char);
 Cstl_declare_fmt_Type_fn(Addr);
+Cstl_declare_fmt_Type_fn(AddrMut);
 Cstl_declare_fmt_Type_fn(Vec);
 Cstl_declare_fmt_Type_fn(Slice);
 Cstl_declare_fmt_Type_fn(String);
 Cstl_declare_fmt_Type_fn(str);
+Cstl_declare_fmt_Type_fn(CStr);
+Cstl_declare_fmt_Type_fn(CStrMut);
+Cstl_declare_fmt_Type_fn(StrLit);
 
 
 
-typedef enum Cstl_BasicType {
-    Cstl_BasicType_u8,
-    Cstl_BasicType_i8,
-    Cstl_BasicType_u16,
-    Cstl_BasicType_i16,
-    Cstl_BasicType_u32,
-    Cstl_BasicType_i32,
-    Cstl_BasicType_u64,
-    Cstl_BasicType_i64,
-    Cstl_BasicType_f32,
-    Cstl_BasicType_f64,
-    Cstl_BasicType_usize,
-    Cstl_BasicType_isize,
-    Cstl_BasicType_char,
-    Cstl_BasicType_Addr,
-    Cstl_BasicType_Vec,
-    Cstl_BasicType_Slice,
-    Cstl_BasicType_String,
-    Cstl_BasicType_str,
-    Cstl_BasicType_Generic,
-    Cstl_BasicType_Invalid
-} Cstl_BasicType;
 
-#define Cstl_BasicType_DEFAULT Cstl_BasicType_i32
+typedef struct Cstl_FormattableType {
+    enum Cstl_FormattableType_Case {
+        Cstl_FormattableType_Case_Type,
+        Cstl_FormattableType_Case_Generic
+    } descriptor;
 
-Cstl_BasicType Cstl_BasicType_from_str(Cstl_str value);
+    Cstl_BasicType type;
+} Cstl_FormattableType;
+
+#define Cstl_FormattableType_DEFAULT ((Cstl_Formattable_Type) { \
+    .descriptor = Cstl_FormattableType_Case_Type, \
+    .type = Cstl_BasicType_DEFAULT \
+})
+
+Cstl_FormattableType Cstl_FormattableType_parse(Cstl_str value);
 
 
 
@@ -210,7 +205,7 @@ typedef void (*Cstl_FormatFn)(Cstl_String mut*, Cstl_str, Addr);
 
 Cstl_FormatFn Cstl_FormatFn_from_type_name(Cstl_str type_name);
 
-Cstl_FormatFn Cstl_FormatFn_from_basic_type(Cstl_BasicType type);
+Cstl_FormatFn Cstl_FormatFn_from_formattable_type(Cstl_FormattableType type);
 
 
 
@@ -301,7 +296,9 @@ void Cstl_format_scope(
     #define u64_fmt Cstl_u64_fmt
     #define isize_fmt Cstl_isize_fmt
     #define usize_fmt Cstl_usize_fmt
+    #define Bool_fmt Cstl_Bool_fmt
     #define Addr_fmt Cstl_Addr_fmt
+    #define AddrMut_fmt Cstl_AddrMut_fmt
     #define char_fmt Cstl_char_fmt
     #define f32_fmt Cstl_f32_fmt
     #define f64_fmt Cstl_f64_fmt
@@ -309,40 +306,23 @@ void Cstl_format_scope(
     #define Slice_fmt Cstl_Slice_fmt
     #define String_fmt Cstl_String_fmt
     #define str_fmt Cstl_str_fmt
+    #define CStr_fmt Cstl_CStr_fmt
+    #define CStrMut_fmt Cstl_CStrMut_fmt
 
 
 
-    typedef Cstl_BasicType BasicType;
+    #define FormattableType Cstl_FCstl_FormattableType
 
-    #define BasicType_DEFAULT Cstl_BasicType_DEFAULT
+    #define FormattableType_DEFAULT Cstl_Formattable_Type_DEFAULT
 
-    #define BasicType_u8        Cstl_BasicType_u8
-    #define BasicType_i8        Cstl_BasicType_i8
-    #define BasicType_u16       Cstl_BasicType_u16
-    #define BasicType_i16       Cstl_BasicType_i16
-    #define BasicType_u32       Cstl_BasicType_u32
-    #define BasicType_i32       Cstl_BasicType_i32
-    #define BasicType_u64       Cstl_BasicType_u64
-    #define BasicType_i64       Cstl_BasicType_i64
-    #define BasicType_usize     Cstl_BasicType_usize
-    #define BasicType_isize     Cstl_BasicType_isize
-    #define BasicType_Addr      Cstl_BasicType_Addr
-    #define BasicType_char      Cstl_BasicType_char
-    #define BasicType_Vec       Cstl_BasicType_Vec
-    #define BasicType_Slice     Cstl_BasicType_Slice
-    #define BasicType_String    Cstl_BasicType_String
-    #define BasicType_str       Cstl_BasicType_str
-    #define BasicType_Generic   Cstl_BasicType_Generic
-    #define BasicType_Invalid   Cstl_BasicType_Invalid
-
-    #define BasicType_from_str Cstl_BasicType_from_str
+    #define FormattableType_parse Cstl_FormattableType_parse
 
 
 
     typedef Cstl_FormatFn FormatFn;
 
     #define FormatFn_from_type_name Cstl_FormatFn_from_type_name
-    #define FormatFn_from_basic_type Cstl_FormatFn_from_basic_type
+    #define FormatFn_from_formattable_type Cstl_FormatFn_from_formattable_type
 
 
 

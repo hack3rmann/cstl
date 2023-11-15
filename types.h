@@ -5,6 +5,14 @@
 
 #define mut
 
+#ifndef null_mut
+#   define null_mut (AddrMut) 0
+#endif
+
+#ifndef null
+#   define null (Addr) 0
+#endif
+
 
 
 typedef enum Bool {
@@ -105,6 +113,10 @@ typedef char mut* CStrMut;
 
 typedef void const* Addr;
 
+#define Addr_DEFAULT null
+
+#define Addr_NULL null
+
 Addr Addr_from_usize(usize value);
 
 usize Addr_as_usize(Addr self);
@@ -112,6 +124,10 @@ usize Addr_as_usize(Addr self);
 
 
 typedef void mut* AddrMut;
+
+#define AddrMut_DEFAULT null_mut
+
+#define AddrMut_NULL null_mut
 
 AddrMut AddrMut_from_usize(usize value);
 
