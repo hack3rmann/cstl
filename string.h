@@ -13,6 +13,18 @@
 #define Cstl_str_from_literal(lit) \
     Cstl_str_from_utf8_unchecked((u8 mut*) lit, sizeof(lit) - 1)
 
+#define Cstl_to_str(value) \
+    ((union { \
+        typeof(value) value_field; \
+        Cstl_str string; \
+    }) { .value_field = value }.string)
+
+#define Cstl_as_str(value_ptr) \
+    ((union { \
+        typeof(value_ptr) value_field_ptr; \
+        Cstl_str mut* string_ptr; \
+    }) { .value_field_ptr = value_ptr }.string_ptr)
+
 
 
 /// `0b10xxxxxx`
@@ -229,6 +241,12 @@ Cstl_Slice_u8 Cstl_String_as_bytes(Cstl_String const* self);
 
     #define String(lit) \
         String_from_literal(lit)
+
+    #define to_str(value) \
+        Cstl_to_str(value)
+
+    #define as_str(value) \
+        Cstl_as_str(value)
 
 
 

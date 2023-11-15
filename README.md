@@ -70,7 +70,7 @@ typedef struct Point {
     i32 x, y;
 } Point;
 
-void Point_fmt(String mut* buf, str const fmt, Addr value_ptr) {
+void Point_fmt(String mut* buf, str fmt, Addr value_ptr) {
     Point const value = *(Point const*) value_ptr;
 
     String_push_ascii(buf, '(');

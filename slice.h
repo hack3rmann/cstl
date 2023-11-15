@@ -23,6 +23,18 @@
 #define Cstl_Slice_set_value(self, Type, index, value) \
     Cstl_Slice_set(self, index, lit_ptr(Type, value))
 
+#define Cstl_to_slice(value) \
+    ((union { \
+        typeof(value) value_field; \
+        Cstl_Slice slice; \
+    }) { .value_field = (value) }.slice)
+
+#define Cstl_as_slice(value_ptr) \
+    ((union { \
+        typeof(value_ptr) value_field_ptr; \
+        Cstl_Slice mut* slice; \
+    }) { .value_field_ptr = value_ptr }.slice)
+
 
 
 typedef enum Cstl_SliceMetaFlags {
@@ -161,6 +173,12 @@ Cstl_declare_basic_type_slice(Bool);
 
     #define Slice(Type, elems...) \
         Slice_from_elems(Type, elems)
+
+    #define to_slice(value) \
+        Cstl_to_slice(value)
+    
+    #define as_slice(value_ptr) \
+        Cstl_as_slice(value_ptr)
 
     #define Slice_from_elems Cstl_Slice_from_elems
     #define Slice_get_value Cstl_Slice_get_value
