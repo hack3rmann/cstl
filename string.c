@@ -1,7 +1,3 @@
-#if defined(_WIN32) && defined(_WIN64)
-#   include <windows.h>
-#endif
-
 #include "string.h"
 #include "error.h"
 #include "util.h"
@@ -11,6 +7,13 @@
 #include "io.h"
 
 
+
+#if defined(_WIN32) || defined(_WIN64)
+    __declspec(dllimport)
+    extern int SetConsoleOutputCP(unsigned int code);
+
+    extern int GetLastError(void);
+#endif
 
 extern int putchar(int symbol);
 
@@ -179,7 +182,7 @@ Cstl_Char Cstl_Char_from_code(u32 const code) {
 
 
 void Cstl_set_utf8_output_encoding(void) {
-#   if defined(_WIN32) && defined(_WIN64)
+#   if defined(_WIN32) || defined(_WIN64)
         Cstl_assert_fmt(
             SetConsoleOutputCP(65001),
             "SetConsoleOutputCP(65001) failed, error code: {u32}",

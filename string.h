@@ -137,9 +137,9 @@ typedef struct Cstl_SplitAny {
 
 Cstl_SplitAny Cstl_str_split_any(Cstl_str self, Cstl_Slice demims);
 
-Cstl_str Cstl_Split_next(Cstl_Split mut* self);
+Cstl_str Cstl_SplitAny_next(Cstl_SplitAny mut* self);
 
-Bool Cstl_Split_is_expired(Cstl_str const* ret);
+Bool Cstl_SplitAny_is_expired(Cstl_str const* ret);
 
 
 

@@ -8,11 +8,14 @@
 
 
 i32 main(void) {
-    isize const value = -10;
+    Split mut iter = str_split(
+        str("String, splitted, with, commas"),
+        str(", ")
+    );
 
-    BasicType const type = BasicType_from_value(value);
-
-    println("{*}", BasicType_dbg, &type);
+    iter_foreach(iter, substring, {
+        println("{str}", substring);
+    });
 
     return EXIT_SUCCESS;
 }
