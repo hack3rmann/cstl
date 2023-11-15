@@ -1,7 +1,3 @@
-#if defined(_WIN32) && defined(_WIN64)
-#   include <windows.h>
-#endif
-
 #include "string.h"
 #include "error.h"
 #include "util.h"
@@ -12,15 +8,16 @@
 
 
 
+#if defined(_WIN32) || defined(_WIN64)
+    __declspec(dllimport)
+    extern int SetConsoleOutputCP(unsigned int code);
+
+    extern int GetLastError(void);
+#endif
+
 extern int putchar(int symbol);
 
 
-
-Cstl_String const Cstl_String_DEFAULT = (Cstl_String) {
-    .ptr = null_mut,
-    .len = 0,
-    .cap = 0
-};
 
 Bool Cstl_Utf8ByteType_is_single_byte(u8 const byte) {
     return Cstl_String_UTF8_1_BYTE_ENTRY
@@ -185,13 +182,29 @@ Cstl_Char Cstl_Char_from_code(u32 const code) {
 
 
 void Cstl_set_utf8_output_encoding(void) {
-#   if defined(_WIN32) && defined(_WIN64)
+#   if defined(_WIN32) || defined(_WIN64)
         Cstl_assert_fmt(
             SetConsoleOutputCP(65001),
             "SetConsoleOutputCP(65001) failed, error code: {u32}",
             (u32) GetLastError()
         );
 #   endif
+}
+
+
+
+usize CStr_len(CStr const self) {
+    CStr mut cur_ptr = self;
+
+    while ('\0' != *(cur_ptr++));
+
+    return (usize) (cur_ptr - self);
+}
+
+
+
+usize CStrMut_len(CStrMut const self) {
+    return CStr_len(self);
 }
 
 
@@ -589,11 +602,6 @@ Cstl_Slice_u8 Cstl_String_as_bytes(Cstl_String const* const self) {
 }
 
 
-
-Cstl_str const Cstl_str_DEFAULT = (Cstl_str) {
-    .ptr = null_mut,
-    .len = 0
-};
 
 Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* const ptr, usize const len) {
     return (Cstl_str) {

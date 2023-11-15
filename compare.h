@@ -43,6 +43,21 @@ isize isize_max(isize lhs, isize rhs);
 char char_max(char lhs, char rhs);
 Bool Bool_max(Bool lhs, Bool rhs);
 
+#define max(lhs, rhs) \
+    _Generic( \
+        lhs, \
+        u8: u8_max, \
+        i8: i8_max, \
+        u16: u16_max, \
+        i16: i16_max, \
+        u32: u32_max, \
+        i32: i32_max, \
+        u64: u64_max, \
+        i64: i64_max, \
+        char: char_max, \
+        Bool: Bool_max \
+    )(lhs, rhs)
+
 u8 u8_min(u8 lhs, u8 rhs);
 i8 i8_min(i8 lhs, i8 rhs);
 u16 u16_min(u16 lhs, u16 rhs);
@@ -55,6 +70,21 @@ usize usize_min(usize lhs, usize rhs);
 isize isize_min(isize lhs, isize rhs);
 char char_max(char lhs, char rhs);
 Bool Bool_max(Bool lhs, Bool rhs);
+
+#define min(lhs, rhs) \
+    _Generic( \
+        lhs, \
+        u8: u8_min, \
+        i8: i8_min, \
+        u16: u16_min, \
+        i16: i16_min, \
+        u32: u32_min, \
+        i32: i32_min, \
+        u64: u64_min, \
+        i64: i64_min, \
+        char: char_min, \
+        Bool: Bool_min \
+    )(lhs, rhs)
 
 
 
