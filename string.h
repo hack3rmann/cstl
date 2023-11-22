@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "slice.h"
+#include "vec.h"
 #include "util.h"
 
 
@@ -110,6 +111,16 @@ Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* ptr, usize len);
 Bool Cstl_str_eq(Cstl_str self, Cstl_str value);
 
 Cstl_str Cstl_str_split_one(Cstl_str mut* self, Cstl_str delim);
+
+Cstl_str Cstl_str_trim(Cstl_str self);
+
+Cstl_str Cstl_str_trim_left(Cstl_str self);
+
+Cstl_str Cstl_str_trim_right(Cstl_str self);
+
+Cstl_Vec_usize Cstl_str_compute_prefix(Cstl_str self);
+
+Cstl_Vec_usize Cstl_str_compute_multiple_prefix(Cstl_Slice strings);
 
 void Cstl_str_print(Cstl_str self);
 
@@ -276,6 +287,10 @@ Cstl_Slice_u8 Cstl_String_as_bytes(Cstl_String const* self);
     #define str_from_utf8_unchecked Cstl_str_from_utf8_unchecked
     #define str_eq Cstl_str_eq
     #define str_split_one Cstl_str_split_one
+    #define str_trim Cstl_str_trim
+    #define str_trim_left Cstl_str_trim_left
+    #define str_trim_right Cstl_str_trim_right
+    #define str_compute_prefix Cstl_str_compute_prefix
     #define str_print Cstl_str_print
     #define str_debug Cstl_str_debug
     #define str_as_bytes Cstl_str_as_bytes

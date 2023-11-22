@@ -267,6 +267,12 @@ Cstl_Slice Cstl_Vec_slice_unchecked(
             .len = 0 \
         }; \
     } \
+    Cstl_Vec_##Type Cstl_Vec_##Type##_repeat(usize const count, Type const value) { \
+        Cstl_Vec_##Type mut result = Cstl_Vec_##Type##_with_capacity(count); \
+        result.len = count; \
+        Cstl_Vec_##Type##_fill(&mut result, value); \
+        return result; \
+    } \
     Cstl_Vec_##Type Cstl_Vec_##Type##_from_typed_slice(Cstl_Slice_##Type const src) { \
         Cstl_Vec_##Type mut result = Cstl_Vec_##Type##_with_capacity(src.len); \
         Cstl_mem_copy((u8 mut*) result.ptr, (u8 const*) src.ptr, sizeof(Type) * src.len); \

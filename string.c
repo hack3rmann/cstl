@@ -540,6 +540,57 @@ Cstl_str Cstl_str_split_one(Cstl_str mut* const self, Cstl_str const delim) {
     return result;
 }
 
+Cstl_str Cstl_str_trim(Cstl_str mut self) {
+    self = Cstl_str_trim_left(self);
+    self = Cstl_str_trim_right(self);
+
+    return self;
+}
+
+Cstl_str Cstl_str_trim_right(Cstl_str mut self) {
+    while (0 < self.len && Cstl_char_is_whitespace(self.ptr[self.len - 1])) {
+        self.len -= 1;
+    }
+
+    return self;
+}
+
+Cstl_str Cstl_str_trim_left(Cstl_str mut self) {
+    while (0 < self.len && Cstl_char_is_whitespace(self.ptr[0])) {
+        self.len -= 1;
+        self.ptr += 1;
+    }
+
+    return self;
+}
+
+Cstl_Vec_usize Cstl_str_compute_prefix(Cstl_str const self) {
+    if (0 == self.len) {
+        return Cstl_Vec_usize_new();
+    }
+
+    Cstl_Vec_usize mut result = Cstl_Vec_usize_repeat(self.len, 0);
+
+    for (usize mut i = 1; i < result.len; ++i) {
+        usize mut cur = result.ptr[i - 1];
+
+        while (self.ptr[i] != self.ptr[cur] && cur > 0) {
+            cur = result.ptr[cur - 1];
+        }
+
+        if (self.ptr[i] == self.ptr[cur]) {
+            result.ptr[i] = cur + 1;
+        }
+    }
+
+    return result;
+}
+
+Cstl_Vec_usize Cstl_str_compute_multiple_prefix(Cstl_Slice const strings) {
+    Cstl_todo("multiple string prefix");
+    return Cstl_Vec_usize_new();
+}
+
 void Cstl_str_print(Cstl_str const self) {
     for (usize mut i = 0; i < self.len; ++i) {
         putchar(self.ptr[i]);
