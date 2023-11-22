@@ -385,7 +385,7 @@ Cstl_impl_basic_type_slice(isize);
 Cstl_impl_basic_type_slice(f32);
 Cstl_impl_basic_type_slice(f64);
 Cstl_impl_basic_type_slice(char);
-Cstl_impl_basic_type_slice(Bool);
+Cstl_impl_basic_type_slice(bool);
 
 
 

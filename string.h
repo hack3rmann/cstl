@@ -61,17 +61,17 @@ typedef enum Cstl_Utf8ByteType {
 
 Cstl_Utf8ByteType Cstl_Utf8ByteType_of(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_single_byte(u8 byte);
+bool Cstl_Utf8ByteType_is_single_byte(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 byte);
+bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 byte);
+bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 byte);
+bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_tail_byte(u8 byte);
+bool Cstl_Utf8ByteType_is_tail_byte(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_invalid_byte(u8 byte);
+bool Cstl_Utf8ByteType_is_invalid_byte(u8 byte);
 
 usize Cstl_Utf8ByteType_size(Cstl_Utf8ByteType self);
 
@@ -108,7 +108,7 @@ typedef struct Cstl_str {
 
 Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* ptr, usize len);
 
-Bool Cstl_str_eq(Cstl_str self, Cstl_str value);
+bool Cstl_str_eq(Cstl_str self, Cstl_str value);
 
 Cstl_str Cstl_str_split_one(Cstl_str mut* self, Cstl_str delim);
 
@@ -137,7 +137,7 @@ Cstl_Split Cstl_str_split(Cstl_str self, Cstl_str delim);
 
 Cstl_str Cstl_Split_next(Cstl_Split mut* self);
 
-Bool Cstl_Split_is_expired(Cstl_str const* ret);
+bool Cstl_Split_is_expired(Cstl_str const* ret);
 
 
 
@@ -150,7 +150,7 @@ Cstl_SplitAny Cstl_str_split_any(Cstl_str self, Cstl_Slice demims);
 
 Cstl_str Cstl_SplitAny_next(Cstl_SplitAny mut* self);
 
-Bool Cstl_SplitAny_is_expired(Cstl_str const* ret);
+bool Cstl_SplitAny_is_expired(Cstl_str const* ret);
 
 
 
@@ -162,15 +162,15 @@ Cstl_SplitWhitespace Cstl_str_split_whitespace(Cstl_str self);
 
 Cstl_str Cstl_SplitWhitespace_next(Cstl_SplitWhitespace mut* self);
 
-Bool Cstl_SplitWhitespace_is_expired(Cstl_str const* ret);
+bool Cstl_SplitWhitespace_is_expired(Cstl_str const* ret);
 
 
 
-Bool Cstl_char_is_ascii_letter(char self);
+bool Cstl_char_is_ascii_letter(char self);
 
-Bool Cstl_char_is_numeric_letter(char self);
+bool Cstl_char_is_numeric_letter(char self);
 
-Bool Cstl_char_is_whitespace(char self);
+bool Cstl_char_is_whitespace(char self);
 
 
 
@@ -182,7 +182,7 @@ Cstl_Chars Cstl_str_chars(Cstl_str self);
 
 Cstl_Char Cstl_Chars_next(Cstl_Chars mut* self);
 
-Bool Cstl_Chars_is_expired(Cstl_Char const* ret);
+bool Cstl_Chars_is_expired(Cstl_Char const* ret);
 
 Cstl_Slice_u8 Cstl_str_as_bytes(Cstl_str self);
 
@@ -244,9 +244,9 @@ Cstl_str Cstl_String_as_str(Cstl_String const* self);
 
 Cstl_Chars Cstl_String_chars(Cstl_String const* self);
 
-Bool Cstl_String_eq(Addr lhs, Addr rhs);
+bool Cstl_String_eq(Addr lhs, Addr rhs);
 
-Bool Cstl_String_ne(Addr lhs, Addr rhs);
+bool Cstl_String_ne(Addr lhs, Addr rhs);
 
 Cstl_String Cstl_String_concat(usize n_strings, ...);
 

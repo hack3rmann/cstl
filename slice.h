@@ -157,7 +157,7 @@ Cstl_declare_basic_type_slice(isize);
 Cstl_declare_basic_type_slice(f32);
 Cstl_declare_basic_type_slice(f64);
 Cstl_declare_basic_type_slice(char);
-Cstl_declare_basic_type_slice(Bool);
+Cstl_declare_basic_type_slice(bool);
 
 
 

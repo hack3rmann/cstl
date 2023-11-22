@@ -42,7 +42,7 @@
 #define Cstl_iter_foreach(iter, next, block) \
     { \
         typeof(Cstl_iter_next(&mut iter)) mut next; \
-        while (True) { \
+        while (true) { \
             next = Cstl_iter_next(&mut iter); \
             if (Cstl_iter_is_expired(&iter, &next)) { \
                 break; \
@@ -61,7 +61,7 @@ Cstl_Range Cstl_Range_new(usize start, usize end);
 
 usize Cstl_Range_next(Cstl_Range mut* self);
 
-Bool Cstl_Range_is_expired(usize const* ret);
+bool Cstl_Range_is_expired(usize const* ret);
 
 
 

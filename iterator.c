@@ -19,6 +19,6 @@ usize Cstl_Range_next(Cstl_Range mut* const self) {
     return self->start++;
 }
 
-Bool Cstl_Range_is_expired(usize const* const ret) {
+bool Cstl_Range_is_expired(usize const* const ret) {
     return usize_MAX == *ret;
 }

@@ -18,7 +18,7 @@ typedef enum Cstl_BasicType {
     Cstl_BasicType_i64,
     Cstl_BasicType_f32,
     Cstl_BasicType_f64,
-    Cstl_BasicType_Bool,
+    Cstl_BasicType_bool,
     Cstl_BasicType_usize,
     Cstl_BasicType_isize,
     Cstl_BasicType_char,
@@ -86,7 +86,7 @@ Cstl_str Cstl_BasicType_as_str(Cstl_BasicType self);
     #define BasicType_i64       Cstl_BasicType_i64
     #define BasicType_f32       Cstl_BasicType_f32
     #define BasicType_f64       Cstl_BasicType_f64
-    #define BasicType_Bool      Cstl_BasicType_Bool
+    #define BasicType_bool      Cstl_BasicType_bool
     #define BasicType_usize     Cstl_BasicType_usize
     #define BasicType_isize     Cstl_BasicType_isize
     #define BasicType_char      Cstl_BasicType_char

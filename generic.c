@@ -18,7 +18,7 @@ Cstl_BasicType Cstl_BasicType_parse(Cstl_str const value) {
     if (str_eq(value, str("i64")))      return Cstl_BasicType_i64;
     if (str_eq(value, str("f32")))      return Cstl_BasicType_f32;
     if (str_eq(value, str("f64")))      return Cstl_BasicType_f64;
-    if (str_eq(value, str("Bool")))     return Cstl_BasicType_Bool;
+    if (str_eq(value, str("bool")))     return Cstl_BasicType_bool;
     if (str_eq(value, str("usize")))    return Cstl_BasicType_usize;
     if (str_eq(value, str("isize")))    return Cstl_BasicType_isize;
     if (str_eq(value, str("char")))     return Cstl_BasicType_char;
@@ -56,7 +56,7 @@ Cstl_str Cstl_BasicType_as_str(Cstl_BasicType const self) {
     case Cstl_BasicType_i64:        return str("i64");
     case Cstl_BasicType_f32:        return str("f32");
     case Cstl_BasicType_f64:        return str("f64");
-    case Cstl_BasicType_Bool:       return str("Bool");
+    case Cstl_BasicType_bool:       return str("bool");
     case Cstl_BasicType_usize:      return str("usize");
     case Cstl_BasicType_isize:      return str("isize");
     case Cstl_BasicType_char:       return str("char");

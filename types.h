@@ -15,31 +15,41 @@
 
 
 
-typedef enum Bool {
-    False = 0,
-    True = 1
-} Bool;
+typedef _Bool bool;
 
-Bool Bool_implies(Bool self, Bool other);
+#define true ((bool) 1)
+#define false ((bool) 0)
+
+bool bool_implies(bool self, bool other);
 
 
 
-typedef signed char        i8;
-typedef unsigned char      u8;
-typedef short              i16;
-typedef unsigned short     u16;
+typedef signed char schar;
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+typedef long long llong;
+typedef unsigned long long ullong;
+
+
+
+typedef schar i8;
+typedef uchar u8;
+typedef short  i16;
+typedef ushort u16;
 
 #if __INT_MAX__ == 2147483647
     typedef int i32;
-    typedef unsigned u32;
+    typedef uint u32;
 #elif __LONG_MAX__ == 2147483647
     typedef long i32;
-    typedef unsigned long u32;
+    typedef ulong u32;
 #endif
 
 #if __LONG_LONG_MAX__ == 9223372036854775807
-    typedef long long i64;
-    typedef unsigned long long u64;
+    typedef llong i64;
+    typedef ullong u64;
 #endif
 
 #define i8_MIN     ((i8) -128)

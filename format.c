@@ -102,14 +102,14 @@ Cstl_FloatFormatDescriptor Cstl_FloatFormatDescriptor_parse(
 
     Cstl_FloatFormatDescriptor mut desc = Cstl_FloatFormatDescriptor_DEFAULT;
 
-    Bool mut is_end = False;
+    bool mut is_end = false;
 
     while (!is_end) {
         usize mut step_size = 1;
         
         switch (*fmt.ptr) {
         case '+': case '_': case '.': case ',':
-            is_end = True;
+            is_end = true;
             break;
         case 's':
             desc.flags |= Cstl_IntegerFmtFlags_ShowSign;
@@ -140,7 +140,7 @@ Cstl_FloatFormatDescriptor Cstl_FloatFormatDescriptor_parse(
                 u16 const second_digit = fmt.ptr[3] - '0';
 
                 Cstl_assert(0 < first_digit && first_digit <= 9);
-                Cstl_assert(Bool_implies(first_digit < 2, second_digit <= 9));
+                Cstl_assert(bool_implies(first_digit < 2, second_digit <= 9));
 
                 desc.radix = second_digit <= 9
                     ? first_digit * 10 + second_digit
@@ -205,7 +205,7 @@ Cstl_FloatFormatDescriptor Cstl_FloatFormatDescriptor_parse(
 void Cstl_Addr_fmt(
     Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
 ) {
-    Bool const is_uppercase = 0 < fmt.len && 'u' == *(char const*) fmt.ptr;
+    bool const is_uppercase = 0 < fmt.len && 'u' == *(char const*) fmt.ptr;
 
     Cstl_String_append(buf, str("0x"));
     Cstl_usize_fmt(buf, is_uppercase ? str("u0h") : str("0h"), value_ptr);
@@ -297,7 +297,7 @@ Cstl_IntegerFormatDescriptor Cstl_IntegerFormatDescriptor_parse(
                 first_digit
             );
 
-            Cstl_assert(Bool_implies(9 < second_digit, 1 < first_digit));
+            Cstl_assert(bool_implies(9 < second_digit, 1 < first_digit));
 
             radix = second_digit <= 9
                 ? 10 * first_digit + second_digit
@@ -324,8 +324,8 @@ void Cstl_x64_fmt_impl(
 ) {
     enum { RADIX_MAX = 10 + ('z' - 'a' + 1) };
 
-    Bool const is_sign_shown = 0 != (desc.flags & Cstl_IntegerFmtFlags_ShowSign);
-    Bool const is_uppercase  = 0 != (desc.flags & Cstl_IntegerFmtFlags_Uppercase);
+    bool const is_sign_shown = 0 != (desc.flags & Cstl_IntegerFmtFlags_ShowSign);
+    bool const is_uppercase  = 0 != (desc.flags & Cstl_IntegerFmtFlags_Uppercase);
 
     Cstl_assert_fmt(
         1 < desc.radix && desc.radix <= RADIX_MAX,
@@ -374,7 +374,7 @@ void Cstl_f32_fmt(
     Cstl_f64_fmt(buf, fmt, &value);
 }
 
-Bool Cstl__internal_f64_fmt_is_end(char const value) {
+bool Cstl__internal_f64_fmt_is_end(char const value) {
     return '+' == value || '-' == value || '.' == value || ',' == value;
 }
 
@@ -392,7 +392,7 @@ void Cstl_f64_fmt_impl(
     Cstl_String mut* const buf, Cstl_FloatFormatDescriptor const desc
 ) {
     // FIXME: remove `UNUSED`
-    UNUSED Bool const is_fraction_fixed = u16_MAX != desc.n_fraction_digits;
+    UNUSED bool const is_fraction_fixed = u16_MAX != desc.n_fraction_digits;
 
     Cstl_FloatImpl const impl = Cstl_FloatImpl_from_f64(desc.value);
 
@@ -423,12 +423,12 @@ void Cstl_f64_fmt_impl(
     Cstl_todo("");
 }
 
-void Cstl_Bool_fmt(
+void Cstl_bool_fmt(
     Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
 ) {
-    Bool const value = *(Bool const*) value_ptr;
+    bool const value = *(bool const*) value_ptr;
 
-    Cstl_String_append(buf, value ? str("True") : str("False"));
+    Cstl_String_append(buf, value ? str("true") : str("false"));
 }
 
 void Cstl_Vec_fmt(
@@ -493,7 +493,7 @@ void Cstl_Slice_fmt(
     switch_case(Addr);
     switch_case(f32);
     switch_case(f64);
-    switch_case(Bool);
+    switch_case(bool);
     switch_case(CStr);
     switch_case(CStrMut);
     switch_case(StrLit);
@@ -591,7 +591,7 @@ Cstl_FormatFn Cstl_FormatFn_from_formattable_type(
     case Cstl_BasicType_i64:       return Cstl_i64_fmt;
     case Cstl_BasicType_f32:       return Cstl_f32_fmt;
     case Cstl_BasicType_f64:       return Cstl_f64_fmt;
-    case Cstl_BasicType_Bool:      return Cstl_Bool_fmt;
+    case Cstl_BasicType_bool:      return Cstl_bool_fmt;
     case Cstl_BasicType_usize:     return Cstl_usize_fmt;
     case Cstl_BasicType_isize:     return Cstl_isize_fmt;
     case Cstl_BasicType_char:      return Cstl_char_fmt;
@@ -660,7 +660,7 @@ void Cstl__internal_format_scope_impl(
 
     switch (type.type) {
     case Cstl_BasicType_u8: {
-        u8 const value = VariadicArgs_get(*args, unsigned);
+        u8 const value = VariadicArgs_get(*args, uint);
         format_fn(buf, fmt_args, &value);
     } break;
 
@@ -670,7 +670,7 @@ void Cstl__internal_format_scope_impl(
     } break;
 
     case Cstl_BasicType_u16: {
-        u16 const value = VariadicArgs_get(*args, unsigned);
+        u16 const value = VariadicArgs_get(*args, uint);
         format_fn(buf, fmt_args, &value);
     } break;
 
@@ -753,8 +753,8 @@ void Cstl__internal_format_scope_impl(
         format_fn(buf, fmt_args, &value);
     } break;
 
-    case Cstl_BasicType_Bool: {
-        Bool const value = VariadicArgs_get(*args, Bool);
+    case Cstl_BasicType_bool: {
+        bool const value = (bool) VariadicArgs_get(*args, uint);
         format_fn(buf, fmt_args, &value);
     } break;
 

@@ -296,7 +296,7 @@ void Cstl_format_scope(
     #define u64_fmt Cstl_u64_fmt
     #define isize_fmt Cstl_isize_fmt
     #define usize_fmt Cstl_usize_fmt
-    #define Bool_fmt Cstl_Bool_fmt
+    #define bool_fmt Cstl_bool_fmt
     #define Addr_fmt Cstl_Addr_fmt
     #define AddrMut_fmt Cstl_AddrMut_fmt
     #define char_fmt Cstl_char_fmt

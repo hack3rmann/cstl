@@ -2,7 +2,7 @@
 
 
 
-Bool Bool_implies(Bool const self, Bool const other) {
+bool bool_implies(bool const self, bool const other) {
     return self <= other;
 }
 

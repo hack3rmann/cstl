@@ -10,7 +10,7 @@
 
 #if defined(_WIN32) || defined(_WIN64)
     __declspec(dllimport)
-    extern int SetConsoleOutputCP(unsigned int code);
+    extern int SetConsoleOutputCP(uint code);
 
     extern int GetLastError(void);
 #endif
@@ -19,32 +19,32 @@ extern int putchar(int symbol);
 
 
 
-Bool Cstl_Utf8ByteType_is_single_byte(u8 const byte) {
+bool Cstl_Utf8ByteType_is_single_byte(u8 const byte) {
     return Cstl_String_UTF8_1_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_1_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 const byte) {
+bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 const byte) {
     return Cstl_String_UTF8_2_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_2_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 const byte) {
+bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 const byte) {
     return Cstl_String_UTF8_3_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_3_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 const byte) {
+bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 const byte) {
     return Cstl_String_UTF8_4_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_4_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_tail_byte(u8 const byte) {
+bool Cstl_Utf8ByteType_is_tail_byte(u8 const byte) {
     return Cstl_String_UTF8_TAIL_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_TAIL_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_invalid_byte(u8 const byte) {
+bool Cstl_Utf8ByteType_is_invalid_byte(u8 const byte) {
     return !Cstl_Utf8ByteType_is_single_byte(byte)
         && !Cstl_Utf8ByteType_is_pair_byte_entry(byte)
         && !Cstl_Utf8ByteType_is_triple_byte_entry(byte)
@@ -599,24 +599,24 @@ void Cstl_str_print(Cstl_str const self) {
 
 
 
-Bool Cstl_String_eq(Addr const lhs, Addr const rhs) {
+bool Cstl_String_eq(Addr const lhs, Addr const rhs) {
     Cstl_String const* const self = lhs;
     Cstl_String const* const value = rhs;
 
     if (self->len != value->len) {
-        return False;
+        return false;
     }
 
     for (usize mut i = 0; i < self->len; ++i) {
         if (self->ptr[i] != value->ptr[i]) {
-            return False;
+            return false;
         }
     }
 
-    return True;
+    return true;
 }
 
-Bool Cstl_String_ne(Addr const lhs, Addr const rhs) {
+bool Cstl_String_ne(Addr const lhs, Addr const rhs) {
     return !Cstl_String_eq(lhs, rhs);
 }
 
@@ -661,18 +661,18 @@ Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* const ptr, usize const len) {
     };
 }
 
-Bool Cstl_str_eq(Cstl_str const self, Cstl_str const value) {
+bool Cstl_str_eq(Cstl_str const self, Cstl_str const value) {
     if (self.len != value.len) {
-        return False;
+        return false;
     }
 
     for (usize mut i = 0; i < self.len; ++i) {
         if (self.ptr[i] != value.ptr[i]) {
-            return False;
+            return false;
         }
     }
 
-    return True;
+    return true;
 }
 
 Cstl_Slice_u8 Cstl_str_as_bytes(Cstl_str self) {
@@ -721,7 +721,7 @@ Cstl_str Cstl_Split_next(Cstl_Split mut* const self) {
     return result;
 }
 
-Bool Cstl_Split_is_expired(Cstl_str const* const ret) {
+bool Cstl_Split_is_expired(Cstl_str const* const ret) {
     return null_mut == ret->ptr;
 }
 
@@ -770,7 +770,7 @@ Cstl_str Cstl_SplitAny_next(Cstl_SplitAny mut* const self) {
     return result;
 }
 
-Bool Cstl_SplitAny_is_expired(Cstl_str const* const ret) {
+bool Cstl_SplitAny_is_expired(Cstl_str const* const ret) {
     return null_mut == ret->ptr;
 }
 
@@ -801,7 +801,7 @@ Cstl_str Cstl_SplitWhitespace_next(Cstl_SplitWhitespace mut* const self) {
     return result;
 }
 
-Bool Cstl_SplitWhitespace_is_expired(Cstl_str const* const ret) {
+bool Cstl_SplitWhitespace_is_expired(Cstl_str const* const ret) {
     return null_mut == ret->ptr;
 }
 
@@ -837,7 +837,7 @@ Cstl_Char Cstl_Chars_next(Cstl_Chars mut* const self) {
     return Cstl_Char_from_code(code);
 }
 
-Bool Cstl_Chars_is_expired(Cstl_Char const* const ret) {
+bool Cstl_Chars_is_expired(Cstl_Char const* const ret) {
     return ~(Cstl_Char) 0 == *ret;
 }
 
@@ -849,14 +849,14 @@ void Cstl_str_debug(Cstl_str const self) {
 
 
 
-Bool Cstl_char_is_ascii_letter(char const self) {
+bool Cstl_char_is_ascii_letter(char const self) {
     return ('a' <= self && self <= 'z') || ('A' <= self && self <= 'Z');
 }
 
-Bool Cstl_char_is_numeric_letter(char const self) {
+bool Cstl_char_is_numeric_letter(char const self) {
     return '0' <= self && self <= '9';
 }
 
-Bool Cstl_char_is_whitespace(char const self) {
+bool Cstl_char_is_whitespace(char const self) {
     return (32 == self) || (9 <= self && self <= 13);
 }

@@ -12,7 +12,7 @@
 - UTF-8-encoded strings in two variants: `String` and `str`. `String`s are heap-allocated and `str`s are just string views
 - Any type dynamic arrays: `Vec` and `Vec_Type`s (where `Type` is any basic type)
 - `Slice` array views and algorithms on them
-- Overridden basic types: `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u64`, `i64`, `Bool`, `usize`, `isize`, `Addr`, `AddrMut`, `StrLit`, `CStr`, `CStrMut`.
+- Overridden basic types: `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u64`, `i64`, `bool`, `usize`, `isize`, `Addr`, `AddrMut`, `StrLit`, `CStr`, `CStrMut`.
 - Any mutable data explicitly marked with empty macro `mut` for convenience.
 - Formatted console I/O
 - Type formatters and support for user-defined type formatters
