@@ -153,7 +153,7 @@ void Cstl_f64_fmt_impl(Cstl_String mut* buf, Cstl_FloatFormatDescriptor desc);
 
 
 #define Cstl_declare_fmt_Type_fn(Type) \
-    void Cstl_ ## Type ## _fmt( \
+    void Cstl_##Type##_fmt( \
         Cstl_String mut* buf, Cstl_str fmt, Addr value_ptr \
     );
 
@@ -179,6 +179,40 @@ Cstl_declare_fmt_Type_fn(str);
 Cstl_declare_fmt_Type_fn(CStr);
 Cstl_declare_fmt_Type_fn(CStrMut);
 Cstl_declare_fmt_Type_fn(StrLit);
+
+
+
+typedef void (*Cstl_ParseFn)(AddrMut, Cstl_str, Cstl_str);
+
+
+
+#define Cstl_declare_parse_Type_fn(Type) \
+    void Cstl_##Type##_parse( \
+        AddrMut self, Cstl_str args, Cstl_str src \
+    );
+
+Cstl_declare_parse_Type_fn(u8);
+Cstl_declare_parse_Type_fn(i8);
+Cstl_declare_parse_Type_fn(u16);
+Cstl_declare_parse_Type_fn(i16);
+Cstl_declare_parse_Type_fn(u32);
+Cstl_declare_parse_Type_fn(i32);
+Cstl_declare_parse_Type_fn(u64);
+Cstl_declare_parse_Type_fn(i64);
+Cstl_declare_parse_Type_fn(f32);
+Cstl_declare_parse_Type_fn(f64);
+Cstl_declare_parse_Type_fn(usize);
+Cstl_declare_parse_Type_fn(isize);
+Cstl_declare_parse_Type_fn(bool);
+Cstl_declare_parse_Type_fn(char);
+Cstl_declare_parse_Type_fn(Addr);
+Cstl_declare_parse_Type_fn(AddrMut);
+Cstl_declare_parse_Type_fn(Vec);
+Cstl_declare_parse_Type_fn(Slice);
+Cstl_declare_parse_Type_fn(String);
+Cstl_declare_parse_Type_fn(str);
+Cstl_declare_parse_Type_fn(CStr);
+Cstl_declare_parse_Type_fn(CStrMut);
 
 
 
@@ -222,6 +256,97 @@ void Cstl_format_scope(
     Cstl_str fmt,
     Addr value_ptr,
     Cstl_FormatFn mut* format_fn
+);
+
+
+
+typedef u32 (*Cstl_GetCharFn)(AddrMut);
+
+#define Cstl_GetCharFn_STDIN Cstl_GetCharFn_stdin_get
+
+#define Cstl_GetCharFn_STR Cstl_GetCharFn_str_get
+
+u32 Cstl_GetCharFn_stdin_get(AddrMut _);
+
+u32 Cstl_GetCharFn_str_get(AddrMut value_ptr);
+
+
+
+typedef bool (*Cstl_IsCharStremExpiredFn)(u32);
+
+#define Cstl_IsCharStreamExpiredFn_STDIN \
+    Cstl_IsCharStreamExpiredFn_stdin_is_expired
+
+#define Cstl_IsCharStreamExpiredFn_STR \
+    Cstl_IsCharStreamExpiredFn_str_is_expired
+
+bool Cstl_IsCharStreamExpiredFn_stdin_is_expired(u32 _);
+
+bool Cstl_IsCharStreamExpiredFn_str_is_expired(u32 ret);
+
+
+
+typedef bool (*Cstl_IsSkippedFn)(char);
+
+#define Cstl_IsSkippedFn_DEFAULT \
+    Cstl_IsSkippedFn_NOTHING
+
+#define Cstl_IsSkippedFn_SPACE_SYMBOLS \
+    Cstl_IsSkippedFn_skip_spaces
+
+#define Cstl_IsSkippedFn_NOTHING \
+    Cstl_IsSkippedFn_skip_nothing
+
+bool Cstl_IsSkippedFn_skip_spaces(char symbol);
+
+bool Cstl_IsSkippedFn_skip_nothing(char _);
+
+
+
+typedef bool (*Cstl_IsDelimFn)(char);
+
+#define Cstl_IsDelimFn_DEFAULT \
+    Cstl_IsDelimFn_WHITESPACE
+
+#define Cstl_IsDelimFn_WHITESPACE \
+    Cstl_char_is_whitespace
+
+
+
+typedef struct Cstl_CharStream {
+    AddrMut src_ptr;
+    Cstl_GetCharFn get;
+    Cstl_IsCharStremExpiredFn is_expired;
+    Cstl_IsSkippedFn is_skipped;
+    Cstl_IsDelimFn is_delim;
+} Cstl_CharStream;
+
+extern Cstl_CharStream const Cstl_CharStream_STDIN;
+
+Cstl_CharStream Cstl_CharStream_from_str(Cstl_str mut* value);
+
+bool Cstl_CharStream_matches(Cstl_CharStream mut* self, Cstl_str value);
+
+bool Cstl_CharStream_matches_once(Cstl_CharStream mut* self, u32 value);
+
+void Cstl_CharStream_scan(Cstl_CharStream mut* self, Cstl_str fmt, ...);
+
+void Cstl_CharStream_scan_impl(
+    Cstl_CharStream mut* self, Cstl_str fmt, VariadicArgs mut* args
+);
+
+u32 Cstl_CharStream_next(AddrMut self);
+
+void Cstl_CharStream_append(
+    Cstl_CharStream mut* self, Cstl_String mut* buf
+);
+
+// TODO: make all iterators `is_expired` as taking `self` argument
+bool Cstl_CharStream_is_expired(Addr self, Addr ret_ptr);
+
+void Cstl_CharStream_scan_scope(
+    Cstl_CharStream mut* self, Cstl_str fmt_scope,
+    Cstl_String mut* const buf, VariadicArgs mut* args
 );
 
 

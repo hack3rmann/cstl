@@ -510,11 +510,15 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
     return result;
 }
 
+void Cstl_String_clear(Cstl_String mut* const self) {
+    self->len = 0;
+}
+
 Cstl_str Cstl_String_as_str(Cstl_String const* const self) {
     return *(Cstl_str mut*) self;
 }
 
-Cstl_str Cstl_str_split_one(Cstl_str mut* const self, Cstl_str const delim) {
+Cstl_str Cstl_str_split_once(Cstl_str mut* const self, Cstl_str const delim) {
     Cstl_str mut result = { .ptr = self->ptr, .len = 0 };
 
     while (0 < self->len) {

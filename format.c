@@ -5,6 +5,11 @@
 #include "error.h"
 #include "numeric.h"
 #include "vec.h"
+#include "memory.h"
+
+
+
+extern int getchar(void);
 
 
 
@@ -447,16 +452,16 @@ void Cstl_Slice_fmt(
     Cstl_str const colon_delim = str(":");
     Cstl_str const star_delim = str("*");
 
-    Cstl_str mut brace_fmt = Cstl_str_split_one(&mut fmt, colon_delim);
+    Cstl_str mut brace_fmt = Cstl_str_split_once(&mut fmt, colon_delim);
     Cstl_str mut l_brace, mut delim, mut r_brace;
 
-    Cstl_str const type_name = Cstl_str_split_one(&mut fmt, colon_delim);
+    Cstl_str const type_name = Cstl_str_split_once(&mut fmt, colon_delim);
     Cstl_FormattableType const type = Cstl_FormattableType_parse(type_name);
 
     if (0 != brace_fmt.len) {
-        l_brace = Cstl_str_split_one(&mut brace_fmt, star_delim);
-        delim = Cstl_str_split_one(&mut brace_fmt, star_delim);
-        r_brace = Cstl_str_split_one(&mut brace_fmt, star_delim);
+        l_brace = Cstl_str_split_once(&mut brace_fmt, star_delim);
+        delim = Cstl_str_split_once(&mut brace_fmt, star_delim);
+        r_brace = Cstl_str_split_once(&mut brace_fmt, star_delim);
     } else {
         l_brace = str("[");
         delim = str(", ");
@@ -866,4 +871,430 @@ Cstl_String Cstl_format(StrLit const fmt, ...) {
     VariadicArgs_end(args);
 
     return buf;
+}
+
+u32 Cstl_GetCharFn_stdin_get(UNUSED AddrMut const _) {
+    return (u32) getchar();
+}
+
+u32 Cstl_GetCharFn_str_get(AddrMut const value_addr) {
+    str mut* const value = (str mut*) value_addr;
+
+    if (0 == value->len) {
+        return u32_MAX;
+    }
+
+    u32 const result = (u32) value->ptr[0];
+
+    value->ptr += 1;
+    value->len -= 1;
+
+    return result;
+}
+
+
+
+bool Cstl_IsCharStreamExpiredFn_stdin_is_expired(UNUSED u32 const _) {
+    return false;
+}
+
+bool Cstl_IsCharStreamExpiredFn_str_is_expired(u32 const ret) {
+    return u32_MAX == ret;
+}
+
+
+
+bool Cstl_IsSkippedFn_skip_spaces(char const symbol) {
+    return Cstl_char_is_whitespace(symbol);
+}
+
+bool Cstl_IsSkippedFn_skip_nothing(UNUSED char _) {
+    return false;
+}
+
+
+
+Cstl_CharStream const Cstl_CharStream_STDIN = {
+    .src_ptr = null_mut,
+    .get = Cstl_GetCharFn_STDIN,
+    .is_expired = Cstl_IsCharStreamExpiredFn_STDIN,
+    .is_skipped = Cstl_IsSkippedFn_DEFAULT,
+    .is_delim = Cstl_IsDelimFn_DEFAULT
+};
+
+Cstl_CharStream Cstl_CharStream_from_str(Cstl_str mut* const value_ptr) {
+    return (Cstl_CharStream) {
+        .src_ptr = value_ptr,
+        .is_expired = Cstl_IsCharStreamExpiredFn_STR,
+        .get = Cstl_GetCharFn_stdin_get,
+        .is_skipped = Cstl_IsSkippedFn_DEFAULT,
+        .is_delim = Cstl_IsDelimFn_DEFAULT
+    };
+}
+
+u32 Cstl_CharStream_next(AddrMut const self_addr) {
+    Cstl_CharStream mut* const self = self_addr;
+
+    char mut result;
+
+    do {
+        result = self->get(self->src_ptr);
+    } while (self->is_skipped(result));
+
+    return result;
+}
+
+void Cstl_CharStream_append(
+    Cstl_CharStream mut* const self, Cstl_String mut* const buf
+) {
+    for (char mut cur_sym = self->get(self->src_ptr)
+        ; !self->is_delim(cur_sym)
+        ; cur_sym = self->get(self->src_ptr)
+    ) {
+        Cstl_String_push_ascii(buf, cur_sym);
+    }
+}
+
+bool Cstl_CharStream_is_expired(Addr const self, Addr const ret_ptr) {
+    return ((Cstl_CharStream const*) self)->is_expired(*(u32 const*) ret_ptr);
+}
+
+void Cstl_CharStream_scan(
+    Cstl_CharStream mut* const self, Cstl_str const fmt, ...
+) {
+    VariadicArgs mut args;
+    VariadicArgs_start(args, fmt);
+
+    Cstl_CharStream_scan_impl(self, fmt, &mut args);
+
+    VariadicArgs_end(args);
+}
+
+bool Cstl_CharStream_matches_once(
+    Cstl_CharStream mut* const self, u32 const value
+) {
+    return Cstl_CharStream_next(self) == value;
+}
+
+bool Cstl_CharStream_matches(
+    Cstl_CharStream mut* const self, Cstl_str const value
+) {
+    for (usize mut i = 0; i < value.len; ++i) {
+        if (Cstl_CharStream_matches_once(self, (u32) value.ptr[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void Cstl_CharStream_scan_impl(
+    Cstl_CharStream mut* const self, Cstl_str const fmt,
+    VariadicArgs mut* const args
+) {
+    Cstl_str mut cur_match_str = Cstl_str_DEFAULT;
+
+    Cstl_String mut buf = Cstl_String_with_capacity(64);
+
+    for (usize mut i = 0; i < fmt.len; ++i) {
+        switch (fmt.ptr[i]) {
+        case ' ': {
+            // match `fmt`
+            {
+                assert_fmt(
+                    Cstl_CharStream_matches(self, cur_match_str),
+                    "failed to match '{str}'",
+                    cur_match_str
+                );
+
+                cur_match_str = Cstl_str_DEFAULT;
+            }
+
+            self->is_skipped = Cstl_IsSkippedFn_SPACE_SYMBOLS;
+        } break;
+
+        case '{': {
+            self->is_skipped = Cstl_IsSkippedFn_DEFAULT;
+
+            // match `fmt` substring
+            {
+                assert_fmt(
+                    Cstl_CharStream_matches(self, cur_match_str),
+                    "failed to match '{str}'",
+                    cur_match_str
+                );
+
+                cur_match_str = Cstl_str_DEFAULT;
+            }
+
+            assert_msg(
+                i + 1 < fmt.len,
+                "incomplete format/escape scope at '{'"
+            );
+
+            if ('{' == fmt.ptr[i + 1]) {
+                assert_msg(
+                    Cstl_CharStream_matches_once(self, U'{'),
+                    "failed to match '{'"
+                );
+            } else {
+                Cstl_str mut fmt_scope = {
+                    .ptr = fmt.ptr + i + 1,
+                    .len = 0
+                };
+
+                for (usize mut j = i + 1
+                    ; j < fmt.len && '}' != fmt.ptr[j]
+                    ; ++j
+                ) {
+                    fmt_scope.len += 1;
+                }
+
+                Cstl_CharStream_scan_scope(self, fmt_scope, &mut buf, args);
+
+                i += fmt_scope.len + 1;
+            }
+        } break;
+
+        default: {
+            self->is_skipped = Cstl_IsSkippedFn_DEFAULT;
+
+            if (0 == cur_match_str.len) {
+                cur_match_str = (Cstl_str) {
+                    .ptr = fmt.ptr + i,
+                    .len = 1
+                };
+            } else {
+                cur_match_str.len += 1;
+            }
+        } break;
+        }
+    }
+
+    Cstl_String_free(&buf);
+}
+
+void Cstl_CharStream_scan_scope(
+    Cstl_CharStream mut* const self, Cstl_str mut fmt_scope,
+    Cstl_String mut* const buf, VariadicArgs mut* const args
+) {
+    Cstl_String_clear(buf);
+    Cstl_CharStream_append(self, buf);
+
+    Cstl_str const type_name = Cstl_str_split_once(&mut fmt_scope, str(":"));
+
+    Cstl_FormattableType const type = Cstl_FormattableType_parse(type_name);
+
+    if (Cstl_FormattableType_Case_Generic == type.descriptor) {
+        Cstl_ParseFn const parse = VariadicArgs_get(*args, Cstl_ParseFn);
+        AddrMut const dst_ptr = VariadicArgs_get(*args, AddrMut);
+
+        parse(dst_ptr, fmt_scope, to_str(*buf));
+
+        return;
+    }
+
+#   define case_Type(Type) \
+        case Cstl_BasicType_##Type: { \
+            Type mut* const dst_ptr = VariadicArgs_get(*args, Type mut*); \
+            Cstl_##Type##_parse(dst_ptr, fmt_scope, to_str(*buf)); \
+        } break
+
+    switch (type.type) {
+    case_Type(u8);
+    case_Type(i8);
+    case_Type(u16);
+    case_Type(i16);
+    case_Type(u32);
+    case_Type(i32);
+    case_Type(u64);
+    case_Type(i64);
+    case_Type(usize);
+    case_Type(isize);
+    case_Type(f32);
+    case_Type(f64);
+    case_Type(bool);
+    case_Type(char);
+    case_Type(Addr);
+    case_Type(AddrMut);
+    case_Type(Vec);
+    case_Type(Slice);
+    case_Type(String);
+    case_Type(str);
+    case_Type(CStr);
+    case_Type(CStrMut);
+
+    case Cstl_BasicType_Invalid:
+        // fallthrough
+    default:
+        deny_fmt("invalid BasicType value {u32}", type.type);
+    }
+
+#   undef case_Type
+}
+
+
+
+#define Cstl_impl_parse_uint_Type(Type) \
+    void Cstl_##Type##_parse( \
+        AddrMut const self_addr, Cstl_str const args, Cstl_str const src \
+    ) { \
+        u64 mut value; \
+        Cstl_u64_parse(&mut value, args, src); \
+        *(Type mut*) self_addr = value; \
+    }
+
+Cstl_impl_parse_uint_Type(u8);
+Cstl_impl_parse_uint_Type(u16);
+Cstl_impl_parse_uint_Type(u32);
+Cstl_impl_parse_uint_Type(usize);
+
+
+
+#define Cstl_impl_parse_int_Type(Type) \
+    void Cstl_##Type##_parse( \
+        AddrMut const self_addr, Cstl_str const args, Cstl_str const src \
+    ) { \
+        i64 mut value; \
+        Cstl_u64_parse(&mut value, args, src); \
+        *(Type mut*) self_addr = value; \
+    }
+
+Cstl_impl_parse_int_Type(i8);
+Cstl_impl_parse_int_Type(i16);
+Cstl_impl_parse_int_Type(i32);
+Cstl_impl_parse_int_Type(isize);
+
+
+
+void Cstl_u64_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    u64 mut* self = self_addr;
+    *self = 0;
+
+    for (usize mut i = 0; i < src.len; ++i) {
+        *self *= 10;
+        *self += src.ptr[i] - '0';
+    }
+}
+
+void Cstl_i64_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    i64 mut* self = self_addr;
+    *self = 0;
+
+    bool const is_negative = args.ptr[0] == '-';
+
+    for (usize mut i = 1; i < args.len; ++i) {
+        *self *= 10;
+        *self += src.ptr[i] - '0';
+    }
+
+    if (is_negative) {
+        *self *= -1;
+    }
+}
+
+
+
+void Cstl_f32_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    f64 mut value;
+    Cstl_f64_parse(&mut value, args, src);
+    *(f32 mut*) self_addr = value;
+}
+
+void Cstl_f64_parse(
+    UNUSED AddrMut const self_addr, UNUSED Cstl_str const args, UNUSED Cstl_str const src
+) {
+    todo("f64_parse");
+}
+
+void Cstl_bool_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    if (str_eq(src, str("true"))) {
+        *(bool mut*) self_addr = true;
+        return;
+    }
+
+    if (str_eq(src, str("false"))) {
+        *(bool mut*) self_addr = false;
+        return;
+    }
+
+    deny_fmt("invalid bool_parse source '{str}'", src);
+}
+
+void Cstl_char_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    assert_fmt(1 == src.len, "invalid char_parse source '{str}'", src);
+
+    *(char mut*) self_addr = (char) src.ptr[0];
+}
+
+void Cstl_AddrMut_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    Cstl_Addr_parse(self_addr, args, src);
+}
+
+void Cstl_Addr_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    assert_fmt(
+        str_eq((str) { .ptr = src.ptr, .len = 2 }, str("0x")),
+        "invalid Addr_parse source '{str}'",
+        src
+    );
+
+    Addr mut* const self = self_addr;
+    *self = null_mut;
+
+    for (usize mut i = 2; i < src.len; ++i) {
+        *(usize mut*) self *= 16;
+        *(usize mut*) self += '0' <= src.ptr[i] && src.ptr[i] <= '9'
+            ? src.ptr[i] - '0'
+            : src.ptr[i] - 'a' + 10;
+    }
+}
+
+void Cstl_Vec_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    todo("Vec::parse");
+}
+
+void Cstl_Slice_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    todo("Slice::parse");
+}
+
+void Cstl_String_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    todo("String::parse");
+}
+
+void Cstl_str_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    todo("str::parse");
+}
+
+void Cstl_CStr_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+
+}
+
+void Cstl_CStrMut_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+
 }
