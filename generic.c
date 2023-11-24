@@ -75,3 +75,36 @@ Cstl_str Cstl_BasicType_as_str(Cstl_BasicType const self) {
         Cstl_deny_fmt("invalid enum BasicType value {u32}", (u32) self);
     }
 }
+
+usize Cstl_BasicType_size(Cstl_BasicType const self) {
+    switch (self) {
+    case Cstl_BasicType_u8:         return sizeof(u8);
+    case Cstl_BasicType_i8:         return sizeof(i8);
+    case Cstl_BasicType_u16:        return sizeof(u16);
+    case Cstl_BasicType_i16:        return sizeof(i16);
+    case Cstl_BasicType_u32:        return sizeof(u32);
+    case Cstl_BasicType_i32:        return sizeof(i32);
+    case Cstl_BasicType_u64:        return sizeof(u64);
+    case Cstl_BasicType_i64:        return sizeof(i64);
+    case Cstl_BasicType_f32:        return sizeof(f32);
+    case Cstl_BasicType_f64:        return sizeof(f64);
+    case Cstl_BasicType_bool:       return sizeof(bool);
+    case Cstl_BasicType_usize:      return sizeof(usize);
+    case Cstl_BasicType_isize:      return sizeof(isize);
+    case Cstl_BasicType_char:       return sizeof(char);
+    case Cstl_BasicType_Addr:       return sizeof(Addr);
+    case Cstl_BasicType_AddrMut:    return sizeof(AddrMut);
+    case Cstl_BasicType_Vec:        return sizeof(Vec);
+    case Cstl_BasicType_Slice:      return sizeof(Slice);
+    case Cstl_BasicType_String:     return sizeof(String);
+    case Cstl_BasicType_str:        return sizeof(str);
+    case Cstl_BasicType_CStr:       return sizeof(CStr);
+    case Cstl_BasicType_CStrMut:    return sizeof(CStrMut);
+    case Cstl_BasicType_StrLit:     return sizeof(StrLit);
+
+    case Cstl_BasicType_Invalid:
+        // fallthrough
+    default:
+        deny("BasicType::Invalid has no size");
+    }
+}

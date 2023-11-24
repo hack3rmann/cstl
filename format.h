@@ -252,9 +252,7 @@ void Cstl_format_args_impl(
 Cstl_String Cstl_format(StrLit fmt, ...);
 
 void Cstl_format_scope(
-    Cstl_String mut* buf,
-    Cstl_str fmt,
-    Addr value_ptr,
+    Cstl_String mut* buf, Cstl_str fmt, Addr value_ptr,
     Cstl_FormatFn mut* format_fn
 );
 
@@ -272,7 +270,7 @@ u32 Cstl_GetCharFn_str_get(AddrMut value_ptr);
 
 
 
-typedef bool (*Cstl_IsCharStremExpiredFn)(u32);
+typedef bool (*Cstl_IsCharStreamExpiredFn)(u32);
 
 #define Cstl_IsCharStreamExpiredFn_STDIN \
     Cstl_IsCharStreamExpiredFn_stdin_is_expired
@@ -306,17 +304,22 @@ bool Cstl_IsSkippedFn_skip_nothing(char _);
 typedef bool (*Cstl_IsDelimFn)(char);
 
 #define Cstl_IsDelimFn_DEFAULT \
-    Cstl_IsDelimFn_WHITESPACE
+    Cstl_IsDelimFn_NEWLINE
 
 #define Cstl_IsDelimFn_WHITESPACE \
     Cstl_char_is_whitespace
+
+#define Cstl_IsDelimFn_NEWLINE \
+    Cstl_IsDelimFn_is_new_line
+
+bool Cstl_IsDelimFn_is_new_line(char value);
 
 
 
 typedef struct Cstl_CharStream {
     AddrMut src_ptr;
     Cstl_GetCharFn get;
-    Cstl_IsCharStremExpiredFn is_expired;
+    Cstl_IsCharStreamExpiredFn is_expired;
     Cstl_IsSkippedFn is_skipped;
     Cstl_IsDelimFn is_delim;
 } Cstl_CharStream;
@@ -348,6 +351,12 @@ void Cstl_CharStream_scan_scope(
     Cstl_CharStream mut* self, Cstl_str fmt_scope,
     Cstl_String mut* const buf, VariadicArgs mut* args
 );
+
+
+
+void Cstl_console_scan(StrLit fmt, ...);
+
+void Cstl_console_scan_impl(Cstl_str fmt, VariadicArgs mut* args);
 
 
 
@@ -451,10 +460,100 @@ void Cstl_CharStream_scan_scope(
 
 
 
+    typedef Cstl_ParseFn ParseFn;
+
+    #define u8_parse Cstl_u8_parse
+    #define i8_parse Cstl_i8_parse
+    #define u16_parse Cstl_u16_parse
+    #define i16_parse Cstl_i16_parse
+    #define u32_parse Cstl_u32_parse
+    #define i32_parse Cstl_i32_parse
+    #define u64_parse Cstl_u64_parse
+    #define i64_parse Cstl_i64_parse
+    #define f32_parse Cstl_f32_parse
+    #define f64_parse Cstl_f64_parse
+    #define usize_parse Cstl_usize_parse
+    #define isize_parse Cstl_isize_parse
+    #define bool_parse Cstl_bool_parse
+    #define char_parse Cstl_char_parse
+    #define Addr_parse Cstl_Addr_parse
+    #define AddrMut_parse Cstl_AddrMut_parse
+    #define Vec_parse Cstl_Vec_parse
+    #define Slice_parse Cstl_Slice_parse
+    #define String_parse Cstl_String_parse
+    #define str_parse Cstl_str_parse
+    #define CStr_parse Cstl_CStr_parse
+    #define CStrMut_parse Cstl_CStrMut_parse
+
+
+
     #define format_args Cstl_format_args
     #define format_args_impl Cstl_format_args_impl
     #define format Cstl_format
     #define format_scope Cstl_format_scope
+
+    typedef Cstl_GetCharFn GetCharFn;
+
+    #define GetCharFn_STDIN Cstl_GetCharFn_STDIN
+    #define GetCharFn_SRT Cstl_GetCharFn_STR
+
+    #define GetCharFn_stdin_get Cstl_GetCharFn_stdin_get
+    #define GetCharFn_str_get Cstl_GetCharFn_str_get
+
+
+
+    typedef Cstl_IsCharStreamExpiredFn IsCharStreamExpiredFn;
+
+    #define IsCharStreamExpiredFn_STDIN Cstl_IsCharStreamExpiredFn_STDIN
+    #define IsCharStreamExpiredFn_STR Cstl_IsCharStreamExpired_STR
+
+    #define IsCharStreamExpiredFn_stdin_is_expired \
+        Cstl_IsCharStreamExpiredFn_stdin_is_expired
+
+    #define IsCharStreamExpiredFn_str_is_expired \
+        Cstl_IsCharStreamExpiredFn_std_is_expired
+
+
+
+    typedef Cstl_IsSkippedFn IsSkippedFn;
+
+    #define IsSkippedFn_DEFAULT Cstl_IsSkippedFn_DEFAULT
+    #define IsSkippedFn_SPACE_SYMBOLS Cstl_IsSkippedFn_SPACE_SYMBOLS
+    #define IsSkippedFn_NOTHING Cstl_IsSkippedFn_NOTHING
+
+    #define IsSkippedFn_skip_spaces Cstl_IsSkippedFn_skip_spaces
+    #define IsSkippedFn_skip_nothing Cstl_IsSkippedFn_skip_nothing
+
+
+
+    typedef Cstl_IsDelimFn IsDelimFn;
+
+    #define IsDelimFn_DEFAULT Cstl_IsDelimFn_DEFAULT
+    #define IsDelimFn_WHITESPACE Cstl_IsDelimFn_WHITESPACE
+    #define IsDelimFn_NEWLINE Cstl_IsDelimFn_NEWLINE
+
+    #define IsDelimFn_is_new_line Cstl_IsDelimFn_is_new_line
+
+
+
+    typedef Cstl_CharStream CharStream;
+
+    #define CharStream_STDIN Cstl_CharStream_STDIN
+
+    #define CharStream_from_str Cstl_CharStream_from_str
+    #define CharStream_matches Cstl_CharStream_matches
+    #define CharStream_matches_once Cstl_CharStream_matches_once
+    #define CharStream_scan Cstl_CharStream_scan
+    #define CharStream_scan_impl Cstl_CharStream_scan_impl
+    #define CharStream_next Cstl_CharStream_next
+    #define CharStream_append Cstl_CharStream_append
+    #define CharStream_is_expired Cstl_CharStream_is_expired
+    #define CharStream_scan_scope Cstl_CharStream_scan_scope
+
+
+
+    #define console_scan Cstl_console_scan
+    #define console_scan_impl Cstl_console_scan_impl
 
 #endif // USING_NAMESPACE_CSTL
 

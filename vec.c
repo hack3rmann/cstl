@@ -118,6 +118,23 @@ void Cstl_Vec_reserve_exact(
     Cstl__internal_Vec_alloc(self, additional_cap + self->len - self->cap);
 }
 
+void Cstl_Vec_retype(Cstl_Vec mut* const self, usize const new_elem_size) {
+    assert_msg(0 == self->len, "only empty `Vec`s can be retyped");
+
+    usize const old_n_bytes = self->cap * elem_size_of(self->meta);
+    usize const new_cap = old_n_bytes / new_elem_size;
+    usize const n_lost_bytes = old_n_bytes - new_cap * new_elem_size;
+
+    if (0 < n_lost_bytes) {
+        self->ptr = Cstl_mem_realloc_unaligned(
+            self->ptr, old_n_bytes + new_elem_size - n_lost_bytes
+        );
+    }
+
+    self->cap = new_cap;
+    self->meta = Cstl_Vec_new_meta(new_elem_size);
+}
+
 void Cstl_Vec_reserve(Cstl_Vec mut* const self, usize const additional_cap) {
     if (self->len + additional_cap <= self->len) {
         return;

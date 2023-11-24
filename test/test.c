@@ -8,12 +8,13 @@
 
 
 i32 main(void) {
-    u64 value;
+    Vec mut nums = Vec_with_capacity(16, sizeof(i32));
 
-    Cstl_CharStream mut stdin = Cstl_CharStream_STDIN;
-    Cstl_CharStream_scan(&stdin, str("{u64}"), &mut value);
+    console_scan("{Vec:*, *:i32}", &mut nums);
 
-    println("value = {u64}", value);
+    println("{Vec::i32}", &nums);
+
+    Vec_free(&nums);
 
     return EXIT_SUCCESS;
 }

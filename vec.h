@@ -109,6 +109,11 @@ void Cstl_Vec_reserve_exact(Cstl_Vec mut* self, usize additional_cap);
 /// @param additional_cap a minimal capacity to reserve.
 void Cstl_Vec_reserve(Cstl_Vec mut* self, usize additional_cap);
 
+/// @brief Retypes the [`Vec`]. Note that `self` should be an empty vector.
+/// 
+/// @param new_elem_size a new size of an element
+void Cstl_Vec_retype(Cstl_Vec mut* self, usize new_elem_size);
+
 
 /// @brief Clears the vector leaving capacity untouched.
 void Cstl_Vec_clear(Cstl_Vec mut* self);
@@ -285,6 +290,7 @@ Cstl_declare_typed_Vec(f64);
     #define Vec_pop Cstl_Vec_pop
     #define Vec_reserve_exact Cstl_Vec_reserve_exact
     #define Vec_reserve Cstl_Vec_reserve
+    #define Vec_retype Cstl_Vec_retype
     #define Vec_clear Cstl_Vec_clear
     #define Vec_shrink_to Cstl_Vec_shrink_to
     #define Vec_shrink_to_fit Cstl_Vec_shrink_to_fit

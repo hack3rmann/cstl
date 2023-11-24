@@ -914,6 +914,12 @@ bool Cstl_IsSkippedFn_skip_nothing(UNUSED char _) {
 
 
 
+bool Cstl_IsDelimFn_is_new_line(char const value) {
+    return '\n' == value || '\r' == value;
+}
+
+
+
 Cstl_CharStream const Cstl_CharStream_STDIN = {
     .src_ptr = null_mut,
     .get = Cstl_GetCharFn_STDIN,
@@ -926,7 +932,7 @@ Cstl_CharStream Cstl_CharStream_from_str(Cstl_str mut* const value_ptr) {
     return (Cstl_CharStream) {
         .src_ptr = value_ptr,
         .is_expired = Cstl_IsCharStreamExpiredFn_STR,
-        .get = Cstl_GetCharFn_stdin_get,
+        .get = Cstl_GetCharFn_str_get,
         .is_skipped = Cstl_IsSkippedFn_DEFAULT,
         .is_delim = Cstl_IsDelimFn_DEFAULT
     };
@@ -949,6 +955,7 @@ void Cstl_CharStream_append(
 ) {
     for (char mut cur_sym = self->get(self->src_ptr)
         ; !self->is_delim(cur_sym)
+            && !Cstl_CharStream_is_expired(self, lit_ptr(u32, cur_sym))
         ; cur_sym = self->get(self->src_ptr)
     ) {
         Cstl_String_push_ascii(buf, cur_sym);
@@ -1135,6 +1142,28 @@ void Cstl_CharStream_scan_scope(
 
 
 
+void Cstl_console_scan(StrLit const fmt_lit, ...) {
+    VariadicArgs mut args;
+    VariadicArgs_start(args, fmt_lit);
+
+    Cstl_str const fmt = {
+        .ptr = (u8 mut*) fmt_lit,
+        .len = CStr_len(fmt_lit)
+    };
+
+    Cstl_console_scan_impl(fmt, &mut args);
+
+    VariadicArgs_end(args);
+}
+
+void Cstl_console_scan_impl(Cstl_str const fmt, VariadicArgs mut* const args) {
+    Cstl_CharStream mut stdin = Cstl_CharStream_STDIN;
+
+    Cstl_CharStream_scan_impl(&mut stdin, fmt, args);
+}
+
+
+
 #define Cstl_impl_parse_uint_Type(Type) \
     void Cstl_##Type##_parse( \
         AddrMut const self_addr, Cstl_str const args, Cstl_str const src \
@@ -1264,9 +1293,83 @@ void Cstl_Addr_parse(
 }
 
 void Cstl_Vec_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    AddrMut const self_addr, Cstl_str mut args, Cstl_str mut src
 ) {
-    todo("Vec::parse");
+    Cstl_Vec mut* const self = self_addr;
+    Cstl_Vec_clear(self);
+
+    Cstl_str const delim_format = Cstl_str_split_once(&mut args, str(":"));
+    Cstl_str const type_name = Cstl_str_split_once(&mut args, str(":"));
+    Cstl_str const type_args = args;
+
+    Cstl_str mut left_bracket = str("[");
+    Cstl_str mut right_bracket = str("]");
+    Cstl_str mut delim = str(", ");
+
+    if (0 != delim_format.len) {
+        Cstl_str mut format = delim_format;
+
+        left_bracket = Cstl_str_split_once(&mut format, str("*"));
+        delim = Cstl_str_split_once(&mut format, str("*"));
+        right_bracket = format;
+    }
+
+    Cstl_FormattableType const type = Cstl_FormattableType_parse(type_name);
+
+    if (Cstl_FormattableType_Case_Generic == type.descriptor) {
+        todo("generic type formatters to parse arrays");
+    }
+
+    usize const elem_size = Cstl_BasicType_size(type.type);
+
+    Cstl_Vec_retype(self, elem_size);
+
+    Cstl_str_split_once(&mut src, left_bracket);
+
+#   define case_Type(Type) \
+        case Cstl_BasicType_##Type: { \
+            Cstl_Split mut split = Cstl_str_split(src, delim); \
+            for (Cstl_str mut elem_src = Cstl_Split_next(&mut split) \
+                ; !Cstl_Split_is_expired(&elem_src) \
+                ; elem_src = Cstl_Split_next(&mut split) \
+            ) { \
+                Type mut value; \
+                Cstl_##Type##_parse(&mut value, type_args, elem_src); \
+                Vec_push(self, &value); \
+            } \
+        } break
+    
+    switch (type.type) {
+    case_Type(u8);
+    case_Type(i8);
+    case_Type(u16);
+    case_Type(i16);
+    case_Type(u32);
+    case_Type(i32);
+    case_Type(u64);
+    case_Type(i64);
+    case_Type(f32);
+    case_Type(f64);
+    case_Type(usize);
+    case_Type(isize);
+    case_Type(bool);
+    case_Type(char);
+    case_Type(Addr);
+    case_Type(AddrMut);
+    case_Type(Vec);
+    case_Type(Slice);
+    case_Type(String);
+    case_Type(str);
+    case_Type(CStr);
+    case_Type(CStrMut);
+
+    default:
+        deny_fmt("invalid BasicType value {u32}", (u32) type.type);
+    }
+
+#   undef case_Type
+
+    Cstl_str_split_once(&mut src, right_bracket);
 }
 
 void Cstl_Slice_parse(
@@ -1290,11 +1393,11 @@ void Cstl_str_parse(
 void Cstl_CStr_parse(
     AddrMut const self_addr, Cstl_str const args, Cstl_str const src
 ) {
-
+    todo("CStr::parse");
 }
 
 void Cstl_CStrMut_parse(
     AddrMut const self_addr, Cstl_str const args, Cstl_str const src
 ) {
-
+    Cstl_CStr_parse(self_addr, args, src);
 }
