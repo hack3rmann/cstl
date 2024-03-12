@@ -110,7 +110,7 @@ Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* ptr, usize len);
 
 bool Cstl_str_eq(Cstl_str self, Cstl_str value);
 
-Cstl_str Cstl_str_split_one(Cstl_str mut* self, Cstl_str delim);
+Cstl_str Cstl_str_split_once(Cstl_str mut* self, Cstl_str delim);
 
 Cstl_str Cstl_str_trim(Cstl_str self);
 
@@ -216,6 +216,8 @@ Cstl_String Cstl_String_from_utf8(u8 mut* bytes, usize n_bytes);
 
 void Cstl_String_free(Cstl_String const* self);
 
+void Cstl_String_clear(Cstl_String mut* self);
+
 void Cstl__internal_String_alloc(Cstl_String mut* self, usize cap);
 
 usize Cstl__internal_String_next_capacity(usize cur_cap);
@@ -286,7 +288,7 @@ Cstl_Slice_u8 Cstl_String_as_bytes(Cstl_String const* self);
 
     #define str_from_utf8_unchecked Cstl_str_from_utf8_unchecked
     #define str_eq Cstl_str_eq
-    #define str_split_one Cstl_str_split_one
+    #define str_split_once Cstl_str_split_once
     #define str_trim Cstl_str_trim
     #define str_trim_left Cstl_str_trim_left
     #define str_trim_right Cstl_str_trim_right

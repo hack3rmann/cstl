@@ -68,6 +68,8 @@ void Cstl_BasicType_dbg(
 
 Cstl_str Cstl_BasicType_as_str(Cstl_BasicType self);
 
+usize Cstl_BasicType_size(Cstl_BasicType self);
+
 
 
 #ifdef USING_NAMESPACE_CSTL
@@ -105,6 +107,7 @@ Cstl_str Cstl_BasicType_as_str(Cstl_BasicType self);
     #define BasicType_from_str Cstl_BasicType_from_str
     #define BasicType_dbg Cstl_BasicType_dbg
     #define BasicType_as_str Cstl_BasicType_as_str
+    #define BasicType_size Cstl_BasicType_size
 
 #endif
 
