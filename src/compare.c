@@ -1,6 +1,6 @@
 #define USING_NAMESPACE_CSTL
 
-#include "compare.h"
+#include "../include/cstl/compare.h"
 
 #define f32_EPS 1e-6f
 #define f64_EPS 1e-12

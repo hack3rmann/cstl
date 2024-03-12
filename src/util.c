@@ -1,7 +1,7 @@
 #define USING_NAMESPACE_CSTL
 
-#include "util.h"
-#include "memory.h"
+#include "../include/cstl/util.h"
+#include "../include/cstl/memory.h"
 
 
 

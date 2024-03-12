@@ -1,11 +1,10 @@
 #define USING_NAMESPACE_CSTL
 
-#include "format.h"
-#include "variadic.h"
-#include "error.h"
-#include "numeric.h"
-#include "vec.h"
-#include "memory.h"
+#include "../include/cstl/format.h"
+#include "../include/cstl/variadic.h"
+#include "../include/cstl/error.h"
+#include "../include/cstl/numeric.h"
+#include "../include/cstl/vec.h"
 
 
 

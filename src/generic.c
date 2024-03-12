@@ -1,9 +1,8 @@
 #define USING_NAMESPACE_CSTL
 
-#include "generic.h"
-#include "string.h"
-#include "format.h"
-#include "error.h"
+#include "../include/cstl/generic.h"
+#include "../include/cstl/string.h"
+#include "../include/cstl/error.h"
 
 
 

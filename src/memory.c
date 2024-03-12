@@ -1,7 +1,7 @@
 #define USING_NAMESPACE_CSTL
 
-#include "memory.h"
-#include "compare.h"
+#include "../include/cstl/memory.h"
+#include "../include/cstl/compare.h"
 
 
 

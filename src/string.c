@@ -1,10 +1,9 @@
-#include "string.h"
-#include "error.h"
-#include "util.h"
-#include "compare.h"
-#include "variadic.h"
-#include "memory.h"
-#include "io.h"
+#include "../include/cstl/string.h"
+#include "../include/cstl/error.h"
+#include "../include/cstl/compare.h"
+#include "../include/cstl/variadic.h"
+#include "../include/cstl/memory.h"
+#include "../include/cstl/io.h"
 
 
 

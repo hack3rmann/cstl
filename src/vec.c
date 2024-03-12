@@ -1,8 +1,8 @@
 #define USING_NAMESPACE_CSTL
 
-#include "vec.h"
-#include "error.h"
-#include "memory.h"
+#include "../include/cstl/vec.h"
+#include "../include/cstl/error.h"
+#include "../include/cstl/memory.h"
 
 
 

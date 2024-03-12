@@ -1,9 +1,9 @@
 #define USING_NAMESPACE_CSTL
 
-#include "slice.h"
-#include "error.h"
-#include "util.h"
-#include "memory.h"
+#include "../include/cstl/slice.h"
+#include "../include/cstl/error.h"
+#include "../include/cstl/util.h"
+#include "../include/cstl/memory.h"
 
 // FIXME: remove macros
 #define elem_size_of(meta) Cstl_CollectionMeta_elem_size(meta)
