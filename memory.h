@@ -3,8 +3,15 @@
 
 #include "types.h"
 
-#define null (Addr) 0
-#define null_mut (AddrMut) 0
+
+
+#ifndef null
+#   define null (Addr) 0
+#endif
+
+#ifndef null_mut
+#   define null_mut (AddrMut) 0
+#endif
 
 
 

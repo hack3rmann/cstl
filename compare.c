@@ -41,7 +41,7 @@ IMPLEMENT_CMP(i64)
 IMPLEMENT_CMP(usize)
 IMPLEMENT_CMP(isize)
 IMPLEMENT_CMP(char);
-IMPLEMENT_CMP(Bool);
+IMPLEMENT_CMP(bool);
 
 Cstl_Ordering Cstl_f32_cmp(Addr lhs_ptr, Addr rhs_ptr) {
     f32 const lhs = *(f32 const*) lhs_ptr;

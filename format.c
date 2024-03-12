@@ -5,6 +5,11 @@
 #include "error.h"
 #include "numeric.h"
 #include "vec.h"
+#include "memory.h"
+
+
+
+extern int getchar(void);
 
 
 
@@ -72,14 +77,14 @@ Cstl_FloatFormatDescriptor Cstl_FloatFormatDescriptor_parse(
 
     Cstl_FloatFormatDescriptor mut desc = Cstl_FloatFormatDescriptor_DEFAULT;
 
-    Bool mut is_end = False;
+    bool mut is_end = false;
 
     while (!is_end) {
         usize mut step_size = 1;
         
         switch (*fmt.ptr) {
         case '+': case '_': case '.': case ',':
-            is_end = True;
+            is_end = true;
             break;
         case 's':
             desc.flags |= Cstl_IntegerFmtFlags_ShowSign;
@@ -110,7 +115,7 @@ Cstl_FloatFormatDescriptor Cstl_FloatFormatDescriptor_parse(
                 u16 const second_digit = fmt.ptr[3] - '0';
 
                 Cstl_assert(0 < first_digit && first_digit <= 9);
-                Cstl_assert(Bool_implies(first_digit < 2, second_digit <= 9));
+                Cstl_assert(bool_implies(first_digit < 2, second_digit <= 9));
 
                 desc.radix = second_digit <= 9
                     ? first_digit * 10 + second_digit
@@ -172,41 +177,19 @@ Cstl_FloatFormatDescriptor Cstl_FloatFormatDescriptor_parse(
 
 
 
-Cstl_BasicType Cstl_BasicType_from_str(Cstl_str const value) {
-    if (str_eq(value, str("str")))      return Cstl_BasicType_str;
-    if (str_eq(value, str("String")))   return Cstl_BasicType_String;
-    if (str_eq(value, str("i32")))      return Cstl_BasicType_i32;
-    if (str_eq(value, str("u32")))      return Cstl_BasicType_u32;
-    if (str_eq(value, str("usize")))    return Cstl_BasicType_usize;
-    if (str_eq(value, str("u8")))       return Cstl_BasicType_u8;
-    if (str_eq(value, str("Vec")))      return Cstl_BasicType_Vec;
-    if (str_eq(value, str("Slice")))    return Cstl_BasicType_Slice;
-    if (str_eq(value, str("i8")))       return Cstl_BasicType_i8;
-    if (str_eq(value, str("u16")))      return Cstl_BasicType_u16;
-    if (str_eq(value, str("i16")))      return Cstl_BasicType_i16;
-    if (str_eq(value, str("u64")))      return Cstl_BasicType_u64;
-    if (str_eq(value, str("i64")))      return Cstl_BasicType_i64;
-    if (str_eq(value, str("f32")))      return Cstl_BasicType_f32;
-    if (str_eq(value, str("f64")))      return Cstl_BasicType_f64;
-    if (str_eq(value, str("isize")))    return Cstl_BasicType_isize;
-    if (str_eq(value, str("Addr")))     return Cstl_BasicType_Addr;
-    if (str_eq(value, str("char")))     return Cstl_BasicType_char;
-    if (str_eq(value, str("*")))        return Cstl_BasicType_Generic;
-
-    Cstl_deny_fmt("invalid `type_name` = '{str}'", value);
-}
-
-
-
 void Cstl_Addr_fmt(
-    Cstl_String mut* const buf,
-    Cstl_str const fmt,
-    Addr const value_ptr
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
 ) {
-    Bool const is_uppercase = 0 < fmt.len && 'u' == *(char const*) fmt.ptr;
+    bool const is_uppercase = 0 < fmt.len && 'u' == *(char const*) fmt.ptr;
 
     Cstl_String_append(buf, str("0x"));
     Cstl_usize_fmt(buf, is_uppercase ? str("u0h") : str("0h"), value_ptr);
+}
+
+void Cstl_AddrMut_fmt(
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
+) {
+    Cstl_Addr_fmt(buf, fmt, value_ptr);
 }
 
 void Cstl_char_fmt(
@@ -289,7 +272,7 @@ Cstl_IntegerFormatDescriptor Cstl_IntegerFormatDescriptor_parse(
                 first_digit
             );
 
-            Cstl_assert(Bool_implies(9 < second_digit, 1 < first_digit));
+            Cstl_assert(bool_implies(9 < second_digit, 1 < first_digit));
 
             radix = second_digit <= 9
                 ? 10 * first_digit + second_digit
@@ -316,8 +299,8 @@ void Cstl_x64_fmt_impl(
 ) {
     enum { RADIX_MAX = 10 + ('z' - 'a' + 1) };
 
-    Bool const is_sign_shown = 0 != (desc.flags & Cstl_IntegerFmtFlags_ShowSign);
-    Bool const is_uppercase  = 0 != (desc.flags & Cstl_IntegerFmtFlags_Uppercase);
+    bool const is_sign_shown = 0 != (desc.flags & Cstl_IntegerFmtFlags_ShowSign);
+    bool const is_uppercase  = 0 != (desc.flags & Cstl_IntegerFmtFlags_Uppercase);
 
     Cstl_assert_fmt(
         1 < desc.radix && desc.radix <= RADIX_MAX,
@@ -366,7 +349,7 @@ void Cstl_f32_fmt(
     Cstl_f64_fmt(buf, fmt, &value);
 }
 
-Bool Cstl__internal_f64_fmt_is_end(char const value) {
+bool Cstl__internal_f64_fmt_is_end(char const value) {
     return '+' == value || '-' == value || '.' == value || ',' == value;
 }
 
@@ -384,7 +367,7 @@ void Cstl_f64_fmt_impl(
     Cstl_String mut* const buf, Cstl_FloatFormatDescriptor const desc
 ) {
     // FIXME: remove `UNUSED`
-    UNUSED Bool const is_fraction_fixed = u16_MAX != desc.n_fraction_digits;
+    UNUSED bool const is_fraction_fixed = u16_MAX != desc.n_fraction_digits;
 
     Cstl_FloatImpl const impl = Cstl_FloatImpl_from_f64(desc.value);
 
@@ -415,6 +398,14 @@ void Cstl_f64_fmt_impl(
     Cstl_todo("");
 }
 
+void Cstl_bool_fmt(
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
+) {
+    bool const value = *(bool const*) value_ptr;
+
+    Cstl_String_append(buf, value ? str("true") : str("false"));
+}
+
 void Cstl_Vec_fmt(
     Cstl_String mut* const buf, Cstl_str const fmt, Addr value_ptr
 ) {
@@ -431,16 +422,16 @@ void Cstl_Slice_fmt(
     Cstl_str const colon_delim = str(":");
     Cstl_str const star_delim = str("*");
 
-    Cstl_str mut brace_fmt = Cstl_str_split_one(&mut fmt, colon_delim);
+    Cstl_str mut brace_fmt = Cstl_str_split_once(&mut fmt, colon_delim);
     Cstl_str mut l_brace, mut delim, mut r_brace;
 
-    Cstl_str const type_name = Cstl_str_split_one(&mut fmt, colon_delim);
-    Cstl_BasicType const type = Cstl_BasicType_from_str(type_name);
+    Cstl_str const type_name = Cstl_str_split_once(&mut fmt, colon_delim);
+    Cstl_FormattableType const type = Cstl_FormattableType_parse(type_name);
 
     if (0 != brace_fmt.len) {
-        l_brace = Cstl_str_split_one(&mut brace_fmt, star_delim);
-        delim = Cstl_str_split_one(&mut brace_fmt, star_delim);
-        r_brace = Cstl_str_split_one(&mut brace_fmt, star_delim);
+        l_brace = Cstl_str_split_once(&mut brace_fmt, star_delim);
+        delim = Cstl_str_split_once(&mut brace_fmt, star_delim);
+        r_brace = Cstl_str_split_once(&mut brace_fmt, star_delim);
     } else {
         l_brace = str("[");
         delim = str(", ");
@@ -449,7 +440,7 @@ void Cstl_Slice_fmt(
 
     Cstl_String_append(buf, l_brace);
 
-#   define switch_case_numeric(Type) \
+#   define switch_case(Type) \
         case Cstl_BasicType_ ## Type: { \
             for (usize mut i = 0; i < slice.len; ++i) { \
                 if (0 != i) { \
@@ -460,42 +451,37 @@ void Cstl_Slice_fmt(
             } \
         } break
 
-#   define switch_case_non_numeric(Type) \
-        case Cstl_BasicType_ ## Type: { \
-            for (usize mut i = 0; i < slice.len; ++i) { \
-                if (0 != i) { \
-                    Cstl_String_append(buf, delim); \
-                } \
-                Cstl_ ## Type const value \
-                    = Cstl_Slice_get_value(slice, Cstl_ ## Type, i); \
-                Cstl_ ## Type ## _fmt(buf, fmt, &value); \
-            } \
-        } break
+    // TODO: allow generic formats
+    Cstl_assert(Cstl_FormattableType_Case_Type == type.descriptor);
 
-    switch (type) {
-    switch_case_numeric(i8);
-    switch_case_numeric(u8);
-    switch_case_numeric(i16);
-    switch_case_numeric(u16);
-    switch_case_numeric(i32);
-    switch_case_numeric(u32);
-    switch_case_numeric(i64);
-    switch_case_numeric(u64);
-    switch_case_numeric(isize);
-    switch_case_numeric(usize);
-    switch_case_numeric(Addr);
-    switch_case_numeric(f32);
-    switch_case_numeric(f64);
-    switch_case_numeric(char);
-    switch_case_non_numeric(Slice);
-    switch_case_non_numeric(Vec);
-    switch_case_non_numeric(str);
-    switch_case_non_numeric(String);
+    switch (type.type) {
+    switch_case(i8);
+    switch_case(u8);
+    switch_case(i16);
+    switch_case(u16);
+    switch_case(i32);
+    switch_case(u32);
+    switch_case(i64);
+    switch_case(u64);
+    switch_case(isize);
+    switch_case(usize);
+    switch_case(Addr);
+    switch_case(f32);
+    switch_case(f64);
+    switch_case(bool);
+    switch_case(CStr);
+    switch_case(CStrMut);
+    switch_case(StrLit);
+    switch_case(char);
+    switch_case(Slice);
+    switch_case(Vec);
+    switch_case(String);
+    switch_case(str);
 
     case Cstl_BasicType_Invalid:
         // fallthrough
     default:
-        Cstl_deny_fmt("invalid enum Cstl_BasicType value {u32}", (u32) type);
+        Cstl_deny_fmt("invalid enum FormattableType value {u32}", (u32) type.type);
     }
 
     Cstl_String_append(buf, r_brace);
@@ -523,37 +509,82 @@ void Cstl_str_fmt(
     Cstl_String_append(buf, *(Cstl_str const*) value_ptr);
 }
 
-Cstl_FormatFn Cstl_FormatFn_from_type_name(Cstl_str const type_name) {
-    return Cstl_FormatFn_from_basic_type(Cstl_BasicType_from_str(type_name));
+void Cstl_CStr_fmt(
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
+) {
+    CStr const value = *(CStr const*) value_ptr;
+    usize const len = CStr_len(value);
+
+    Cstl_str const string = Cstl_str_from_utf8_unchecked((u8 mut*) value, len);
+
+    Cstl_str_fmt(buf, fmt, &string);
 }
 
-Cstl_FormatFn Cstl_FormatFn_from_basic_type(Cstl_BasicType const type) {
-    switch (type) {
-    case Cstl_BasicType_u8:     return Cstl_u8_fmt;
-    case Cstl_BasicType_i8:     return Cstl_i8_fmt;
-    case Cstl_BasicType_u16:    return Cstl_u16_fmt;
-    case Cstl_BasicType_i16:    return Cstl_i64_fmt;
-    case Cstl_BasicType_u32:    return Cstl_u32_fmt;
-    case Cstl_BasicType_i32:    return Cstl_i32_fmt;
-    case Cstl_BasicType_u64:    return Cstl_u64_fmt;
-    case Cstl_BasicType_i64:    return Cstl_i64_fmt;
-    case Cstl_BasicType_f32:    return Cstl_f32_fmt;
-    case Cstl_BasicType_f64:    return Cstl_f64_fmt;
-    case Cstl_BasicType_usize:  return Cstl_usize_fmt;
-    case Cstl_BasicType_isize:  return Cstl_isize_fmt;
-    case Cstl_BasicType_Addr:   return Cstl_Addr_fmt;
-    case Cstl_BasicType_char:   return Cstl_char_fmt;
-    case Cstl_BasicType_Vec:    return Cstl_Vec_fmt;
-    case Cstl_BasicType_Slice:  return Cstl_Slice_fmt;
-    case Cstl_BasicType_String: return Cstl_String_fmt;
-    case Cstl_BasicType_str:    return Cstl_str_fmt;
+void Cstl_CStrMut_fmt(
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
+) {
+    Cstl_CStr_fmt(buf, fmt, value_ptr);
+}
 
-    case Cstl_BasicType_Generic:
+void Cstl_StrLit_fmt(
+    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
+) {
+    Cstl_CStr_fmt(buf, fmt, value_ptr);
+}
+
+Cstl_FormatFn Cstl_FormatFn_from_type_name(Cstl_str const type_name) {
+    return Cstl_FormatFn_from_formattable_type(
+        Cstl_FormattableType_parse(type_name)
+    );
+}
+
+Cstl_FormattableType Cstl_FormattableType_parse(Cstl_str const value) {
+    if (str_eq(value, str("*"))) {
+        return (Cstl_FormattableType) {
+            .descriptor = Cstl_FormattableType_Case_Generic,
+            .type = Cstl_BasicType_DEFAULT
+        };
+    } else {
+        return (Cstl_FormattableType) {
+            .descriptor = Cstl_FormattableType_Case_Type,
+            .type = Cstl_BasicType_parse(value)
+        };
+    }
+}
+
+Cstl_FormatFn Cstl_FormatFn_from_formattable_type(
+    Cstl_FormattableType const type
+) {
+    switch (type.type) {
+    case Cstl_BasicType_u8:        return Cstl_u8_fmt;
+    case Cstl_BasicType_i8:        return Cstl_i8_fmt;
+    case Cstl_BasicType_u16:       return Cstl_u16_fmt;
+    case Cstl_BasicType_i16:       return Cstl_i64_fmt;
+    case Cstl_BasicType_u32:       return Cstl_u32_fmt;
+    case Cstl_BasicType_i32:       return Cstl_i32_fmt;
+    case Cstl_BasicType_u64:       return Cstl_u64_fmt;
+    case Cstl_BasicType_i64:       return Cstl_i64_fmt;
+    case Cstl_BasicType_f32:       return Cstl_f32_fmt;
+    case Cstl_BasicType_f64:       return Cstl_f64_fmt;
+    case Cstl_BasicType_bool:      return Cstl_bool_fmt;
+    case Cstl_BasicType_usize:     return Cstl_usize_fmt;
+    case Cstl_BasicType_isize:     return Cstl_isize_fmt;
+    case Cstl_BasicType_char:      return Cstl_char_fmt;
+    case Cstl_BasicType_Addr:      return Cstl_Addr_fmt;
+    case Cstl_BasicType_AddrMut:   return Cstl_AddrMut_fmt;
+    case Cstl_BasicType_Vec:       return Cstl_Vec_fmt;
+    case Cstl_BasicType_Slice:     return Cstl_Slice_fmt;
+    case Cstl_BasicType_String:    return Cstl_String_fmt;
+    case Cstl_BasicType_str:       return Cstl_str_fmt;
+    case Cstl_BasicType_CStr:      return Cstl_CStr_fmt;
+    case Cstl_BasicType_CStrMut:   return Cstl_CStrMut_fmt;
+    case Cstl_BasicType_StrLit:    return Cstl_StrLit_fmt;
+
     case Cstl_BasicType_Invalid:
         // fallthrough
     default:
         Cstl_deny_fmt(
-            "invalid enum Cstl_BasicType value {u32}", (u32) type
+            "invalid enum Cstl_BasicType value {u32}", (u32) type.type
         );
     }
 }
@@ -588,16 +619,23 @@ void Cstl__internal_format_scope_impl(
         fmt_args.len = fmt.len - i - 2;
     }
 
-    Cstl_BasicType const type = Cstl_BasicType_from_str(type_name);
+    Cstl_FormattableType const type = Cstl_FormattableType_parse(type_name);
 
     Cstl_FormatFn const format_fn
-        = Cstl_BasicType_Generic == type
+        = Cstl_FormattableType_Case_Generic == type.descriptor
         ? VariadicArgs_get(*args, Cstl_FormatFn)
-        : Cstl_FormatFn_from_basic_type(type);
+        : Cstl_FormatFn_from_formattable_type(type);
 
-    switch (type) {
+    if (Cstl_FormattableType_Case_Generic == type.descriptor) {
+        Addr const value_ptr = VariadicArgs_get(*args, Addr);
+        format_fn(buf, fmt_args, value_ptr);
+
+        return;
+    }
+
+    switch (type.type) {
     case Cstl_BasicType_u8: {
-        u8 const value = VariadicArgs_get(*args, unsigned);
+        u8 const value = VariadicArgs_get(*args, uint);
         format_fn(buf, fmt_args, &value);
     } break;
 
@@ -607,7 +645,7 @@ void Cstl__internal_format_scope_impl(
     } break;
 
     case Cstl_BasicType_u16: {
-        u16 const value = VariadicArgs_get(*args, unsigned);
+        u16 const value = VariadicArgs_get(*args, uint);
         format_fn(buf, fmt_args, &value);
     } break;
 
@@ -655,7 +693,9 @@ void Cstl__internal_format_scope_impl(
         isize const value = VariadicArgs_get(*args, isize);
         format_fn(buf, fmt_args, &value);
     } break;
-    
+
+    case Cstl_BasicType_AddrMut:
+        // fallthrough
     case Cstl_BasicType_Addr: {
         Addr const value = VariadicArgs_get(*args, Addr);
         format_fn(buf, fmt_args, &value);
@@ -688,9 +728,17 @@ void Cstl__internal_format_scope_impl(
         format_fn(buf, fmt_args, &value);
     } break;
 
-    case Cstl_BasicType_Generic: {
-        Addr const value_ptr = VariadicArgs_get(*args, Addr);
-        format_fn(buf, fmt_args, value_ptr);
+    case Cstl_BasicType_bool: {
+        bool const value = (bool) VariadicArgs_get(*args, uint);
+        format_fn(buf, fmt_args, &value);
+    } break;
+
+    case Cstl_BasicType_StrLit:
+    case Cstl_BasicType_CStr:
+        // fallthrough
+    case Cstl_BasicType_CStrMut: {
+        CStr const value = VariadicArgs_get(*args, CStr);
+        format_fn(buf, fmt_args, &value);
     } break;
 
     case Cstl_BasicType_Invalid:
@@ -701,7 +749,7 @@ void Cstl__internal_format_scope_impl(
 }
 
 void Cstl_format_args_impl(
-    Cstl_String mut* buf, StrLit fmt, VariadicArgs mut* args
+    Cstl_String mut* const buf, StrLit mut fmt, VariadicArgs mut* const args
 ) {
     for (; '\0' != *fmt;) {
         switch (fmt[0]) {
@@ -793,4 +841,533 @@ Cstl_String Cstl_format(StrLit const fmt, ...) {
     VariadicArgs_end(args);
 
     return buf;
+}
+
+u32 Cstl_GetCharFn_stdin_get(UNUSED AddrMut const _) {
+    return (u32) getchar();
+}
+
+u32 Cstl_GetCharFn_str_get(AddrMut const value_addr) {
+    str mut* const value = (str mut*) value_addr;
+
+    if (0 == value->len) {
+        return u32_MAX;
+    }
+
+    u32 const result = (u32) value->ptr[0];
+
+    value->ptr += 1;
+    value->len -= 1;
+
+    return result;
+}
+
+
+
+bool Cstl_IsCharStreamExpiredFn_stdin_is_expired(UNUSED u32 const _) {
+    return false;
+}
+
+bool Cstl_IsCharStreamExpiredFn_str_is_expired(u32 const ret) {
+    return u32_MAX == ret;
+}
+
+
+
+bool Cstl_IsSkippedFn_skip_spaces(char const symbol) {
+    return Cstl_char_is_whitespace(symbol);
+}
+
+bool Cstl_IsSkippedFn_skip_nothing(UNUSED char _) {
+    return false;
+}
+
+
+
+bool Cstl_IsDelimFn_is_new_line(char const value) {
+    return '\n' == value || '\r' == value;
+}
+
+
+
+Cstl_CharStream const Cstl_CharStream_STDIN = {
+    .src_ptr = null_mut,
+    .get = Cstl_GetCharFn_STDIN,
+    .is_expired = Cstl_IsCharStreamExpiredFn_STDIN,
+    .is_skipped = Cstl_IsSkippedFn_DEFAULT,
+    .is_delim = Cstl_IsDelimFn_DEFAULT
+};
+
+Cstl_CharStream Cstl_CharStream_from_str(Cstl_str mut* const value_ptr) {
+    return (Cstl_CharStream) {
+        .src_ptr = value_ptr,
+        .is_expired = Cstl_IsCharStreamExpiredFn_STR,
+        .get = Cstl_GetCharFn_str_get,
+        .is_skipped = Cstl_IsSkippedFn_DEFAULT,
+        .is_delim = Cstl_IsDelimFn_DEFAULT
+    };
+}
+
+u32 Cstl_CharStream_next(AddrMut const self_addr) {
+    Cstl_CharStream mut* const self = self_addr;
+
+    char mut result;
+
+    do {
+        result = self->get(self->src_ptr);
+    } while (self->is_skipped(result));
+
+    return result;
+}
+
+void Cstl_CharStream_append(
+    Cstl_CharStream mut* const self, Cstl_String mut* const buf
+) {
+    for (char mut cur_sym = self->get(self->src_ptr)
+        ; !self->is_delim(cur_sym)
+            && !Cstl_CharStream_is_expired(self, lit_ptr(u32, cur_sym))
+        ; cur_sym = self->get(self->src_ptr)
+    ) {
+        Cstl_String_push_ascii(buf, cur_sym);
+    }
+}
+
+bool Cstl_CharStream_is_expired(Addr const self, Addr const ret_ptr) {
+    return ((Cstl_CharStream const*) self)->is_expired(*(u32 const*) ret_ptr);
+}
+
+void Cstl_CharStream_scan(
+    Cstl_CharStream mut* const self, Cstl_str const fmt, ...
+) {
+    VariadicArgs mut args;
+    VariadicArgs_start(args, fmt);
+
+    Cstl_CharStream_scan_impl(self, fmt, &mut args);
+
+    VariadicArgs_end(args);
+}
+
+bool Cstl_CharStream_matches_once(
+    Cstl_CharStream mut* const self, u32 const value
+) {
+    return Cstl_CharStream_next(self) == value;
+}
+
+bool Cstl_CharStream_matches(
+    Cstl_CharStream mut* const self, Cstl_str const value
+) {
+    for (usize mut i = 0; i < value.len; ++i) {
+        if (Cstl_CharStream_matches_once(self, (u32) value.ptr[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void Cstl_CharStream_scan_impl(
+    Cstl_CharStream mut* const self, Cstl_str const fmt,
+    VariadicArgs mut* const args
+) {
+    Cstl_str mut cur_match_str = Cstl_str_DEFAULT;
+
+    Cstl_String mut buf = Cstl_String_with_capacity(64);
+
+    for (usize mut i = 0; i < fmt.len; ++i) {
+        switch (fmt.ptr[i]) {
+        case ' ': {
+            // match `fmt`
+            {
+                assert_fmt(
+                    Cstl_CharStream_matches(self, cur_match_str),
+                    "failed to match '{str}'",
+                    cur_match_str
+                );
+
+                cur_match_str = Cstl_str_DEFAULT;
+            }
+
+            self->is_skipped = Cstl_IsSkippedFn_SPACE_SYMBOLS;
+        } break;
+
+        case '{': {
+            self->is_skipped = Cstl_IsSkippedFn_DEFAULT;
+
+            // match `fmt` substring
+            {
+                assert_fmt(
+                    Cstl_CharStream_matches(self, cur_match_str),
+                    "failed to match '{str}'",
+                    cur_match_str
+                );
+
+                cur_match_str = Cstl_str_DEFAULT;
+            }
+
+            assert_msg(
+                i + 1 < fmt.len,
+                "incomplete format/escape scope at '{'"
+            );
+
+            if ('{' == fmt.ptr[i + 1]) {
+                assert_msg(
+                    Cstl_CharStream_matches_once(self, U'{'),
+                    "failed to match '{'"
+                );
+            } else {
+                Cstl_str mut fmt_scope = {
+                    .ptr = fmt.ptr + i + 1,
+                    .len = 0
+                };
+
+                for (usize mut j = i + 1
+                    ; j < fmt.len && '}' != fmt.ptr[j]
+                    ; ++j
+                ) {
+                    fmt_scope.len += 1;
+                }
+
+                Cstl_CharStream_scan_scope(self, fmt_scope, &mut buf, args);
+
+                i += fmt_scope.len + 1;
+            }
+        } break;
+
+        default: {
+            self->is_skipped = Cstl_IsSkippedFn_DEFAULT;
+
+            if (0 == cur_match_str.len) {
+                cur_match_str = (Cstl_str) {
+                    .ptr = fmt.ptr + i,
+                    .len = 1
+                };
+            } else {
+                cur_match_str.len += 1;
+            }
+        } break;
+        }
+    }
+
+    Cstl_String_free(&buf);
+}
+
+void Cstl_CharStream_scan_scope(
+    Cstl_CharStream mut* const self, Cstl_str mut fmt_scope,
+    Cstl_String mut* const buf, VariadicArgs mut* const args
+) {
+    Cstl_String_clear(buf);
+    Cstl_CharStream_append(self, buf);
+
+    Cstl_str const type_name = Cstl_str_split_once(&mut fmt_scope, str(":"));
+
+    Cstl_FormattableType const type = Cstl_FormattableType_parse(type_name);
+
+    if (Cstl_FormattableType_Case_Generic == type.descriptor) {
+        Cstl_ParseFn const parse = VariadicArgs_get(*args, Cstl_ParseFn);
+        AddrMut const dst_ptr = VariadicArgs_get(*args, AddrMut);
+
+        parse(dst_ptr, fmt_scope, to_str(*buf));
+
+        return;
+    }
+
+#   define case_Type(Type) \
+        case Cstl_BasicType_##Type: { \
+            Type mut* const dst_ptr = VariadicArgs_get(*args, Type mut*); \
+            Cstl_##Type##_parse(dst_ptr, fmt_scope, to_str(*buf)); \
+        } break
+
+    switch (type.type) {
+    case_Type(u8);
+    case_Type(i8);
+    case_Type(u16);
+    case_Type(i16);
+    case_Type(u32);
+    case_Type(i32);
+    case_Type(u64);
+    case_Type(i64);
+    case_Type(usize);
+    case_Type(isize);
+    case_Type(f32);
+    case_Type(f64);
+    case_Type(bool);
+    case_Type(char);
+    case_Type(Addr);
+    case_Type(AddrMut);
+    case_Type(Vec);
+    case_Type(Slice);
+    case_Type(String);
+    case_Type(str);
+    case_Type(CStr);
+    case_Type(CStrMut);
+
+    case Cstl_BasicType_Invalid:
+        // fallthrough
+    default:
+        deny_fmt("invalid BasicType value {u32}", type.type);
+    }
+
+#   undef case_Type
+}
+
+
+
+void Cstl_console_scan(StrLit const fmt_lit, ...) {
+    VariadicArgs mut args;
+    VariadicArgs_start(args, fmt_lit);
+
+    Cstl_str const fmt = {
+        .ptr = (u8 mut*) fmt_lit,
+        .len = CStr_len(fmt_lit)
+    };
+
+    Cstl_console_scan_impl(fmt, &mut args);
+
+    VariadicArgs_end(args);
+}
+
+void Cstl_console_scan_impl(Cstl_str const fmt, VariadicArgs mut* const args) {
+    Cstl_CharStream mut stdin = Cstl_CharStream_STDIN;
+
+    Cstl_CharStream_scan_impl(&mut stdin, fmt, args);
+}
+
+
+
+#define Cstl_impl_parse_uint_Type(Type) \
+    void Cstl_##Type##_parse( \
+        AddrMut const self_addr, Cstl_str const args, Cstl_str const src \
+    ) { \
+        u64 mut value; \
+        Cstl_u64_parse(&mut value, args, src); \
+        *(Type mut*) self_addr = value; \
+    }
+
+Cstl_impl_parse_uint_Type(u8);
+Cstl_impl_parse_uint_Type(u16);
+Cstl_impl_parse_uint_Type(u32);
+Cstl_impl_parse_uint_Type(usize);
+
+
+
+#define Cstl_impl_parse_int_Type(Type) \
+    void Cstl_##Type##_parse( \
+        AddrMut const self_addr, Cstl_str const args, Cstl_str const src \
+    ) { \
+        i64 mut value; \
+        Cstl_u64_parse(&mut value, args, src); \
+        *(Type mut*) self_addr = value; \
+    }
+
+Cstl_impl_parse_int_Type(i8);
+Cstl_impl_parse_int_Type(i16);
+Cstl_impl_parse_int_Type(i32);
+Cstl_impl_parse_int_Type(isize);
+
+
+
+void Cstl_u64_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    u64 mut* self = self_addr;
+    *self = 0;
+
+    for (usize mut i = 0; i < src.len; ++i) {
+        *self *= 10;
+        *self += src.ptr[i] - '0';
+    }
+}
+
+void Cstl_i64_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    i64 mut* self = self_addr;
+    *self = 0;
+
+    bool const is_negative = args.ptr[0] == '-';
+
+    for (usize mut i = 1; i < args.len; ++i) {
+        *self *= 10;
+        *self += src.ptr[i] - '0';
+    }
+
+    if (is_negative) {
+        *self *= -1;
+    }
+}
+
+
+
+void Cstl_f32_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    f64 mut value;
+    Cstl_f64_parse(&mut value, args, src);
+    *(f32 mut*) self_addr = value;
+}
+
+void Cstl_f64_parse(
+    UNUSED AddrMut const self_addr, UNUSED Cstl_str const args, UNUSED Cstl_str const src
+) {
+    todo("f64_parse");
+}
+
+void Cstl_bool_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    if (str_eq(src, str("true"))) {
+        *(bool mut*) self_addr = true;
+        return;
+    }
+
+    if (str_eq(src, str("false"))) {
+        *(bool mut*) self_addr = false;
+        return;
+    }
+
+    deny_fmt("invalid bool_parse source '{str}'", src);
+}
+
+void Cstl_char_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    assert_fmt(1 == src.len, "invalid char_parse source '{str}'", src);
+
+    *(char mut*) self_addr = (char) src.ptr[0];
+}
+
+void Cstl_AddrMut_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    Cstl_Addr_parse(self_addr, args, src);
+}
+
+void Cstl_Addr_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    assert_fmt(
+        str_eq((str) { .ptr = src.ptr, .len = 2 }, str("0x")),
+        "invalid Addr_parse source '{str}'",
+        src
+    );
+
+    Addr mut* const self = self_addr;
+    *self = null_mut;
+
+    for (usize mut i = 2; i < src.len; ++i) {
+        *(usize mut*) self *= 16;
+        *(usize mut*) self += '0' <= src.ptr[i] && src.ptr[i] <= '9'
+            ? src.ptr[i] - '0'
+            : src.ptr[i] - 'a' + 10;
+    }
+}
+
+void Cstl_Vec_parse(
+    AddrMut const self_addr, Cstl_str mut args, Cstl_str mut src
+) {
+    Cstl_Vec mut* const self = self_addr;
+    Cstl_Vec_clear(self);
+
+    Cstl_str const delim_format = Cstl_str_split_once(&mut args, str(":"));
+    Cstl_str const type_name = Cstl_str_split_once(&mut args, str(":"));
+    Cstl_str const type_args = args;
+
+    Cstl_str mut left_bracket = str("[");
+    Cstl_str mut right_bracket = str("]");
+    Cstl_str mut delim = str(", ");
+
+    if (0 != delim_format.len) {
+        Cstl_str mut format = delim_format;
+
+        left_bracket = Cstl_str_split_once(&mut format, str("*"));
+        delim = Cstl_str_split_once(&mut format, str("*"));
+        right_bracket = format;
+    }
+
+    Cstl_FormattableType const type = Cstl_FormattableType_parse(type_name);
+
+    if (Cstl_FormattableType_Case_Generic == type.descriptor) {
+        todo("generic type formatters to parse arrays");
+    }
+
+    usize const elem_size = Cstl_BasicType_size(type.type);
+
+    Cstl_Vec_retype(self, elem_size);
+
+    Cstl_str_split_once(&mut src, left_bracket);
+
+#   define case_Type(Type) \
+        case Cstl_BasicType_##Type: { \
+            Cstl_Split mut split = Cstl_str_split(src, delim); \
+            for (Cstl_str mut elem_src = Cstl_Split_next(&mut split) \
+                ; !Cstl_Split_is_expired(&elem_src) \
+                ; elem_src = Cstl_Split_next(&mut split) \
+            ) { \
+                Type mut value; \
+                Cstl_##Type##_parse(&mut value, type_args, elem_src); \
+                Vec_push(self, &value); \
+            } \
+        } break
+    
+    switch (type.type) {
+    case_Type(u8);
+    case_Type(i8);
+    case_Type(u16);
+    case_Type(i16);
+    case_Type(u32);
+    case_Type(i32);
+    case_Type(u64);
+    case_Type(i64);
+    case_Type(f32);
+    case_Type(f64);
+    case_Type(usize);
+    case_Type(isize);
+    case_Type(bool);
+    case_Type(char);
+    case_Type(Addr);
+    case_Type(AddrMut);
+    case_Type(Vec);
+    case_Type(Slice);
+    case_Type(String);
+    case_Type(str);
+    case_Type(CStr);
+    case_Type(CStrMut);
+
+    default:
+        deny_fmt("invalid BasicType value {u32}", (u32) type.type);
+    }
+
+#   undef case_Type
+
+    Cstl_str_split_once(&mut src, right_bracket);
+}
+
+void Cstl_Slice_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    todo("Slice::parse");
+}
+
+void Cstl_String_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    todo("String::parse");
+}
+
+void Cstl_str_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    todo("str::parse");
+}
+
+void Cstl_CStr_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    todo("CStr::parse");
+}
+
+void Cstl_CStrMut_parse(
+    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+) {
+    Cstl_CStr_parse(self_addr, args, src);
 }

@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "slice.h"
+#include "vec.h"
 #include "util.h"
 
 
@@ -12,6 +13,18 @@
 
 #define Cstl_str_from_literal(lit) \
     Cstl_str_from_utf8_unchecked((u8 mut*) lit, sizeof(lit) - 1)
+
+#define Cstl_to_str(value) \
+    ((union { \
+        typeof(value) value_field; \
+        Cstl_str string; \
+    }) { .value_field = value }.string)
+
+#define Cstl_as_str(value_ptr) \
+    ((union { \
+        typeof(value_ptr) value_field_ptr; \
+        Cstl_str mut* string_ptr; \
+    }) { .value_field_ptr = value_ptr }.string_ptr)
 
 
 
@@ -48,17 +61,17 @@ typedef enum Cstl_Utf8ByteType {
 
 Cstl_Utf8ByteType Cstl_Utf8ByteType_of(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_single_byte(u8 byte);
+bool Cstl_Utf8ByteType_is_single_byte(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 byte);
+bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 byte);
+bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 byte);
+bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_tail_byte(u8 byte);
+bool Cstl_Utf8ByteType_is_tail_byte(u8 byte);
 
-Bool Cstl_Utf8ByteType_is_invalid_byte(u8 byte);
+bool Cstl_Utf8ByteType_is_invalid_byte(u8 byte);
 
 usize Cstl_Utf8ByteType_size(Cstl_Utf8ByteType self);
 
@@ -76,18 +89,38 @@ void Cstl_set_utf8_output_encoding(void);
 
 
 
+usize CStr_len(CStr self);
+
+
+
+usize CStrMut_len(CStrMut self);
+
+
+
 typedef struct Cstl_str {
     u8 mut* ptr;
     usize len;
 } Cstl_str;
 
-extern Cstl_str const Cstl_str_DEFAULT;
+#define Cstl_str_DEFAULT ((Cstl_str) { \
+    .ptr = null_mut, .len = 0 \
+})
 
 Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* ptr, usize len);
 
-Bool Cstl_str_eq(Cstl_str self, Cstl_str value);
+bool Cstl_str_eq(Cstl_str self, Cstl_str value);
 
-Cstl_str Cstl_str_split_one(Cstl_str mut* self, Cstl_str delim);
+Cstl_str Cstl_str_split_once(Cstl_str mut* self, Cstl_str delim);
+
+Cstl_str Cstl_str_trim(Cstl_str self);
+
+Cstl_str Cstl_str_trim_left(Cstl_str self);
+
+Cstl_str Cstl_str_trim_right(Cstl_str self);
+
+Cstl_Vec_usize Cstl_str_compute_prefix(Cstl_str self);
+
+Cstl_Vec_usize Cstl_str_compute_multiple_prefix(Cstl_Slice strings);
 
 void Cstl_str_print(Cstl_str self);
 
@@ -104,7 +137,7 @@ Cstl_Split Cstl_str_split(Cstl_str self, Cstl_str delim);
 
 Cstl_str Cstl_Split_next(Cstl_Split mut* self);
 
-Bool Cstl_Split_is_expired(Cstl_str const* ret);
+bool Cstl_Split_is_expired(Cstl_str const* ret);
 
 
 
@@ -115,9 +148,9 @@ typedef struct Cstl_SplitAny {
 
 Cstl_SplitAny Cstl_str_split_any(Cstl_str self, Cstl_Slice demims);
 
-Cstl_str Cstl_Split_next(Cstl_Split mut* self);
+Cstl_str Cstl_SplitAny_next(Cstl_SplitAny mut* self);
 
-Bool Cstl_Split_is_expired(Cstl_str const* ret);
+bool Cstl_SplitAny_is_expired(Cstl_str const* ret);
 
 
 
@@ -129,15 +162,15 @@ Cstl_SplitWhitespace Cstl_str_split_whitespace(Cstl_str self);
 
 Cstl_str Cstl_SplitWhitespace_next(Cstl_SplitWhitespace mut* self);
 
-Bool Cstl_SplitWhitespace_is_expired(Cstl_str const* ret);
+bool Cstl_SplitWhitespace_is_expired(Cstl_str const* ret);
 
 
 
-Bool Cstl_char_is_ascii_letter(char self);
+bool Cstl_char_is_ascii_letter(char self);
 
-Bool Cstl_char_is_numeric_letter(char self);
+bool Cstl_char_is_numeric_letter(char self);
 
-Bool Cstl_char_is_whitespace(char self);
+bool Cstl_char_is_whitespace(char self);
 
 
 
@@ -149,7 +182,7 @@ Cstl_Chars Cstl_str_chars(Cstl_str self);
 
 Cstl_Char Cstl_Chars_next(Cstl_Chars mut* self);
 
-Bool Cstl_Chars_is_expired(Cstl_Char const* ret);
+bool Cstl_Chars_is_expired(Cstl_Char const* ret);
 
 
 
@@ -159,7 +192,9 @@ typedef struct Cstl_String {
     usize cap;
 } Cstl_String;
 
-extern Cstl_String const Cstl_String_DEFAULT;
+#define Cstl_String_DEFAULT ((Cstl_String) { \
+    .ptr = null_mut, .len = 0, .cap = 0 \
+})
 
 Cstl_String Cstl_String_with_capacity(usize cap);
 
@@ -178,6 +213,8 @@ Cstl_String Cstl_String_from_utf8_unchecked(u8 mut* bytes, usize n_bytes);
 Cstl_String Cstl_String_from_utf8(u8 mut* bytes, usize n_bytes);
 
 void Cstl_String_free(Cstl_String const* self);
+
+void Cstl_String_clear(Cstl_String mut* self);
 
 void Cstl__internal_String_alloc(Cstl_String mut* self, usize cap);
 
@@ -207,9 +244,9 @@ Cstl_str Cstl_String_as_str(Cstl_String const* self);
 
 Cstl_Chars Cstl_String_chars(Cstl_String const* self);
 
-Bool Cstl_String_eq(Addr lhs, Addr rhs);
+bool Cstl_String_eq(Addr lhs, Addr rhs);
 
-Bool Cstl_String_ne(Addr lhs, Addr rhs);
+bool Cstl_String_ne(Addr lhs, Addr rhs);
 
 Cstl_String Cstl_String_concat(usize n_strings, ...);
 
@@ -226,6 +263,12 @@ Cstl_String Cstl_String_concat(usize n_strings, ...);
     #define String(lit) \
         String_from_literal(lit)
 
+    #define to_str(value) \
+        Cstl_to_str(value)
+
+    #define as_str(value) \
+        Cstl_as_str(value)
+
 
 
     typedef Cstl_Char Char;
@@ -241,7 +284,11 @@ Cstl_String Cstl_String_concat(usize n_strings, ...);
 
     #define str_from_utf8_unchecked Cstl_str_from_utf8_unchecked
     #define str_eq Cstl_str_eq
-    #define str_split_one Cstl_str_split_one
+    #define str_split_once Cstl_str_split_once
+    #define str_trim Cstl_str_trim
+    #define str_trim_left Cstl_str_trim_left
+    #define str_trim_right Cstl_str_trim_right
+    #define str_compute_prefix Cstl_str_compute_prefix
     #define str_print Cstl_str_print
     #define str_debug Cstl_str_debug
 

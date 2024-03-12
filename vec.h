@@ -109,6 +109,11 @@ void Cstl_Vec_reserve_exact(Cstl_Vec mut* self, usize additional_cap);
 /// @param additional_cap a minimal capacity to reserve.
 void Cstl_Vec_reserve(Cstl_Vec mut* self, usize additional_cap);
 
+/// @brief Retypes the [`Vec`]. Note that `self` should be an empty vector.
+/// 
+/// @param new_elem_size a new size of an element
+void Cstl_Vec_retype(Cstl_Vec mut* self, usize new_elem_size);
+
 
 /// @brief Clears the vector leaving capacity untouched.
 void Cstl_Vec_clear(Cstl_Vec mut* self);
@@ -195,6 +200,7 @@ Cstl_Slice Cstl_Vec_slice_unchecked(Cstl_Vec mut* self, usize start, usize end);
     \
     Cstl_Vec_##Type Cstl_Vec_##Type##_new(void); \
     Cstl_Vec_##Type Cstl_Vec_##Type##_with_capacity(usize cap); \
+    Cstl_Vec_##Type Cstl_Vec_##Type##_repeat(usize count, Type value); \
     Cstl_Vec_##Type Cstl_Vec_##Type##_from_typed_slice(Cstl_Slice_##Type src); \
     Cstl_Vec_##Type Cstl_Vec_##Type##_clone(Cstl_Vec_##Type const* self); \
     void Cstl_Vec_##Type##_clone_from(Cstl_Vec_##Type mut* self, Cstl_Vec_##Type const* src); \
@@ -234,7 +240,7 @@ Cstl_declare_typed_Vec(i64);
 Cstl_declare_typed_Vec(usize);
 Cstl_declare_typed_Vec(isize);
 Cstl_declare_typed_Vec(char);
-Cstl_declare_typed_Vec(Bool);
+Cstl_declare_typed_Vec(bool);
 Cstl_declare_typed_Vec(f32);
 Cstl_declare_typed_Vec(f64);
 
@@ -249,7 +255,7 @@ Cstl_declare_typed_Vec(f64);
 #define Cstl_Vec_usize_DEFAULT (Cstl_Vec_usize) { .ptr = null_mut, .len = 0, .cap = 0 }
 #define Cstl_Vec_isize_DEFAULT (Cstl_Vec_isize) { .ptr = null_mut, .len = 0, .cap = 0 }
 #define Cstl_Vec_char_DEFAULT (Cstl_Vec_char) { .ptr = null_mut, .len = 0, .cap = 0 }
-#define Cstl_Vec_Bool_DEFAULT (Cstl_Vec_Bool) { .ptr = null_mut, .len = 0, .cap = 0 }
+#define Cstl_Vec_bool_DEFAULT (Cstl_Vec_bool) { .ptr = null_mut, .len = 0, .cap = 0 }
 #define Cstl_Vec_f32_DEFAULT (Cstl_Vec_f32) { .ptr = null_mut, .len = 0, .cap = 0 }
 #define Cstl_Vec_f64_DEFAULT (Cstl_Vec_f64) { .ptr = null_mut, .len = 0, .cap = 0 }
 
@@ -282,6 +288,7 @@ Cstl_declare_typed_Vec(f64);
     #define Vec_pop Cstl_Vec_pop
     #define Vec_reserve_exact Cstl_Vec_reserve_exact
     #define Vec_reserve Cstl_Vec_reserve
+    #define Vec_retype Cstl_Vec_retype
     #define Vec_clear Cstl_Vec_clear
     #define Vec_shrink_to Cstl_Vec_shrink_to
     #define Vec_shrink_to_fit Cstl_Vec_shrink_to_fit
@@ -309,12 +316,13 @@ Cstl_declare_typed_Vec(f64);
     typedef Cstl_Vec_usize Vec_usize;
     typedef Cstl_Vec_isize Vec_isize;
     typedef Cstl_Vec_char Vec_char;
-    typedef Cstl_Vec_Bool Vec_Bool;
+    typedef Cstl_Vec_bool Vec_bool;
     typedef Cstl_Vec_f32 Vec_f32;
     typedef Cstl_Vec_f64 Vec_f64;
 
     #define Vec_u8_new Cstl_Vec_u8_new
     #define Vec_u8_with_capacity Cstl_Vec_u8_with_capacity
+    #define Vec_u8_repeat Cstl_Vec_u8_repeat
     #define Vec_u8_from_typed_slice Cstl_Vec_u8_from_typed_slice
     #define Vec_u8_clone Cstl_Vec_u8_clone
     #define Vec_u8_clone_from Cstl_Vec_u8_clone_from
@@ -345,6 +353,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_i8_new Cstl_Vec_i8_new
     #define Vec_i8_with_capacity Cstl_Vec_i8_with_capacity
+    #define Vec_i8_repeat Cstl_Vec_i8_repeat
     #define Vec_i8_from_typed_slice Cstl_Vec_i8_from_typed_slice
     #define Vec_i8_clone Cstl_Vec_i8_clone
     #define Vec_i8_clone_from Cstl_Vec_i8_clone_from
@@ -375,6 +384,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_u16_new Cstl_Vec_u16_new
     #define Vec_u16_with_capacity Cstl_Vec_u16_with_capacity
+    #define Vec_u16_repeat Cstl_Vec_u16_repeat
     #define Vec_u16_from_typed_slice Cstl_Vec_u16_from_typed_slice
     #define Vec_u16_clone Cstl_Vec_u16_clone
     #define Vec_u16_clone_from Cstl_Vec_u16_clone_from
@@ -405,6 +415,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_i16_new Cstl_Vec_i16_new
     #define Vec_i16_with_capacity Cstl_Vec_i16_with_capacity
+    #define Vec_i16_repeat Cstl_Vec_i16_repeat
     #define Vec_i16_from_typed_slice Cstl_Vec_i16_from_typed_slice
     #define Vec_i16_clone Cstl_Vec_i16_clone
     #define Vec_i16_clone_from Cstl_Vec_i16_clone_from
@@ -435,6 +446,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_u32_new Cstl_Vec_u32_new
     #define Vec_u32_with_capacity Cstl_Vec_u32_with_capacity
+    #define Vec_u32_repeat Cstl_Vec_u32_repeat
     #define Vec_u32_from_typed_slice Cstl_Vec_u32_from_typed_slice
     #define Vec_u32_clone Cstl_Vec_u32_clone
     #define Vec_u32_clone_from Cstl_Vec_u32_clone_from
@@ -465,6 +477,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_i32_new Cstl_Vec_i32_new
     #define Vec_i32_with_capacity Cstl_Vec_i32_with_capacity
+    #define Vec_i32_repeat Cstl_Vec_i32_repeat
     #define Vec_i32_from_typed_slice Cstl_Vec_i32_from_typed_slice
     #define Vec_i32_clone Cstl_Vec_i32_clone
     #define Vec_i32_clone_from Cstl_Vec_i32_clone_from
@@ -495,6 +508,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_u64_new Cstl_Vec_u64_new
     #define Vec_u64_with_capacity Cstl_Vec_u64_with_capacity
+    #define Vec_u64_repeat Cstl_Vec_u64_repeat
     #define Vec_u64_from_typed_slice Cstl_Vec_u64_from_typed_slice
     #define Vec_u64_clone Cstl_Vec_u64_clone
     #define Vec_u64_clone_from Cstl_Vec_u64_clone_from
@@ -525,6 +539,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_i64_new Cstl_Vec_i64_new
     #define Vec_i64_with_capacity Cstl_Vec_i64_with_capacity
+    #define Vec_i64_repeat Cstl_Vec_i64_repeat
     #define Vec_i64_from_typed_slice Cstl_Vec_i64_from_typed_slice
     #define Vec_i64_clone Cstl_Vec_i64_clone
     #define Vec_i64_clone_from Cstl_Vec_i64_clone_from
@@ -555,6 +570,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_usize_new Cstl_Vec_usize_new
     #define Vec_usize_with_capacity Cstl_Vec_usize_with_capacity
+    #define Vec_usize_repeat Cstl_Vec_usize_repeat
     #define Vec_usize_from_typed_slice Cstl_Vec_usize_from_typed_slice
     #define Vec_usize_clone Cstl_Vec_usize_clone
     #define Vec_usize_clone_from Cstl_Vec_usize_clone_from
@@ -585,6 +601,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_isize_new Cstl_Vec_isize_new
     #define Vec_isize_with_capacity Cstl_Vec_isize_with_capacity
+    #define Vec_isize_repeat Cstl_Vec_isize_repeat
     #define Vec_isize_from_typed_slice Cstl_Vec_isize_from_typed_slice
     #define Vec_isize_clone Cstl_Vec_isize_clone
     #define Vec_isize_clone_from Cstl_Vec_isize_clone_from
@@ -615,6 +632,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_char_new Cstl_Vec_char_new
     #define Vec_char_with_capacity Cstl_Vec_char_with_capacity
+    #define Vec_char_repeat Cstl_Vec_char_repeat
     #define Vec_char_from_typed_slice Cstl_Vec_char_from_typed_slice
     #define Vec_char_clone Cstl_Vec_char_clone
     #define Vec_char_clone_from Cstl_Vec_char_clone_from
@@ -643,38 +661,40 @@ Cstl_declare_typed_Vec(f64);
     #define Vec_char_slice_typed_unchecked Cstl_Vec_char_slice_typed_unchecked
     #define Vec_char_to_untyped Cstl_Vec_char_to_untyped
 
-    #define Vec_Bool_new Cstl_Vec_Bool_new
-    #define Vec_Bool_with_capacity Cstl_Vec_Bool_with_capacity
-    #define Vec_Bool_from_typed_slice Cstl_Vec_Bool_from_typed_slice
-    #define Vec_Bool_clone Cstl_Vec_Bool_clone
-    #define Vec_Bool_clone_from Cstl_Vec_Bool_clone_from
-    #define Vec_Bool_free Cstl_Vec_Bool_free
-    #define _internal_Vec_Bool_alloc Cstl__internal_Vec_Bool_alloc
-    #define _internal_Vec_Bool_next_capacity Ctl__internal_Vec_Bool_next_capacity
-    #define Vec_Bool_push Cstl_Vec_Bool_push
-    #define Vec_Bool_pop Cstl_Vec_Bool_pop
-    #define Vec_Bool_reserve_exact Cstl_Vec_Bool_reserve_exact
-    #define Vec_Bool_reserve Cstl_Vec_Bool_reserve
-    #define Vec_Bool_clear Cstl_Vec_Bool_clear
-    #define Vec_Bool_shrink_to Cstl_Vec_Bool_shrink_to
-    #define Vec_Bool_shrink_to_fit Cstl_Vec_Bool_shrink_to_fit
-    #define Vec_Bool_get Cstl_Vec_Bool_get
-    #define Vec_Bool_set Cstl_Vec_Bool_set
-    #define Vec_Bool_fill Cstl_Vec_Bool_fill
-    #define Vec_Bool_as_slice Cstl_Vec_Bool_as_slice
-    #define Vec_Bool_as_typed_slice Cstl_Vec_Bool_as_typed_slice
-    #define Vec_Bool_push_in_place Cstl_Vec_Bool_push_in_place
-    #define Vec_Bool_extract Cstl_Vec_Bool_extract
-    #define Vec_Bool_extract_min Cstl_Vec_Bool_extract_min
-    #define Vec_Bool_extract_max Cstl_Vec_Bool_extract_max
-    #define Vec_Bool_slice Cstl_Vec_Bool_slice
-    #define Vec_Bool_slice_typed Cstl_Vec_Bool_slice_typed
-    #define Vec_Bool_slice_unchecked Cstl_Vec_Bool_slice_unchecked
-    #define Vec_Bool_slice_typed_unchecked Cstl_Vec_Bool_slice_typed_unchecked
-    #define Vec_Bool_to_untyped Cstl_Vec_Bool_to_untyped
+    #define Vec_bool_new Cstl_Vec_bool_new
+    #define Vec_bool_with_capacity Cstl_Vec_bool_with_capacity
+    #define Vec_bool_repeat Cstl_Vec_bool_repeat
+    #define Vec_bool_from_typed_slice Cstl_Vec_bool_from_typed_slice
+    #define Vec_bool_clone Cstl_Vec_bool_clone
+    #define Vec_bool_clone_from Cstl_Vec_bool_clone_from
+    #define Vec_bool_free Cstl_Vec_bool_free
+    #define _internal_Vec_bool_alloc Cstl__internal_Vec_bool_alloc
+    #define _internal_Vec_bool_next_capacity Ctl__internal_Vec_bool_next_capacity
+    #define Vec_bool_push Cstl_Vec_bool_push
+    #define Vec_bool_pop Cstl_Vec_bool_pop
+    #define Vec_bool_reserve_exact Cstl_Vec_bool_reserve_exact
+    #define Vec_bool_reserve Cstl_Vec_bool_reserve
+    #define Vec_bool_clear Cstl_Vec_bool_clear
+    #define Vec_bool_shrink_to Cstl_Vec_bool_shrink_to
+    #define Vec_bool_shrink_to_fit Cstl_Vec_bool_shrink_to_fit
+    #define Vec_bool_get Cstl_Vec_bool_get
+    #define Vec_bool_set Cstl_Vec_bool_set
+    #define Vec_bool_fill Cstl_Vec_bool_fill
+    #define Vec_bool_as_slice Cstl_Vec_bool_as_slice
+    #define Vec_bool_as_typed_slice Cstl_Vec_bool_as_typed_slice
+    #define Vec_bool_push_in_place Cstl_Vec_bool_push_in_place
+    #define Vec_bool_extract Cstl_Vec_bool_extract
+    #define Vec_bool_extract_min Cstl_Vec_bool_extract_min
+    #define Vec_bool_extract_max Cstl_Vec_bool_extract_max
+    #define Vec_bool_slice Cstl_Vec_bool_slice
+    #define Vec_bool_slice_typed Cstl_Vec_bool_slice_typed
+    #define Vec_bool_slice_unchecked Cstl_Vec_bool_slice_unchecked
+    #define Vec_bool_slice_typed_unchecked Cstl_Vec_bool_slice_typed_unchecked
+    #define Vec_bool_to_untyped Cstl_Vec_bool_to_untyped
 
     #define Vec_f32_new Cstl_Vec_f32_new
     #define Vec_f32_with_capacity Cstl_Vec_f32_with_capacity
+    #define Vec_f32_repeat Cstl_Vec_f32_repeat
     #define Vec_f32_from_typed_slice Cstl_Vec_f32_from_typed_slice
     #define Vec_f32_clone Cstl_Vec_f32_clone
     #define Vec_f32_clone_from Cstl_Vec_f32_clone_from
@@ -705,6 +725,7 @@ Cstl_declare_typed_Vec(f64);
 
     #define Vec_f64_new Cstl_Vec_f64_new
     #define Vec_f64_with_capacity Cstl_Vec_f64_with_capacity
+    #define Vec_f64_repeat Cstl_f64_repeat
     #define Vec_f64_from_typed_slice Cstl_Vec_f64_from_typed_slice
     #define Vec_f64_clone Cstl_Vec_f64_clone
     #define Vec_f64_clone_from Cstl_Vec_f64_clone_from

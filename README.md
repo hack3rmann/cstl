@@ -12,7 +12,7 @@
 - UTF-8-encoded strings in two variants: `String` and `str`. `String`s are heap-allocated and `str`s are just string views
 - Any type dynamic arrays: `Vec` and `Vec_Type`s (where `Type` is any basic type)
 - `Slice` array views and algorithms on them
-- Overridden basic types: `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u64`, `i64`, `Bool`, `usize`, `isize`, `Addr`, `AddrMut`, `StrLit`, `CStr`, `CStrMut`.
+- Overridden basic types: `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u64`, `i64`, `bool`, `usize`, `isize`, `Addr`, `AddrMut`, `StrLit`, `CStr`, `CStrMut`.
 - Any mutable data explicitly marked with empty macro `mut` for convenience.
 - Formatted console I/O
 - Type formatters and support for user-defined type formatters
@@ -70,7 +70,7 @@ typedef struct Point {
     i32 x, y;
 } Point;
 
-void Point_fmt(String mut* buf, str const fmt, Addr value_ptr) {
+void Point_fmt(String mut* buf, str fmt, Addr value_ptr) {
     Point const value = *(Point const*) value_ptr;
 
     String_push_ascii(buf, '(');

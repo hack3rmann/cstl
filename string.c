@@ -1,7 +1,3 @@
-#if defined(_WIN32) && defined(_WIN64)
-#   include <windows.h>
-#endif
-
 #include "string.h"
 #include "error.h"
 #include "util.h"
@@ -12,42 +8,43 @@
 
 
 
+#if defined(_WIN32) || defined(_WIN64)
+    __declspec(dllimport)
+    extern int SetConsoleOutputCP(uint code);
+
+    extern int GetLastError(void);
+#endif
+
 extern int putchar(int symbol);
 
 
 
-Cstl_String const Cstl_String_DEFAULT = (Cstl_String) {
-    .ptr = null_mut,
-    .len = 0,
-    .cap = 0
-};
-
-Bool Cstl_Utf8ByteType_is_single_byte(u8 const byte) {
+bool Cstl_Utf8ByteType_is_single_byte(u8 const byte) {
     return Cstl_String_UTF8_1_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_1_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 const byte) {
+bool Cstl_Utf8ByteType_is_pair_byte_entry(u8 const byte) {
     return Cstl_String_UTF8_2_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_2_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 const byte) {
+bool Cstl_Utf8ByteType_is_triple_byte_entry(u8 const byte) {
     return Cstl_String_UTF8_3_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_3_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 const byte) {
+bool Cstl_Utf8ByteType_is_quad_byte_entry(u8 const byte) {
     return Cstl_String_UTF8_4_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_4_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_tail_byte(u8 const byte) {
+bool Cstl_Utf8ByteType_is_tail_byte(u8 const byte) {
     return Cstl_String_UTF8_TAIL_BYTE_ENTRY
         == (byte & ~(u8) Cstl_String_UTF8_TAIL_BYTE_MASK & 255);
 }
 
-Bool Cstl_Utf8ByteType_is_invalid_byte(u8 const byte) {
+bool Cstl_Utf8ByteType_is_invalid_byte(u8 const byte) {
     return !Cstl_Utf8ByteType_is_single_byte(byte)
         && !Cstl_Utf8ByteType_is_pair_byte_entry(byte)
         && !Cstl_Utf8ByteType_is_triple_byte_entry(byte)
@@ -184,13 +181,29 @@ Cstl_Char Cstl_Char_from_code(u32 const code) {
 
 
 void Cstl_set_utf8_output_encoding(void) {
-#   if defined(_WIN32) && defined(_WIN64)
+#   if defined(_WIN32) || defined(_WIN64)
         Cstl_assert_fmt(
             SetConsoleOutputCP(65001),
             "SetConsoleOutputCP(65001) failed, error code: {u32}",
             (u32) GetLastError()
         );
 #   endif
+}
+
+
+
+usize CStr_len(CStr const self) {
+    CStr mut cur_ptr = self;
+
+    while ('\0' != *(cur_ptr++));
+
+    return (usize) (cur_ptr - self);
+}
+
+
+
+usize CStrMut_len(CStrMut const self) {
+    return CStr_len(self);
 }
 
 
@@ -496,11 +509,15 @@ Cstl_String Cstl_String_from_utf8(u8 mut* const bytes, usize const n_bytes) {
     return result;
 }
 
+void Cstl_String_clear(Cstl_String mut* const self) {
+    self->len = 0;
+}
+
 Cstl_str Cstl_String_as_str(Cstl_String const* const self) {
     return *(Cstl_str mut*) self;
 }
 
-Cstl_str Cstl_str_split_one(Cstl_str mut* const self, Cstl_str const delim) {
+Cstl_str Cstl_str_split_once(Cstl_str mut* const self, Cstl_str const delim) {
     Cstl_str mut result = { .ptr = self->ptr, .len = 0 };
 
     while (0 < self->len) {
@@ -526,6 +543,57 @@ Cstl_str Cstl_str_split_one(Cstl_str mut* const self, Cstl_str const delim) {
     return result;
 }
 
+Cstl_str Cstl_str_trim(Cstl_str mut self) {
+    self = Cstl_str_trim_left(self);
+    self = Cstl_str_trim_right(self);
+
+    return self;
+}
+
+Cstl_str Cstl_str_trim_right(Cstl_str mut self) {
+    while (0 < self.len && Cstl_char_is_whitespace(self.ptr[self.len - 1])) {
+        self.len -= 1;
+    }
+
+    return self;
+}
+
+Cstl_str Cstl_str_trim_left(Cstl_str mut self) {
+    while (0 < self.len && Cstl_char_is_whitespace(self.ptr[0])) {
+        self.len -= 1;
+        self.ptr += 1;
+    }
+
+    return self;
+}
+
+Cstl_Vec_usize Cstl_str_compute_prefix(Cstl_str const self) {
+    if (0 == self.len) {
+        return Cstl_Vec_usize_new();
+    }
+
+    Cstl_Vec_usize mut result = Cstl_Vec_usize_repeat(self.len, 0);
+
+    for (usize mut i = 1; i < result.len; ++i) {
+        usize mut cur = result.ptr[i - 1];
+
+        while (self.ptr[i] != self.ptr[cur] && cur > 0) {
+            cur = result.ptr[cur - 1];
+        }
+
+        if (self.ptr[i] == self.ptr[cur]) {
+            result.ptr[i] = cur + 1;
+        }
+    }
+
+    return result;
+}
+
+Cstl_Vec_usize Cstl_str_compute_multiple_prefix(Cstl_Slice const strings) {
+    Cstl_todo("multiple string prefix");
+    return Cstl_Vec_usize_new();
+}
+
 void Cstl_str_print(Cstl_str const self) {
     for (usize mut i = 0; i < self.len; ++i) {
         putchar(self.ptr[i]);
@@ -534,24 +602,24 @@ void Cstl_str_print(Cstl_str const self) {
 
 
 
-Bool Cstl_String_eq(Addr const lhs, Addr const rhs) {
+bool Cstl_String_eq(Addr const lhs, Addr const rhs) {
     Cstl_String const* const self = lhs;
     Cstl_String const* const value = rhs;
 
     if (self->len != value->len) {
-        return False;
+        return false;
     }
 
     for (usize mut i = 0; i < self->len; ++i) {
         if (self->ptr[i] != value->ptr[i]) {
-            return False;
+            return false;
         }
     }
 
-    return True;
+    return true;
 }
 
-Bool Cstl_String_ne(Addr const lhs, Addr const rhs) {
+bool Cstl_String_ne(Addr const lhs, Addr const rhs) {
     return !Cstl_String_eq(lhs, rhs);
 }
 
@@ -585,11 +653,6 @@ Cstl_String Cstl_String_concat(usize const n_strings, ...) {
 
 
 
-Cstl_str const Cstl_str_DEFAULT = (Cstl_str) {
-    .ptr = null_mut,
-    .len = 0
-};
-
 Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* const ptr, usize const len) {
     return (Cstl_str) {
         .len = len,
@@ -597,18 +660,18 @@ Cstl_str Cstl_str_from_utf8_unchecked(u8 mut* const ptr, usize const len) {
     };
 }
 
-Bool Cstl_str_eq(Cstl_str const self, Cstl_str const value) {
+bool Cstl_str_eq(Cstl_str const self, Cstl_str const value) {
     if (self.len != value.len) {
-        return False;
+        return false;
     }
 
     for (usize mut i = 0; i < self.len; ++i) {
         if (self.ptr[i] != value.ptr[i]) {
-            return False;
+            return false;
         }
     }
 
-    return True;
+    return true;
 }
 
 Cstl_Split Cstl_str_split(Cstl_str const self, Cstl_str const delim) {
@@ -648,7 +711,7 @@ Cstl_str Cstl_Split_next(Cstl_Split mut* const self) {
     return result;
 }
 
-Bool Cstl_Split_is_expired(Cstl_str const* const ret) {
+bool Cstl_Split_is_expired(Cstl_str const* const ret) {
     return null_mut == ret->ptr;
 }
 
@@ -697,7 +760,7 @@ Cstl_str Cstl_SplitAny_next(Cstl_SplitAny mut* const self) {
     return result;
 }
 
-Bool Cstl_SplitAny_is_expired(Cstl_str const* const ret) {
+bool Cstl_SplitAny_is_expired(Cstl_str const* const ret) {
     return null_mut == ret->ptr;
 }
 
@@ -728,7 +791,7 @@ Cstl_str Cstl_SplitWhitespace_next(Cstl_SplitWhitespace mut* const self) {
     return result;
 }
 
-Bool Cstl_SplitWhitespace_is_expired(Cstl_str const* const ret) {
+bool Cstl_SplitWhitespace_is_expired(Cstl_str const* const ret) {
     return null_mut == ret->ptr;
 }
 
@@ -764,7 +827,7 @@ Cstl_Char Cstl_Chars_next(Cstl_Chars mut* const self) {
     return Cstl_Char_from_code(code);
 }
 
-Bool Cstl_Chars_is_expired(Cstl_Char const* const ret) {
+bool Cstl_Chars_is_expired(Cstl_Char const* const ret) {
     return ~(Cstl_Char) 0 == *ret;
 }
 
@@ -776,14 +839,14 @@ void Cstl_str_debug(Cstl_str const self) {
 
 
 
-Bool Cstl_char_is_ascii_letter(char const self) {
+bool Cstl_char_is_ascii_letter(char const self) {
     return ('a' <= self && self <= 'z') || ('A' <= self && self <= 'Z');
 }
 
-Bool Cstl_char_is_numeric_letter(char const self) {
+bool Cstl_char_is_numeric_letter(char const self) {
     return '0' <= self && self <= '9';
 }
 
-Bool Cstl_char_is_whitespace(char const self) {
+bool Cstl_char_is_whitespace(char const self) {
     return (32 == self) || (9 <= self && self <= 13);
 }

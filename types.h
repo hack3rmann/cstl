@@ -5,33 +5,51 @@
 
 #define mut
 
+#ifndef null_mut
+#   define null_mut ((AddrMut) 0)
+#endif
+
+#ifndef null
+#   define null ((Addr) 0)
+#endif
 
 
-typedef enum Bool {
-    False = 0,
-    True = 1
-} Bool;
 
-Bool Bool_implies(Bool self, Bool other);
+typedef _Bool bool;
+
+#define true ((bool) 1)
+#define false ((bool) 0)
+
+bool bool_implies(bool self, bool other);
 
 
 
-typedef signed char        i8;
-typedef unsigned char      u8;
-typedef short              i16;
-typedef unsigned short     u16;
+typedef signed char schar;
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+typedef long long llong;
+typedef unsigned long long ullong;
+
+
+
+typedef schar i8;
+typedef uchar u8;
+typedef short  i16;
+typedef ushort u16;
 
 #if __INT_MAX__ == 2147483647
     typedef int i32;
-    typedef unsigned u32;
+    typedef uint u32;
 #elif __LONG_MAX__ == 2147483647
     typedef long i32;
-    typedef unsigned long u32;
+    typedef ulong u32;
 #endif
 
 #if __LONG_LONG_MAX__ == 9223372036854775807
-    typedef long long i64;
-    typedef unsigned long long u64;
+    typedef llong i64;
+    typedef ullong u64;
 #endif
 
 typedef float  f32;
@@ -92,7 +110,26 @@ typedef char const* CStr;
 typedef char mut* CStrMut;
 
 typedef void const* Addr;
+
+#define Addr_DEFAULT null
+
+#define Addr_NULL null
+
+Addr Addr_from_usize(usize value);
+
+usize Addr_as_usize(Addr self);
+
+
+
 typedef void mut* AddrMut;
+
+#define AddrMut_DEFAULT null_mut
+
+#define AddrMut_NULL null_mut
+
+AddrMut AddrMut_from_usize(usize value);
+
+usize AddrMut_as_usize(AddrMut self);
 
 
 

@@ -26,7 +26,7 @@ Cstl_Ordering Cstl_i64_cmp(Addr lhs, Addr rhs);
 Cstl_Ordering Cstl_usize_cmp(Addr lhs, Addr rhs);
 Cstl_Ordering Cstl_isize_cmp(Addr lhs, Addr rhs);
 Cstl_Ordering Cstl_char_cmp(Addr lhs, Addr rhs);
-Cstl_Ordering Cstl_Bool_cmp(Addr lhs, Addr rhs);
+Cstl_Ordering Cstl_bool_cmp(Addr lhs, Addr rhs);
 Cstl_Ordering Cstl_f32_cmp(Addr lhs, Addr rhs);
 Cstl_Ordering Cstl_f64_cmp(Addr lhs, Addr rhs);
 
@@ -41,7 +41,22 @@ i64 i64_max(i64 lhs, i64 rhs);
 usize usize_max(usize lhs, usize rhs);
 isize isize_max(isize lhs, isize rhs);
 char char_max(char lhs, char rhs);
-Bool Bool_max(Bool lhs, Bool rhs);
+bool bool_max(bool lhs, bool rhs);
+
+#define max(lhs, rhs) \
+    _Generic( \
+        lhs, \
+        u8: u8_max, \
+        i8: i8_max, \
+        u16: u16_max, \
+        i16: i16_max, \
+        u32: u32_max, \
+        i32: i32_max, \
+        u64: u64_max, \
+        i64: i64_max, \
+        char: char_max, \
+        bool: bool_max \
+    )(lhs, rhs)
 
 u8 u8_min(u8 lhs, u8 rhs);
 i8 i8_min(i8 lhs, i8 rhs);
@@ -54,7 +69,22 @@ i64 i64_min(i64 lhs, i64 rhs);
 usize usize_min(usize lhs, usize rhs);
 isize isize_min(isize lhs, isize rhs);
 char char_max(char lhs, char rhs);
-Bool Bool_max(Bool lhs, Bool rhs);
+bool bool_max(bool lhs, bool rhs);
+
+#define min(lhs, rhs) \
+    _Generic( \
+        lhs, \
+        u8: u8_min, \
+        i8: i8_min, \
+        u16: u16_min, \
+        i16: i16_min, \
+        u32: u32_min, \
+        i32: i32_min, \
+        u64: u64_min, \
+        i64: i64_min, \
+        char: char_min, \
+        bool: bool_min \
+    )(lhs, rhs)
 
 
 
@@ -86,7 +116,7 @@ Bool Bool_max(Bool lhs, Bool rhs);
     #define usize_cmp Cstl_usize_cmp
     #define isize_cmp Cstl_isize_cmp
     #define char_cmp Cstl_char_cmp
-    #define Bool_cmp Cstl_Bool_cmp
+    #define bool_cmp Cstl_bool_cmp
     #define f32_cmp Cstl_f32_cmp
     #define f64_cmp Cstl_f64_cmp
 
