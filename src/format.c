@@ -428,7 +428,7 @@ void Cstl_f64_fmt_impl(
 }
 
 void Cstl_bool_fmt(
-    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
+    Cstl_String mut* const buf, UNUSED Cstl_str const fmt, Addr const value_ptr
 ) {
     bool const value = *(bool const*) value_ptr;
 
@@ -1196,7 +1196,7 @@ Cstl_impl_parse_int_Type(isize);
 
 
 void Cstl_u64_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    AddrMut const self_addr, UNUSED Cstl_str const args, Cstl_str const src
 ) {
     u64 mut* self = self_addr;
     *self = 0;
@@ -1242,7 +1242,7 @@ void Cstl_f64_parse(
 }
 
 void Cstl_bool_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    AddrMut const self_addr, UNUSED Cstl_str const args, Cstl_str const src
 ) {
     if (str_eq(src, str("true"))) {
         *(bool mut*) self_addr = true;
@@ -1258,7 +1258,7 @@ void Cstl_bool_parse(
 }
 
 void Cstl_char_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    AddrMut const self_addr, UNUSED Cstl_str const args, Cstl_str const src
 ) {
     assert_fmt(1 == src.len, "invalid char_parse source '{str}'", src);
 
@@ -1266,13 +1266,13 @@ void Cstl_char_parse(
 }
 
 void Cstl_AddrMut_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    AddrMut const self_addr, UNUSED Cstl_str const args, Cstl_str const src
 ) {
     Cstl_Addr_parse(self_addr, args, src);
 }
 
 void Cstl_Addr_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    AddrMut const self_addr, UNUSED Cstl_str const args, Cstl_str const src
 ) {
     assert_fmt(
         str_eq((str) { .ptr = src.ptr, .len = 2 }, str("0x")),
@@ -1372,25 +1372,25 @@ void Cstl_Vec_parse(
 }
 
 void Cstl_Slice_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    UNUSED AddrMut const self_addr, UNUSED Cstl_str const args, UNUSED Cstl_str const src
 ) {
     todo("Slice::parse");
 }
 
 void Cstl_String_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    UNUSED AddrMut const self_addr, UNUSED Cstl_str const args, UNUSED Cstl_str const src
 ) {
     todo("String::parse");
 }
 
 void Cstl_str_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    UNUSED AddrMut const self_addr, UNUSED Cstl_str const args, UNUSED Cstl_str const src
 ) {
     todo("str::parse");
 }
 
 void Cstl_CStr_parse(
-    AddrMut const self_addr, Cstl_str const args, Cstl_str const src
+    UNUSED AddrMut const self_addr, UNUSED Cstl_str const args, UNUSED Cstl_str const src
 ) {
     todo("CStr::parse");
 }

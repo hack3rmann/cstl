@@ -589,7 +589,7 @@ Cstl_Vec_usize Cstl_str_compute_prefix(Cstl_str const self) {
     return result;
 }
 
-Cstl_Vec_usize Cstl_str_compute_multiple_prefix(Cstl_Slice const strings) {
+Cstl_Vec_usize Cstl_str_compute_multiple_prefix(UNUSED Cstl_Slice const strings) {
     Cstl_todo("multiple string prefix");
     return Cstl_Vec_usize_new();
 }

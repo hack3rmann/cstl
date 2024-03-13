@@ -35,7 +35,7 @@ Cstl_BasicType Cstl_BasicType_parse(Cstl_str const value) {
 }
 
 void Cstl_BasicType_dbg(
-    Cstl_String mut* const buf, Cstl_str const fmt, Addr const value_ptr
+    Cstl_String mut* const buf, UNUSED Cstl_str const fmt, Addr const value_ptr
 ) {
     Cstl_BasicType const value = *(Cstl_BasicType const*) value_ptr;
 
